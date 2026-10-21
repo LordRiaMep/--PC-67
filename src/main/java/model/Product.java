@@ -1,5 +1,16 @@
 package model;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
+ * Phụ trách: Nhân Hiếu
+ * Chức năng: Model biểu diễn sản phẩm PC Gaming.
+ * ============================================================================
+ */
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Product {
     private int id;
     private int categoryId;
@@ -10,6 +21,7 @@ public class Product {
     private int quantity;
     private String status;
     private String categoryName;
+    private String specDetail; // mô tả chi tiết, các dòng ngăn cách bằng dấu |
 
     public Product() {
     }
@@ -44,4 +56,28 @@ public class Product {
     public void setStatus(String status) { this.status = status; }
     public String getCategoryName() { return categoryName; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+    public String getSpecDetail() { return specDetail; }
+    public void setSpecDetail(String specDetail) { this.specDetail = specDetail; }
+
+    /** Danh sách từng dòng thông số, dùng cho trang chi tiết: ${product.specList} */
+    public List<String> getSpecList() {
+        List<String> list = new ArrayList<>();
+        if (specDetail != null && !specDetail.trim().isEmpty()) {
+            for (String s : specDetail.split("\\|")) {
+                s = s.trim();
+                if (!s.isEmpty()) list.add(s);
+            }
+        } else if (description != null && !description.trim().isEmpty() && description.contains("|")) {
+            for (String s : description.split("\\|")) {
+                s = s.trim();
+                if (!s.isEmpty()) list.add(s);
+            }
+        }
+        return list;
+    }
+
+    /** Mỗi dòng một thông số, dùng để đổ vào textarea trong trang admin: ${product.specText} */
+    public String getSpecText() {
+        return String.join("\n", getSpecList());
+    }
 }

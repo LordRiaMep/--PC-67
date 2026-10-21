@@ -38,6 +38,8 @@
         background: linear-gradient(135deg, #b71c1c, #ff5252);
         clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
     }
+    .banner-link img { transition: transform .25s ease, box-shadow .25s ease; }
+    .banner-link:hover img { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.2) !important; }
 </style>
 
 <jsp:include page="header.jsp" />
@@ -72,7 +74,7 @@
                     </c:when>
                     <c:otherwise>
                         <c:forEach items="${listProducts}" var="p">
-                            <div class="col-md-3">
+                            <div id="prod-card-${p.id}" data-product-id="${p.id}" class="col-md-3">
                                 <div class="card h-100 border rounded shadow-sm bg-white">
                                     <a href="${ctx}/product/detail?id=${p.id}" class="text-decoration-none text-center p-2">
                                         <img src="${p.image}" class="card-img-top rounded img-fluid" style="height: 180px; object-fit: contain;" alt="${p.name}">
@@ -155,13 +157,13 @@
                     </a>
                 </div>
                 <div class="col-md-4">
-                    <a href="${ctx}/Home?cid=2" class="d-block">
-                        <img src="${ctx}/assets/images/banner2.png" class="img-fluid rounded border border-light w-100 shadow-sm" style="height: 200px; object-fit: contain; background-color: #000;">
+                    <a href="${ctx}/service/assembly" class="d-block banner-link">
+                        <img src="${ctx}/assets/images/banner2.png" alt="Độ PC 67 ráp máy tại nhà" class="img-fluid rounded border border-light w-100 shadow-sm" style="height: 200px; object-fit: contain; background-color: #000;">
                     </a>
                 </div>
                 <div class="col-md-4">
-                    <a href="${ctx}/Home?cid=3" class="d-block">
-                        <img src="${ctx}/assets/images/banner.png" class="img-fluid rounded border border-light w-100 shadow-sm" style="height: 200px; object-fit: cover;">
+                    <a href="${ctx}/service/trade-in" class="d-block banner-link">
+                        <img src="${ctx}/assets/images/banner.png" alt="Độ PC 67 thu cũ đổi mới tại nhà" class="img-fluid rounded border border-light w-100 shadow-sm" style="height: 200px; object-fit: cover;">
                     </a>
                 </div>
             </div>
@@ -189,7 +191,7 @@
                     <div class="position-relative p-3">
                         <div id="slider_cat_${catStatus.index}" class="d-flex gap-3 hide-scroll pb-2" style="scroll-behavior: smooth;">
                             <c:forEach items="${entry.value}" var="p">
-                                <div class="card h-100 border-0 bg-white shadow-sm flex-shrink-0" style="width: calc(25% - 12px);">
+                                <div id="prod-card-${p.id}" data-product-id="${p.id}" class="card h-100 border-0 bg-white shadow-sm flex-shrink-0" style="width: calc(25% - 12px);">
                                     <a href="${ctx}/product/detail?id=${p.id}" class="text-decoration-none text-center d-block px-3 pt-3">
                                         <img src="${p.image}" class="card-img-top rounded w-100" style="height: 180px; object-fit: contain;">
                                     </a>

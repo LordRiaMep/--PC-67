@@ -1,5 +1,13 @@
 package Controller.Cilent;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
+ * Phụ trách: Nhân Hiếu
+ * Chức năng: API AJAX gợi ý tìm kiếm tức thì (Search Auto-complete) khi khách gõ phím.
+ * ============================================================================
+ */
+
 
 import dao.ProductDao;
 import model.Product;

@@ -51,6 +51,14 @@
 
                         <td class="fw-semibold text-dark">
                                 ${item.product.name}
+                            <c:choose>
+                                <c:when test="${item.product.quantity <= 0}">
+                                    <span class="badge bg-danger ms-2"><i class="bi bi-exclamation-triangle me-1"></i>Hết hàng</span>
+                                </c:when>
+                                <c:when test="${item.quantity > item.product.quantity}">
+                                    <span class="badge bg-warning text-dark ms-2"><i class="bi bi-exclamation-circle me-1"></i>Chỉ còn ${item.product.quantity}</span>
+                                </c:when>
+                            </c:choose>
                             <c:if test="${not empty item.upgradeInfo}">
                                 <div class="mt-1 small fw-normal text-primary">
                                     <i class="fas fa-arrow-up me-1"></i>Linh kiện nâng cấp:
@@ -96,6 +104,13 @@
                     <i class="bi bi-arrow-left me-1"></i> Tiếp tục mua hàng
                 </a>
                 <div class="text-end">
+                    <c:if test="${not empty sessionScope.APPLIED_VOUCHER}">
+                        <div class="mb-2">
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 fw-semibold">
+                                <i class="fas fa-ticket me-1"></i> Đang áp dụng voucher: <strong>${sessionScope.APPLIED_VOUCHER}</strong> (mức giảm sẽ được tính tại bước thanh toán)
+                            </span>
+                        </div>
+                    </c:if>
                     <h4 class="mb-3 text-dark">Tổng tiền:
                         <span class="text-danger fw-bold fs-3 ms-2">
                             <fmt:formatNumber value="${sessionScope.cart.totalMoney}" pattern="#,##0" /> đ

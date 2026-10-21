@@ -1,5 +1,13 @@
 package dao;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
+ * Phụ trách: Quang
+ * Chức năng: Thao tác CSDL: CRUD bài viết tin tức công nghệ, phân trang, ghim trang chủ.
+ * ============================================================================
+ */
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -186,8 +194,154 @@ public class NewsDao {
     }
 
     // =====================================================
-    // PHẦN CHUẨN BỊ SẴN CHO ADMIN (sau này chỉ cần làm Servlet + JSP)
+    // PHẦN DÀNH CHO ADMIN QUẢN LÝ BÀI VIẾT
     // =====================================================
+
+    // Lấy ID của 5 bài viết đang hiển thị trên Trang chủ (theo thứ tự: index 0 là bài to, 1-4 là bài nhỏ)
+    public List<Integer> getTop5HomeNewsIds() {
+        List<Integer> ids = new ArrayList<>();
+        String sql = "SELECT id FROM tin_tuc WHERE status = 'ACTIVE' ORDER BY created_at DESC, id DESC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
+        try (Connection con = ConnectDB.getConnect();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) ids.add(rs.getInt(1));
+        } catch (Exception e) {
+            System.out.println("Lỗi getTop5HomeNewsIds: " + e.getMessage());
+        }
+        return ids;
+    }
+
+    // Đếm tổng số bài theo bộ lọc tìm kiếm
+    public int countAdminNews(String keyword, String statusFilter, String featuredFilter) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tin_tuc WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (title LIKE ? OR summary LIKE ? OR author LIKE ?) ");
+            String kw = "%" + keyword.trim() + "%";
+            params.add(kw);
+            params.add(kw);
+            params.add(kw);
+        }
+        if (statusFilter != null && !statusFilter.trim().isEmpty() && !"ALL".equalsIgnoreCase(statusFilter)) {
+            sql.append("AND status = ? ");
+            params.add(statusFilter.trim().toUpperCase());
+        }
+        if ("FEATURED".equalsIgnoreCase(featuredFilter)) {
+            sql.append("AND is_featured = 1 ");
+        } else if ("NOT_FEATURED".equalsIgnoreCase(featuredFilter)) {
+            sql.append("AND is_featured = 0 ");
+        }
+
+        try (Connection con = ConnectDB.getConnect();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi countAdminNews: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    // Lấy danh sách bài viết phân trang theo bộ lọc tìm kiếm
+    public List<News> getAdminNewsByPage(int page, int pageSize, String keyword, String statusFilter, String featuredFilter) {
+        List<News> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT " + LIST_COLUMNS + " FROM tin_tuc WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (title LIKE ? OR summary LIKE ? OR author LIKE ?) ");
+            String kw = "%" + keyword.trim() + "%";
+            params.add(kw);
+            params.add(kw);
+            params.add(kw);
+        }
+        if (statusFilter != null && !statusFilter.trim().isEmpty() && !"ALL".equalsIgnoreCase(statusFilter)) {
+            sql.append("AND status = ? ");
+            params.add(statusFilter.trim().toUpperCase());
+        }
+        if ("FEATURED".equalsIgnoreCase(featuredFilter)) {
+            sql.append("AND is_featured = 1 ");
+        } else if ("NOT_FEATURED".equalsIgnoreCase(featuredFilter)) {
+            sql.append("AND is_featured = 0 ");
+        }
+
+        sql.append("ORDER BY created_at DESC, id DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        int offset = Math.max(0, (page - 1) * pageSize);
+        params.add(offset);
+        params.add(pageSize);
+
+        try (Connection con = ConnectDB.getConnect();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(map(rs, false));
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi getAdminNewsByPage: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // Thống kê nhanh số lượng
+    public int getStatTotalCount() {
+        return getCountBySql("SELECT COUNT(*) FROM tin_tuc");
+    }
+
+    public int getStatActiveCount() {
+        return getCountBySql("SELECT COUNT(*) FROM tin_tuc WHERE status = 'ACTIVE'");
+    }
+
+    public int getStatHiddenCount() {
+        return getCountBySql("SELECT COUNT(*) FROM tin_tuc WHERE status = 'HIDDEN'");
+    }
+
+    public int getStatFeaturedCount() {
+        return getCountBySql("SELECT COUNT(*) FROM tin_tuc WHERE is_featured = 1");
+    }
+
+    private int getCountBySql(String sql) {
+        try (Connection con = ConnectDB.getConnect();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) {
+            System.out.println("Lỗi getCountBySql: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    // Đổi trạng thái nhanh ACTIVE <-> HIDDEN
+    public boolean toggleStatus(int id) {
+        String sql = "UPDATE tin_tuc SET status = CASE WHEN status = 'ACTIVE' THEN 'HIDDEN' ELSE 'ACTIVE' END WHERE id = ?";
+        try (Connection con = ConnectDB.getConnect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi toggleStatus: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Đổi trạng thái nhanh Nổi bật 1 <-> 0
+    public boolean toggleFeatured(int id) {
+        String sql = "UPDATE tin_tuc SET is_featured = CASE WHEN is_featured = 1 THEN 0 ELSE 1 END WHERE id = ?";
+        try (Connection con = ConnectDB.getConnect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi toggleFeatured: " + e.getMessage());
+            return false;
+        }
+    }
 
     // Admin xem tất cả bài (cả ACTIVE lẫn HIDDEN)
     public List<News> getAllNewsAdmin() {
@@ -203,7 +357,7 @@ public class NewsDao {
         return list;
     }
 
-    public void insert(News n) {
+    public boolean insert(News n) {
         String sql = "INSERT INTO tin_tuc (title, summary, content, image, author, is_featured, status) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = ConnectDB.getConnect();
@@ -212,16 +366,17 @@ public class NewsDao {
             ps.setString(2, n.getSummary());
             ps.setString(3, n.getContent());
             ps.setString(4, n.getImage());
-            ps.setString(5, n.getAuthor());
+            ps.setString(5, (n.getAuthor() == null || n.getAuthor().trim().isEmpty()) ? "Độ PC 67" : n.getAuthor().trim());
             ps.setBoolean(6, n.isFeatured());
-            ps.setString(7, n.getStatus() == null ? "ACTIVE" : n.getStatus());
-            ps.executeUpdate();
+            ps.setString(7, n.getStatus() == null || n.getStatus().trim().isEmpty() ? "ACTIVE" : n.getStatus().trim());
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             System.out.println("Lỗi insert news: " + e.getMessage());
+            return false;
         }
     }
 
-    public void update(News n) {
+    public boolean update(News n) {
         String sql = "UPDATE tin_tuc SET title = ?, summary = ?, content = ?, image = ?, " +
                 "author = ?, is_featured = ?, status = ? WHERE id = ?";
         try (Connection con = ConnectDB.getConnect();
@@ -230,24 +385,26 @@ public class NewsDao {
             ps.setString(2, n.getSummary());
             ps.setString(3, n.getContent());
             ps.setString(4, n.getImage());
-            ps.setString(5, n.getAuthor());
+            ps.setString(5, (n.getAuthor() == null || n.getAuthor().trim().isEmpty()) ? "Độ PC 67" : n.getAuthor().trim());
             ps.setBoolean(6, n.isFeatured());
             ps.setString(7, n.getStatus());
             ps.setInt(8, n.getId());
-            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             System.out.println("Lỗi update news: " + e.getMessage());
+            return false;
         }
     }
 
-    public void delete(int id) {
+    public boolean delete(int id) {
         String sql = "DELETE FROM tin_tuc WHERE id = ?";
         try (Connection con = ConnectDB.getConnect();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             System.out.println("Lỗi delete news: " + e.getMessage());
+            return false;
         }
     }
 }

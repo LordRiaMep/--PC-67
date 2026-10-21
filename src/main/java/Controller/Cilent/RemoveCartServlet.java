@@ -1,5 +1,13 @@
 package Controller.Cilent;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
+ * Phụ trách: Bảo
+ * Chức năng: Xóa sản phẩm khỏi giỏ hàng.
+ * ============================================================================
+ */
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -25,6 +33,11 @@ public class RemoveCartServlet extends HttpServlet {
             if (cart != null) {
                 cart.removeItem(id, key);
                 session.setAttribute("cart", cart);
+
+                model.User loginUser = (model.User) session.getAttribute("USER_LOGIN");
+                if (loginUser != null) {
+                    new dao.CartDao().saveCart(loginUser.getId(), cart);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

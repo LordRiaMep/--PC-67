@@ -1,5 +1,13 @@
 package model;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
+ * Phụ trách: Bạn (Gia Phú)
+ * Chức năng: Model biểu diễn chi tiết từng sản phẩm trong đơn hàng.
+ * ============================================================================
+ */
+
 public class OrderDetail {
     private int id;
     private int orderId;

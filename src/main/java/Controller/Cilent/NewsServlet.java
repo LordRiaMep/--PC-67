@@ -1,6 +1,14 @@
 package Controller.Cilent; // <-- đổi cho đúng package của bạn (giống SearchServlet)
 
 import dao.NewsDao;
+
+/**
+ * ============================================================================
+ * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
+ * Phụ trách: Quang
+ * Chức năng: Hiển thị danh sách tin tức công nghệ cho khách hàng xem.
+ * ============================================================================
+ */
 import model.News;
 
 import jakarta.servlet.ServletException;

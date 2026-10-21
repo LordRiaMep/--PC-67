@@ -1,7 +1,14 @@
 package Controller.Admin;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
+ * Phụ trách: Bạn (Gia Phú)
+ * Chức năng: Quản trị danh sách đơn hàng Admin, chuyển trạng thái và hoàn kho khi hủy đơn.
+ * ============================================================================
+ */
+
 import dao.OrderDao;
-import model.Order;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -27,9 +34,13 @@ public class AdminOrderServlet extends HttpServlet {
             } catch (NumberFormatException ignored) {}
         }
 
-        int offset = (page - 1) * pageSize;
         int totalOrders = orderDao.getTotalOrdersCount();
         int totalPages = (int) Math.ceil((double) totalOrders / pageSize);
+        if (totalPages > 0 && page > totalPages) {
+            page = totalPages;
+        }
+
+        int offset = Math.max(0, (page - 1) * pageSize);
 
         req.setAttribute("orders", orderDao.getOrdersByPage(offset, pageSize));
         req.setAttribute("currentPage", page);
@@ -44,6 +55,21 @@ public class AdminOrderServlet extends HttpServlet {
             } catch (Exception ignored) {}
         }
 
+        jakarta.servlet.http.HttpSession session = req.getSession();
+        String sessSuccess = (String) session.getAttribute("adminOrderSuccess");
+        String sessError = (String) session.getAttribute("adminOrderError");
+        if (sessSuccess != null) {
+            req.setAttribute("successMessage", sessSuccess);
+            session.removeAttribute("adminOrderSuccess");
+        }
+        if (sessError != null) {
+            req.setAttribute("errorMessage", sessError);
+            session.removeAttribute("adminOrderError");
+        }
+
+        String msg = req.getParameter("msg");
+        if ("pay_confirmed".equals(msg)) req.setAttribute("successMessage", "Đã xác nhận thanh toán chuyển khoản cho đơn hàng!");
+
         req.getRequestDispatcher("/view/admin_orders.jsp").forward(req, resp);
     }
 
@@ -51,22 +77,23 @@ public class AdminOrderServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
         try {
             int id = Integer.parseInt(req.getParameter("id"));
             String newStatus = req.getParameter("status");
             String pageParam = req.getParameter("page");
 
-            Order currentOrder = orderDao.getOrderById(id);
+            OrderDao.StatusUpdateResult result = orderDao.updateStatusWithDetail(id, newStatus);
 
-            if (currentOrder != null) {
-                String currentStatus = currentOrder.getStatus();
-
-                boolean isInvalidCancel = ("SHIPPING".equals(currentStatus) || "FINISH".equals(currentStatus) || "COMPLETED".equals(currentStatus))
-                        && "CANCELLED".equals(newStatus);
-
-                if (!isInvalidCancel) {
-                    orderDao.updateStatus(id, newStatus);
-                }
+            jakarta.servlet.http.HttpSession session = req.getSession();
+            if (result.isSuccess()) {
+                session.setAttribute("adminOrderSuccess", "Cập nhật tiến trình đơn hàng #" + id + " thành công!");
+                model.Order updatedOrder = orderDao.getOrderById(id);
+                int orderUserId = (updatedOrder != null) ? updatedOrder.getUserId() : 0;
+                String receiver = (updatedOrder != null) ? updatedOrder.getReceiverName() : "";
+                util.realtime.RealtimeHub.broadcastOrderStatusChanged(id, orderUserId, "", newStatus, receiver);
+            } else {
+                session.setAttribute("adminOrderError", result.getMessage());
             }
 
             String redirectUrl = req.getContextPath() + "/admin/orders?id=" + id;

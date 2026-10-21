@@ -1,5 +1,13 @@
 package model;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
+ * Phụ trách: Phong
+ * Chức năng: Model biểu diễn tài khoản người dùng.
+ * ============================================================================
+ */
+
 import java.sql.Timestamp;
 
 public class User {
@@ -12,12 +20,27 @@ public class User {
     private String role;
     private String status;
     private Timestamp createdAt;
+    private String lockReason;
+    private Timestamp lockedAt;
+    private String lockedBy;
 
     public User() {
     }
 
     public boolean isAdmin() {
-        return "ADMIN".equals(this.role);
+        return "ADMIN".equalsIgnoreCase(this.role);
+    }
+
+    public boolean isLocked() {
+        return "LOCKED".equalsIgnoreCase(this.status);
+    }
+
+    public boolean isActive() {
+        return "ACTIVE".equalsIgnoreCase(this.status);
+    }
+
+    public boolean isPending() {
+        return "PENDING".equalsIgnoreCase(this.status);
     }
 
     public int getId() { return id; }
@@ -46,4 +69,13 @@ public class User {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    public String getLockReason() { return lockReason; }
+    public void setLockReason(String lockReason) { this.lockReason = lockReason; }
+
+    public Timestamp getLockedAt() { return lockedAt; }
+    public void setLockedAt(Timestamp lockedAt) { this.lockedAt = lockedAt; }
+
+    public String getLockedBy() { return lockedBy; }
+    public void setLockedBy(String lockedBy) { this.lockedBy = lockedBy; }
 }

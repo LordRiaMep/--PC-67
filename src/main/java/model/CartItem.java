@@ -1,5 +1,13 @@
 package model;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
+ * Phụ trách: Bảo
+ * Chức năng: Model một dòng sản phẩm trong giỏ kèm các tùy chọn nâng cấp.
+ * ============================================================================
+ */
+
 public class CartItem {
     private Product product;
     private int quantity;

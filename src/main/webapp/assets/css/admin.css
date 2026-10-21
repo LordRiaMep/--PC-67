@@ -90,3 +90,19 @@ body { background-color: var(--bg-main); color: var(--text-main); font-family: '
     .sidebar { position: static; width: 100%; min-height: 0; }
     .main-content { margin-left: 0; padding: 16px; }
 }
+
+/* Builder Tùy chọn nâng cấp / Đổi màu */
+.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 4px; font-weight: 600; }
+.opt-builder-box { background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+.opt-grp-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px; overflow: hidden; transition: all .2s ease; }
+.opt-grp-card:hover { border-color: #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+.opt-grp-header { background: #f8fafc; padding: 8px 12px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+.opt-grp-title { font-weight: 700; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.opt-grp-body { padding: 10px 12px; }
+.opt-item-row { display: grid; grid-template-columns: 28px 1fr 130px 32px; gap: 8px; align-items: center; margin-bottom: 8px; }
+.opt-item-row:last-child { margin-bottom: 0; }
+.opt-radio-wrap { display: flex; align-items: center; justify-content: center; }
+.opt-radio-wrap input[type="radio"] { cursor: pointer; width: 16px; height: 16px; accent-color: var(--brand); }
+.opt-price-input { text-align: right; font-family: monospace; }
+.badge-count { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+

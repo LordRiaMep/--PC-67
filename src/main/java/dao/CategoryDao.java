@@ -1,5 +1,13 @@
 package dao;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
+ * Phụ trách: Nhân Hiếu
+ * Chức năng: Thao tác CSDL: Quản lý danh mục loại sản phẩm linh kiện PC.
+ * ============================================================================
+ */
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

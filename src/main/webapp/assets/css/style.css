@@ -4,7 +4,23 @@ body { display: flex; flex-direction: column; min-height: 100vh; background-colo
 .site-wrapper { flex: 1; }
 
 .dropdown:hover .dropdown-menu { display: block !important; margin-top: 0; }
-.dropdown-item:hover { background-color: #6c757d !important; color: #ffffff !important; }
+
+/* Hover dropdown: nền đỏ nhạt + chữ đỏ (đồng bộ màu thương hiệu, icon không bị chìm) */
+.dropdown-item { transition: background-color 0.2s ease, color 0.2s ease; }
+.dropdown-item:hover,
+.dropdown-item:focus { background-color: #fff1f2 !important; color: #E30019 !important; }
+.dropdown-item.text-danger:hover { background-color: #fff1f2 !important; color: #BE0015 !important; }
+
+/* Icon danh mục trong dropdown */
+.category-icon {
+    color: #E30019;
+    font-size: 1.1rem;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+.dropdown-item:hover .category-icon { transform: scale(1.2); }
 
 .hero { background: linear-gradient(135deg, #ffffff, #f1f3f5); border-radius: 1.25rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 .product-card img { height: 230px; object-fit: cover; }

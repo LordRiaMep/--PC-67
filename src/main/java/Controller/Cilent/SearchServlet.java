@@ -1,5 +1,13 @@
 package Controller.Cilent;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
+ * Phụ trách: Nhân Hiếu
+ * Chức năng: Tìm kiếm sản phẩm theo từ khóa, lọc theo tầm giá và danh mục.
+ * ============================================================================
+ */
+
 import dao.ProductDao;
 import model.Product;
 

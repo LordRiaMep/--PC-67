@@ -47,6 +47,49 @@
         width: 100%;
     }
 
+    /* Style cho khung Voucher Ưu đãi */
+    .voucher-box { border: 1px solid #ffccd0; border-radius: 6px; margin-bottom: 20px; overflow: hidden; background: #fffcfc; }
+    .voucher-header { background: #fff2f2; padding: 10px 15px; font-weight: bold; color: #d9534f; border-bottom: 1px solid #ffccd0; display: flex; align-items: center; justify-content: space-between; font-size: 15px;}
+    .voucher-body { padding: 14px; }
+    .voucher-card {
+        border: 1px dashed #dca5a5;
+        border-radius: 6px;
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.2s ease;
+    }
+    .voucher-card:hover {
+        border-color: #dc3545;
+        box-shadow: 0 2px 8px rgba(220,53,69,0.12);
+    }
+    .voucher-card.selected-voucher {
+        border-color: #dc3545;
+        border-style: solid;
+        background: #fff5f5;
+        box-shadow: 0 0 0 1.5px #dc3545;
+    }
+    .voucher-card.ineligible {
+        opacity: 0.6;
+        background: #fbfbfb;
+    }
+    .voucher-tag {
+        font-family: monospace;
+        font-weight: 700;
+        font-size: 13.5px;
+        letter-spacing: 0.5px;
+        background: #dc3545;
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    .voucher-desc { font-weight: 700; color: #212529; font-size: 13.5px; }
+    .voucher-cond { font-size: 12px; color: #6c757d; }
+
     /* Style cho cụm nút Đặt hàng & Thêm vào giỏ hàng màu đỏ chủ đạo */
     .btn-action-primary {
         background-color: #dc3545;
@@ -74,6 +117,31 @@
         color: #fff;
         border-color: #dc3545;
     }
+
+    /* Style cho phần SẢN PHẨM TƯƠNG TỰ */
+    .related-title { border-left: 4px solid #dc3545; padding-left: 10px; font-weight: bold; margin: 30px 0 15px; }
+    .related-wrap { position: relative; }
+    .related-track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory;
+        scroll-behavior: smooth; scrollbar-width: none; padding: 4px 2px 8px; }
+    .related-track::-webkit-scrollbar { display: none; }
+    .related-item { flex: 0 0 calc((100% - 48px) / 4); scroll-snap-align: start; }
+    @media (max-width: 768px) { .related-item { flex: 0 0 calc((100% - 16px) / 2); } }
+    .related-nav { position: absolute; top: 42%; transform: translateY(-50%); z-index: 5;
+        width: 38px; height: 38px; border-radius: 50%; border: 1px solid #dc3545;
+        background: #fff; color: #dc3545; font-size: 16px; display: flex;
+        align-items: center; justify-content: center; cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,.2); transition: all .2s; }
+    .related-nav:hover:not(:disabled) { background: #dc3545; color: #fff; }
+    .related-nav:disabled { opacity: .35; cursor: default; }
+    .related-nav.prev { left: -14px; }
+    .related-nav.next { right: -14px; }
+    .related-card { border: 1px solid #e0e0e0; border-radius: 6px; background: #fff; height: 100%;
+        transition: box-shadow .2s, transform .2s; text-decoration: none; display: block; }
+    .related-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.12); transform: translateY(-2px); }
+    .related-card img { width: 100%; height: 180px; object-fit: contain; background: #f8f9fa; border-radius: 6px 6px 0 0; }
+    .related-card .rc-name { color: #212529; font-weight: 600; font-size: 14px; height: 40px; overflow: hidden; }
+    .related-card .rc-price { color: #dc3545; font-weight: bold; font-size: 16px; }
+
 </style>
 
 <div class="container my-4">
@@ -81,12 +149,22 @@
         &larr; Quay lại trang chủ
     </a>
 
+    <c:if test="${not empty sessionScope.error}">
+        <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> ${sessionScope.error}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <c:remove var="error" scope="session"/>
+    </c:if>
+
     <div class="row bg-white p-4 rounded-3 border align-items-start shadow-sm">
         <!-- Cột bên trái: Khung ảnh sản phẩm, Khung Khuyến Mãi & Khung Bảo hành -->
         <div class="col-md-6">
             <div class="text-center mb-4">
                 <c:set var="imgUrl" value="${fn:startsWith(p.image, 'http') ? p.image : ctx.concat('/').concat(p.image)}" />
-                <img src="${imgUrl}" class="img-fluid rounded product-detail-img w-100 bg-light border" alt="${p.name}">
+                <img src="${imgUrl}" class="img-fluid rounded product-detail-img w-100 bg-light border" alt="${p.name}"
+                     referrerpolicy="no-referrer"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=No+Image';">
             </div>
 
             <!-- Khung Khuyến Mãi -->
@@ -121,30 +199,52 @@
             </h2>
 
             <!-- Giá tiền -->
-            <div class="text-danger fw-bold fs-1 mb-1" id="priceDisplay"
-                 data-base="${p.price}">
-                <fmt:formatNumber value="${p.price}" pattern="#,##0"/> VNĐ
+            <div class="d-flex align-items-baseline flex-wrap gap-2 mb-1">
+                <span class="text-muted text-decoration-line-through fs-3 fw-semibold" id="originalPriceDisplay" style="display:none;"></span>
+                <span class="text-danger fw-bold fs-1" id="priceDisplay" data-base="${p.price}">
+                    <fmt:formatNumber value="${p.price}" pattern="#,##0"/> VNĐ
+                </span>
+                <span class="badge bg-success fs-6 py-2 px-3" id="discountBadge" style="display:none;"></span>
             </div>
-            <div class="text-muted small mb-4" id="priceNote"></div>
+            <div class="text-muted small mb-2" id="priceNote"></div>
+            <div class="alert alert-success py-2 px-3 small fw-bold mb-3 align-items-center gap-2" id="voucherAlertNotice" style="display:none;">
+                <i class="fas fa-circle-check text-success fs-5"></i>
+                <span id="voucherNoticeText"></span>
+            </div>
 
-            <!-- MÔ TẢ SẢN PHẨM -->
+            <!-- MÔ TẢ & THÔNG SỐ SẢN PHẨM (ĐỒNG BỘ CHÍNH XÁC TỪ ADMIN) -->
             <div class="border-top pt-4 mb-4">
                 <h5 class="border-start border-4 border-danger ps-2 text-dark fw-bold mb-3">Mô tả sản phẩm</h5>
                 <div class="product-specs-box">
-                    <div id="rawDescription" style="display: none;">
-                        ${not empty p.description ? p.description : ''}
-                        | Nguồn máy tính SSTC 550F - 550W
-                        | Vỏ Case XIGMATEK AQUA MS BLACK - KÈM 3 FAN ARGB
-                        | Tản nhiệt khí JONSBO CR-1000 EVO
-                    </div>
-                    <ul class="list-unstyled mt-3" id="formattedDescList"></ul>
+                    <c:if test="${not empty p.description}">
+                        <div class="mb-3 text-secondary" style="font-size: 15px; font-weight: 500;">
+                            <i class="fas fa-info-circle me-1 text-primary"></i>
+                            <span>${p.description}</span>
+                        </div>
+                    </c:if>
+
+                    <c:choose>
+                        <c:when test="${not empty p.specList}">
+                            <ul class="list-unstyled mt-2 mb-0" id="formattedDescList">
+                                <c:forEach items="${p.specList}" var="spec">
+                                    <li class="d-flex align-items-start mb-2 text-dark" style="font-size: 15px; font-weight: 500;">
+                                        <i class="fas fa-check-circle me-2 mt-1" style="color: #007bff; font-size: 16px;"></i>
+                                        <span>${spec}</span>
+                                    </li>
+                                </c:forEach>
+                            </ul>
+                        </c:when>
+                        <c:when test="${empty p.description}">
+                            <div class="text-muted fst-italic">Đang cập nhật thông số chi tiết...</div>
+                        </c:when>
+                    </c:choose>
                 </div>
             </div>
 
             <!-- ================= KHU VỰC UPGRADE ĐỘNG ================= -->
             <c:if test="${not empty upgradeGroups}">
                 <div class="upgrade-box shadow-sm">
-                    <div class="upgrade-header"><i class="fas fa-cog"></i> UPGRADE</div>
+                    <div class="upgrade-header"><i class="fas fa-sliders-h"></i> TÙY CHỌN & NÂNG CẤP</div>
                     <div class="upgrade-body">
                         <c:forEach items="${upgradeGroups}" var="g">
                             <div class="upgrade-row" data-label="${g.key}">
@@ -158,7 +258,10 @@
                                              <c:if test="${o.defaultOption}">data-default="true"</c:if>>
                                                 ${o.name}
                                             <c:if test="${not o.defaultOption}">
-                                                <span class="opt-price">+<fmt:formatNumber value="${o.priceDelta}" pattern="#,##0"/> đ</span>
+                                                <c:choose>
+                                                    <c:when test="${o.priceDelta > 0}"><span class="opt-price">+<fmt:formatNumber value="${o.priceDelta}" pattern="#,##0"/> đ</span></c:when>
+                                                    <c:when test="${o.priceDelta < 0}"><span class="opt-price"><fmt:formatNumber value="${o.priceDelta}" pattern="#,##0"/> đ</span></c:when>
+                                                </c:choose>
                                             </c:if>
                                         </div>
                                     </c:forEach>
@@ -172,81 +275,196 @@
 
             <form action="${ctx}/add-to-cart" method="GET" id="cartForm">
                 <input type="hidden" name="id" value="${p.id}">
+                <input type="hidden" name="voucherCode" id="selectedVoucherCode" value="">
 
-                <div class="d-flex align-items-center gap-3 mb-3 mt-2">
-                    <span class="text-dark fw-bold">Số lượng:</span>
-                    <input type="number" name="quantity" value="1" min="1" max="${p.quantity}" required
-                           class="form-control text-center bg-white text-dark border input-quantity rounded">
-                    <span class="text-muted small">Còn hàng: <strong class="text-dark">${p.quantity}</strong> sản phẩm</span>
-                </div>
+                <!-- ================= KHU VỰC CHỌN VOUCHER GIẢM GIÁ ================= -->
+                <div class="voucher-box shadow-sm">
+                    <div class="voucher-header">
+                        <span><i class="fas fa-ticket-alt me-2 text-danger"></i>MÃ GIẢM GIÁ DÀNH CHO BẠN</span>
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger small">Chọn để áp dụng</span>
+                    </div>
+                    <div class="voucher-body">
+                        <c:choose>
+                            <c:when test="${not empty voucherList}">
+                                <div class="voucher-list mb-2" id="voucherListContainer">
+                                    <c:forEach items="${voucherList}" var="v">
+                                        <div class="voucher-card" id="vcard-${v.code}"
+                                             data-code="${v.code}"
+                                             data-type="${v.discountType}"
+                                             data-value="${v.discountValue}"
+                                             data-max="${v.maxDiscountAmount != null ? v.maxDiscountAmount : 0}"
+                                             data-min="${v.minOrderAmount}"
+                                             data-formatted-discount="${v.formattedDiscount}">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="fas fa-tags text-danger fs-3"></i>
+                                                <div>
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <span class="voucher-tag">${v.code}</span>
+                                                        <span class="voucher-desc">${v.formattedDiscount}</span>
+                                                    </div>
+                                                    <div class="voucher-cond">
+                                                        <i class="fas fa-circle-info me-1"></i>${v.formattedMinOrder}
+                                                        &bull; HSD: ${v.endDateDisplay}
+                                                        <span class="ineligible-warning text-danger fw-semibold ms-1" style="display:none;">(Chưa đủ điều kiện)</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-danger btn-voucher-toggle fw-semibold text-nowrap"
+                                                        data-code="${v.code}">
+                                                    Áp dụng
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="text-muted small py-2 text-center">
+                                    Hiện chưa có voucher công khai. Bạn có thể nhập mã ưu đãi riêng bên dưới.
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
 
-                <!-- Cụm 2 nút bấm: ĐẶT HÀNG (Thanh toán) và THÊM VÀO GIỎ -->
-                <div class="row g-2 mt-2">
-                    <div class="col-md-6">
-                        <button type="submit" name="buyNow" value="1" formaction="${ctx}/add-to-cart" class="btn btn-action-primary w-100 py-3 fs-5 shadow-sm">
-                            <i class="fas fa-shopping-cart me-2"></i> ĐẶT HÀNG
-                        </button>
-                    </div>
-                    <div class="col-md-6">
-                        <button type="submit" formaction="${ctx}/add-to-cart" class="btn btn-action-outline w-100 py-3 fs-5 shadow-sm">
-                            <i class="fas fa-plus me-1"></i> THÊM VÀO GIỎ
-                        </button>
+                        <!-- Ô nhập mã voucher thủ công -->
+                        <div class="input-group input-group-sm mt-3">
+                            <span class="input-group-text bg-light text-secondary"><i class="fas fa-keyboard"></i></span>
+                            <input type="text" id="manualVoucherInput" class="form-control text-uppercase font-monospace"
+                                   placeholder="Nhập mã voucher riêng...">
+                            <button class="btn btn-dark fw-semibold" type="button" id="btnApplyManual">
+                                Áp dụng
+                            </button>
+                            <button class="btn btn-outline-danger" type="button" id="btnDeselectVoucher" style="display:none;">
+                                <i class="fas fa-times me-1"></i>Hủy mã
+                            </button>
+                        </div>
+                        <div id="voucherFeedback" class="small mt-1" style="display:none;"></div>
                     </div>
                 </div>
+                <!-- ================= KẾT THÚC KHU VỰC VOUCHER ================= -->
+
+                <c:choose>
+                    <c:when test="${p.quantity <= 0}">
+                        <!-- Thông báo sản phẩm hết hàng -->
+                        <div class="alert alert-danger d-flex align-items-center gap-3 p-3 my-3 rounded-3 border-danger shadow-sm">
+                            <i class="fas fa-box-open fs-2 text-danger"></i>
+                            <div>
+                                <h5 class="fw-bold mb-1 text-danger">SẢN PHẨM HIỆN ĐÃ HẾT HÀNG</h5>
+                                <div class="small text-secondary">Rất tiếc, sản phẩm này hiện đã tạm hết hàng trong kho. Quý khách vui lòng tham khảo các sản phẩm tương tự bên dưới hoặc liên hệ Hotline để được hỗ trợ đặt trước!</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3 mb-3 mt-2">
+                            <span class="text-dark fw-bold">Tình trạng:</span>
+                            <span class="badge bg-danger px-3 py-2 fs-6 fw-bold">HẾT HÀNG</span>
+                        </div>
+
+                        <!-- Cụm nút bị vô hiệu hóa -->
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-secondary w-100 py-3 fs-5 shadow-sm" disabled style="cursor: not-allowed; opacity: 0.65;">
+                                    <i class="fas fa-ban me-2"></i> TẠM HẾT HÀNG
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-outline-secondary w-100 py-3 fs-5 shadow-sm" disabled style="cursor: not-allowed; opacity: 0.65;">
+                                    <i class="fas fa-times me-1"></i> KHÔNG THỂ THÊM VÀO GIỎ
+                                </button>
+                            </div>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="d-flex align-items-center gap-3 mb-3 mt-2">
+                            <span class="text-dark fw-bold">Số lượng:</span>
+                            <input type="number" name="quantity" value="1" min="1" max="${p.quantity}" required
+                                   class="form-control text-center bg-white text-dark border input-quantity rounded">
+                            <span class="text-muted small">Còn hàng: <strong class="text-dark">${p.quantity}</strong> sản phẩm</span>
+                        </div>
+
+                        <!-- Cụm 2 nút bấm: ĐẶT HÀNG (Thanh toán) và THÊM VÀO GIỎ -->
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                <button type="submit" name="buyNow" value="1" formaction="${ctx}/add-to-cart" class="btn btn-action-primary w-100 py-3 fs-5 shadow-sm">
+                                    <i class="fas fa-shopping-cart me-2"></i> ĐẶT HÀNG
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" formaction="${ctx}/add-to-cart" class="btn btn-action-outline w-100 py-3 fs-5 shadow-sm">
+                                    <i class="fas fa-plus me-1"></i> THÊM VÀO GIỎ
+                                </button>
+                            </div>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </form>
         </div>
     </div>
+
+    <!-- ================= SẢN PHẨM TƯƠNG TỰ ================= -->
+    <c:if test="${not empty relatedProducts}">
+        <h4 class="related-title">SẢN PHẨM TƯƠNG TỰ</h4>
+        <div class="related-wrap">
+            <button type="button" class="related-nav prev" id="relPrev" aria-label="Trước">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="related-track" id="relTrack">
+                <c:forEach items="${relatedProducts}" var="r">
+                    <c:set var="rImg" value="${fn:startsWith(r.image, 'http') ? r.image : ctx.concat('/').concat(r.image)}" />
+                    <div class="related-item">
+                        <a href="${ctx}/product/detail?id=${r.id}" class="related-card">
+                            <img src="${rImg}" alt="${r.name}">
+                            <div class="p-3">
+                                <div class="rc-name mb-2">${r.name}</div>
+                                <div class="rc-price">
+                                    <fmt:formatNumber value="${r.price}" pattern="#,##0"/> VNĐ
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </c:forEach>
+            </div>
+            <button type="button" class="related-nav next" id="relNext" aria-label="Sau">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </c:if>
+    <!-- ================= KẾT THÚC SẢN PHẨM TƯƠNG TỰ ================= -->
 </div>
 
-<!-- Script cho nút Upgrade, Mô tả sản phẩm và Cập nhật tiêu đề động -->
+<!-- Script cho nút Upgrade, Voucher và Cập nhật giá động -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // 1. Script tự động format danh sách cấu hình
-        var rawDescElem = document.getElementById("rawDescription");
-        var listElem = document.getElementById("formattedDescList");
-
-        if (rawDescElem && listElem) {
-            var rawText = rawDescElem.innerText.trim();
-            if (rawText !== "") {
-                var items = rawText.split(/\||\n/);
-                var listHtml = "";
-                items.forEach(function(item) {
-                    var cleanItem = item.trim().replace(/^-\s*/, '');
-                    if (cleanItem.length > 0) {
-                        var textUpper = cleanItem.toUpperCase();
-                        if (!textUpper.includes("CPU") && (textUpper.includes("CORE ") || textUpper.includes("RYZEN") || textUpper.includes("INTEL") || textUpper.includes("AMD"))) {
-                            cleanItem = "CPU " + cleanItem;
-                        } else if (!textUpper.includes("VGA") && !textUpper.includes("CARD") && (textUpper.includes("RTX") || textUpper.includes("GTX") || textUpper.includes("RX "))) {
-                            cleanItem = "VGA " + cleanItem;
-                        } else if (!textUpper.includes("Ổ CỨNG") && (textUpper.includes("SSD") || textUpper.includes("HDD"))) {
-                            cleanItem = "Ổ cứng " + cleanItem;
-                        } else if (!textUpper.includes("RAM") && (textUpper.includes("DDR4") || textUpper.includes("DDR5") || textUpper.includes("BUS"))) {
-                            cleanItem = "RAM " + cleanItem;
-                        } else if (!textUpper.includes("MAINBOARD") && !textUpper.includes("MAIN") && /(H610|B760|Z790|H510|B660|Z690|A320|B450|B550|X570|A520)/.test(textUpper)) {
-                            cleanItem = "Mainboard " + cleanItem;
-                        } else if (!textUpper.includes("NGUỒN") && /(450W|500W|550W|600W|650W|700W|750W|850W|1000W)/.test(textUpper)) {
-                            cleanItem = "Nguồn máy tính " + cleanItem;
-                        }
-                        listHtml += '<li class="d-flex align-items-start mb-2 text-dark" style="font-size: 15px; font-weight: 500;">' +
-                            '<i class="fas fa-check-circle me-2 mt-1" style="color: #007bff; font-size: 16px;"></i>' +
-                            '<span>' + cleanItem + '</span></li>';
-                    }
-                });
-                listElem.innerHTML = listHtml;
-            } else {
-                listElem.innerHTML = '<li class="text-muted">Đang cập nhật cấu hình chi tiết...</li>';
-            }
-        }
-
-        // 2. Chọn linh kiện nâng cấp: đổi tên + giá, gửi id lên server khi thêm giỏ
         var upgradeRows = document.querySelectorAll('.upgrade-row');
         var upgradeTextSpan = document.getElementById('upgradeText');
         var priceEl = document.getElementById('priceDisplay');
+        var origPriceEl = document.getElementById('originalPriceDisplay');
+        var discountBadgeEl = document.getElementById('discountBadge');
         var priceNote = document.getElementById('priceNote');
+        var voucherNotice = document.getElementById('voucherAlertNotice');
+        var voucherNoticeText = document.getElementById('voucherNoticeText');
         var basePrice = parseFloat(priceEl.getAttribute('data-base')) || 0;
         var cartForm = document.getElementById('cartForm');
+        var selectedVoucherInput = document.getElementById('selectedVoucherCode');
+        var manualVoucherInput = document.getElementById('manualVoucherInput');
+        var btnApplyManual = document.getElementById('btnApplyManual');
+        var btnDeselectVoucher = document.getElementById('btnDeselectVoucher');
+        var voucherFeedback = document.getElementById('voucherFeedback');
+
+        var currentSelectedVoucher = null;
 
         function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+
+        function calculateVoucherDiscount(voucher, amount) {
+            if (!voucher || amount < voucher.min) return 0;
+            var disc = 0;
+            if (voucher.type === 'PERCENT') {
+                disc = amount * (voucher.value / 100);
+                if (voucher.max > 0) disc = Math.min(disc, voucher.max);
+            } else {
+                disc = voucher.value;
+            }
+            return Math.min(disc, amount);
+        }
 
         function refresh() {
             var names = [], extra = 0;
@@ -257,17 +475,200 @@
                     extra += parseFloat(btn.getAttribute('data-price')) || 0;
                 }
             });
+
+            var subtotal = basePrice + extra;
+
             if (names.length === 0) {
                 upgradeTextSpan.innerText = upgradeRows.length ? "(Cấu hình gốc)" : "";
                 priceNote.innerText = "";
             } else {
-                upgradeTextSpan.innerText = "(Nâng cấp: " + names.join(" - ") + ")";
-                priceNote.innerText = "Giá gốc " + fmt(basePrice) + " + nâng cấp " + fmt(extra) + " VNĐ";
+                upgradeTextSpan.innerText = "(Tùy chọn: " + names.join(" - ") + ")";
+                if (extra > 0) {
+                    priceNote.innerText = "Giá gốc " + fmt(basePrice) + " + tùy chọn " + fmt(extra) + " VNĐ";
+                } else if (extra < 0) {
+                    priceNote.innerText = "Giá gốc " + fmt(basePrice) + " " + fmt(extra) + " VNĐ";
+                } else {
+                    priceNote.innerText = "";
+                }
             }
-            priceEl.innerText = fmt(basePrice + extra) + " VNĐ";
-        }
-        refresh();
 
+            // Cập nhật trạng thái điều kiện của từng thẻ voucher trong danh sách
+            var voucherCards = document.querySelectorAll('.voucher-card');
+            voucherCards.forEach(function(card) {
+                var vMin = parseFloat(card.getAttribute('data-min')) || 0;
+                var vCode = card.getAttribute('data-code');
+                var btn = card.querySelector('.btn-voucher-toggle');
+                var warnSpan = card.querySelector('.ineligible-warning');
+
+                if (subtotal < vMin) {
+                    card.classList.add('ineligible');
+                    if (warnSpan) {
+                        warnSpan.style.display = 'inline';
+                        warnSpan.innerText = '(Cần đơn từ ' + fmt(vMin) + ' đ)';
+                    }
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerText = 'Chưa đủ ĐK';
+                        btn.className = 'btn btn-sm btn-secondary text-nowrap';
+                    }
+                } else {
+                    card.classList.remove('ineligible');
+                    if (warnSpan) warnSpan.style.display = 'none';
+                    if (btn) {
+                        btn.disabled = false;
+                        if (currentSelectedVoucher && currentSelectedVoucher.code === vCode) {
+                            card.classList.add('selected-voucher');
+                            btn.innerText = 'Đang áp dụng';
+                            btn.className = 'btn btn-sm btn-danger text-nowrap';
+                        } else {
+                            card.classList.remove('selected-voucher');
+                            btn.innerText = 'Áp dụng';
+                            btn.className = 'btn btn-sm btn-outline-danger text-nowrap';
+                        }
+                    }
+                }
+            });
+
+            // Nếu voucher đang chọn mà không còn đủ điều kiện do hạ nâng cấp
+            if (currentSelectedVoucher && subtotal < currentSelectedVoucher.min) {
+                showFeedback('Mã ' + currentSelectedVoucher.code + ' yêu cầu đơn tối thiểu ' + fmt(currentSelectedVoucher.min) + ' VNĐ. Đã hủy áp dụng mã.', 'danger');
+                deselectVoucher();
+                return;
+            }
+
+            // Tính giá sau voucher nếu có
+            if (currentSelectedVoucher) {
+                var discount = calculateVoucherDiscount(currentSelectedVoucher, subtotal);
+                var finalPrice = Math.max(0, subtotal - discount);
+
+                origPriceEl.innerText = fmt(subtotal) + " VNĐ";
+                origPriceEl.style.display = 'inline';
+
+                priceEl.innerText = fmt(finalPrice) + " VNĐ";
+
+                discountBadgeEl.innerText = "Tiết kiệm " + fmt(discount) + " VNĐ";
+                discountBadgeEl.style.display = 'inline-block';
+
+                voucherNotice.style.display = 'flex';
+                voucherNoticeText.innerText = "Đã áp dụng mã \"" + currentSelectedVoucher.code + "\": Tiết kiệm ngay " + fmt(discount) + " VNĐ khi mua!";
+
+                selectedVoucherInput.value = currentSelectedVoucher.code;
+                btnDeselectVoucher.style.display = 'inline-block';
+            } else {
+                origPriceEl.style.display = 'none';
+                discountBadgeEl.style.display = 'none';
+                voucherNotice.style.display = 'none';
+                priceEl.innerText = fmt(subtotal) + " VNĐ";
+                selectedVoucherInput.value = "";
+                btnDeselectVoucher.style.display = 'none';
+            }
+        }
+
+        function showFeedback(msg, type) {
+            voucherFeedback.className = 'small mt-1 ' + (type === 'danger' ? 'text-danger' : 'text-success');
+            voucherFeedback.innerText = msg;
+            voucherFeedback.style.display = 'block';
+        }
+
+        function selectVoucher(code, type, value, max, min, formatted) {
+            var names = [], extra = 0;
+            upgradeRows.forEach(function(row) {
+                var btn = row.querySelector('.opt-btn.active');
+                if (btn && !btn.hasAttribute('data-default')) {
+                    extra += parseFloat(btn.getAttribute('data-price')) || 0;
+                }
+            });
+            var subtotal = basePrice + extra;
+
+            if (subtotal < min) {
+                showFeedback('Mã này yêu cầu giá trị tối thiểu là ' + fmt(min) + ' VNĐ (Hiện tại: ' + fmt(subtotal) + ' VNĐ).', 'danger');
+                return;
+            }
+
+            currentSelectedVoucher = {
+                code: code,
+                type: type,
+                value: parseFloat(value),
+                max: parseFloat(max),
+                min: parseFloat(min),
+                formatted: formatted
+            };
+            showFeedback('Áp dụng mã voucher ' + code + ' thành công!', 'success');
+            refresh();
+        }
+
+        function deselectVoucher() {
+            currentSelectedVoucher = null;
+            document.querySelectorAll('.voucher-card').forEach(function(c) {
+                c.classList.remove('selected-voucher');
+                var b = c.querySelector('.btn-voucher-toggle');
+                if (b && !b.disabled) {
+                    b.innerText = 'Áp dụng';
+                    b.className = 'btn btn-sm btn-outline-danger text-nowrap';
+                }
+            });
+            manualVoucherInput.value = '';
+            refresh();
+        }
+
+        // Sự kiện click nút Áp dụng trong danh sách voucher
+        document.querySelectorAll('.btn-voucher-toggle').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var card = this.closest('.voucher-card');
+                var code = card.getAttribute('data-code');
+
+                if (currentSelectedVoucher && currentSelectedVoucher.code === code) {
+                    deselectVoucher();
+                    showFeedback('Đã bỏ chọn mã ' + code, 'danger');
+                } else {
+                    var type = card.getAttribute('data-type');
+                    var value = card.getAttribute('data-value');
+                    var max = card.getAttribute('data-max');
+                    var min = card.getAttribute('data-min');
+                    var fmtDesc = card.getAttribute('data-formatted-discount');
+                    selectVoucher(code, type, value, max, min, fmtDesc);
+                }
+            });
+        });
+
+        // Click cả card voucher để chọn nhanh
+        document.querySelectorAll('.voucher-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                var btn = this.querySelector('.btn-voucher-toggle');
+                if (btn && !btn.disabled) btn.click();
+            });
+        });
+
+        // Sự kiện nhập mã thủ công
+        btnApplyManual.addEventListener('click', function() {
+            var code = manualVoucherInput.value.trim().toUpperCase();
+            if (!code) {
+                showFeedback('Vui lòng nhập mã voucher!', 'danger');
+                return;
+            }
+            var targetCard = document.getElementById('vcard-' + code);
+            if (targetCard) {
+                var btn = targetCard.querySelector('.btn-voucher-toggle');
+                if (btn && !btn.disabled) {
+                    btn.click();
+                } else {
+                    showFeedback('Mã này chưa đủ điều kiện áp dụng cho sản phẩm này!', 'danger');
+                }
+            } else {
+                selectVoucher(code, 'PERCENT', 0, 0, 0, code);
+                selectedVoucherInput.value = code;
+                showFeedback('Đã lưu mã ' + code + ' để kiểm tra khi thanh toán!', 'success');
+                btnDeselectVoucher.style.display = 'inline-block';
+            }
+        });
+
+        btnDeselectVoucher.addEventListener('click', function() {
+            deselectVoucher();
+            showFeedback('Đã hủy áp dụng mã voucher.', 'danger');
+        });
+
+        // Sự kiện chọn linh kiện nâng cấp
         upgradeRows.forEach(function(row) {
             var buttons = row.querySelectorAll('.opt-btn');
             buttons.forEach(function(btn) {
@@ -278,6 +679,36 @@
                 });
             });
         });
+
+        // 3. Slider sản phẩm tương tự: chuyển qua lại từng sản phẩm
+        var relTrack = document.getElementById('relTrack');
+        var relPrev = document.getElementById('relPrev');
+        var relNext = document.getElementById('relNext');
+        if (relTrack && relPrev && relNext) {
+            function relStep() {
+                var item = relTrack.querySelector('.related-item');
+                if (!item) return 0;
+                var gap = parseFloat(getComputedStyle(relTrack).columnGap) || 16;
+                return item.getBoundingClientRect().width + gap;
+            }
+            function relAtStart() { return relTrack.scrollLeft <= 2; }
+            function relAtEnd() { return relTrack.scrollLeft + relTrack.clientWidth >= relTrack.scrollWidth - 2; }
+
+            relNext.addEventListener('click', function() {
+                if (relAtEnd()) {
+                    relTrack.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    relTrack.scrollBy({ left: relStep(), behavior: 'smooth' });
+                }
+            });
+            relPrev.addEventListener('click', function() {
+                if (relAtStart()) {
+                    relTrack.scrollTo({ left: relTrack.scrollWidth, behavior: 'smooth' });
+                } else {
+                    relTrack.scrollBy({ left: -relStep(), behavior: 'smooth' });
+                }
+            });
+        }
 
         // trước khi submit: tạo input upgradeId cho các linh kiện đang chọn (trừ mặc định)
         cartForm.addEventListener('submit', function() {
@@ -293,6 +724,8 @@
                 }
             });
         });
+
+        refresh();
     });
 </script>
 

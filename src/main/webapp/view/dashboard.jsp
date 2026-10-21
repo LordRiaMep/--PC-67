@@ -19,10 +19,15 @@
 
 <main class="main-content">
     <header class="topbar">
-        <h3 class="m-0 text-dark fw-bold">Tổng quan</h3>
-        <div class="d-flex align-items-center">
-            <span class="me-3">Xin chào, <strong class="text-danger">${sessionScope.USER_LOGIN.fullName != null ? sessionScope.USER_LOGIN.fullName : 'Admin'}</strong></span>
-            <a href="${ctx}/logout" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-power-off"></i> Đăng xuất</a>
+        <div>
+            <h3 class="m-0 text-dark fw-bold">Tổng quan</h3>
+            <span class="text-secondary small">Thống kê hoạt động kinh doanh và tình trạng đơn hàng</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="${ctx}/admin/dashboard" class="btn btn-ghost btn-sm" title="Cập nhật số liệu mới nhất"><i class="fa-solid fa-arrows-rotate me-1"></i> Làm mới</a>
+            <span class="ms-2 me-2 text-muted">|</span>
+            <span class="me-2">Admin: <strong class="text-danger">${sessionScope.USER_LOGIN.fullName != null ? sessionScope.USER_LOGIN.fullName : 'Admin'}</strong></span>
+            <a href="${ctx}/logout" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-power-off"></i> Thoát</a>
         </div>
     </header>
 
@@ -33,7 +38,7 @@
                 <div class="icon-box bg-success bg-opacity-10 text-success"><i class="fa-solid fa-wallet"></i></div>
                 <div>
                     <div class="muted small mb-1">Tổng doanh thu</div>
-                    <div class="fs-4 text-dark fw-bold"><fmt:formatNumber value="${totalRevenue != null ? totalRevenue : 0}" pattern="#,##0"/> đ</div>
+                    <div id="kpi-total-revenue" class="fs-4 text-dark fw-bold"><fmt:formatNumber value="${totalRevenue != null ? totalRevenue : 0}" pattern="#,##0"/> đ</div>
                 </div>
             </div>
         </div>
@@ -42,7 +47,7 @@
                 <div class="icon-box bg-warning bg-opacity-10 text-warning"><i class="fa-solid fa-box-open"></i></div>
                 <div>
                     <div class="muted small mb-1">Tổng đơn hàng</div>
-                    <div class="fs-4 text-dark fw-bold">${totalOrders != null ? totalOrders : 0} đơn</div>
+                    <div id="kpi-total-orders" class="fs-4 text-dark fw-bold">${totalOrders != null ? totalOrders : 0} đơn</div>
                 </div>
             </div>
         </div>
@@ -115,9 +120,5 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Tự động tải lại sau 30 giây để cập nhật số liệu mới
-    setTimeout(function () { window.location.reload(); }, 30000);
-</script>
 </body>
 </html>

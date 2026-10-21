@@ -1,6 +1,14 @@
 package Controller.Cilent; // <-- đổi cho đúng package của bạn (giống SearchServlet)
 
 import dao.NewsDao;
+
+/**
+ * ============================================================================
+ * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
+ * Phụ trách: Quang
+ * Chức năng: Xem chi tiết một bài viết tin tức công nghệ.
+ * ============================================================================
+ */
 import model.News;
 
 import jakarta.servlet.ServletException;
@@ -34,9 +42,9 @@ public class NewsDetailServlet extends HttpServlet {
         NewsDao dao = new NewsDao();
         News news = dao.getNewsById(id);
 
-        // Không có bài hoặc bài đang bị admin ẩn -> về trang tin tức
+        // 22.5: Bài viết bị xóa khỏi DB hoặc không tồn tại -> Trả về mã lỗi 404
         if (news == null || !"ACTIVE".equals(news.getStatus())) {
-            response.sendRedirect(ctx + "/news");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Bài viết không tồn tại hoặc đã bị xóa!");
             return;
         }
 

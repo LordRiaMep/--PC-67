@@ -1,5 +1,13 @@
 package Controller.Admin;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
+ * Phụ trách: Quang
+ * Chức năng: Controller tổng hợp số liệu doanh thu, thống kê kinh doanh hiển thị Dashboard.
+ * ============================================================================
+ */
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

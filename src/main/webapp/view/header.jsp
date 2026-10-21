@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
 <!DOCTYPE html>
@@ -12,7 +13,7 @@
     <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="${ctx}/assets/css/style.css?v=2">
+    <link rel="stylesheet" href="${ctx}/assets/css/style.css?v=3">
 
     <style>
         .dropdown:hover .dropdown-menu {
@@ -160,14 +161,47 @@
             </button>
             <ul class="dropdown-menu shadow border-0" aria-labelledby="dropdownCategory">
                 <c:forEach items="${listCategories}" var="c">
-                    <li><a class="dropdown-item py-2" href="${ctx}/Home?cid=${c.id}">${c.name}</a></li>
+                    <%-- Chọn icon theo tên danh mục (AMD phải đứng trước Gaming) --%>
+                    <c:choose>
+                        <c:when test="${fn:containsIgnoreCase(c.name, 'Streaming')}">
+                            <c:set var="icon" value="bi-controller" />
+                        </c:when>
+                        <c:when test="${fn:containsIgnoreCase(c.name, 'Workstation')}">
+                            <c:set var="icon" value="bi-pc-display-horizontal" />
+                        </c:when>
+                        <c:when test="${fn:containsIgnoreCase(c.name, 'AMD')}">
+                            <c:set var="icon" value="bi-cpu-fill" />
+                        </c:when>
+                        <c:when test="${fn:containsIgnoreCase(c.name, 'Văn Phòng')}">
+                            <c:set var="icon" value="bi-briefcase-fill" />
+                        </c:when>
+                        <c:when test="${fn:containsIgnoreCase(c.name, 'Linh Kiện')}">
+                            <c:set var="icon" value="bi-motherboard-fill" />
+                        </c:when>
+                        <c:when test="${fn:containsIgnoreCase(c.name, 'Gaming')}">
+                            <c:set var="icon" value="bi-joystick" />
+                        </c:when>
+                        <c:otherwise>
+                            <c:set var="icon" value="bi-pc-display" />
+                        </c:otherwise>
+                    </c:choose>
+                    <li>
+                        <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="${ctx}/Home?cid=${c.id}">
+                            <i class="bi ${icon} category-icon"></i>
+                            <span>${c.name}</span>
+                        </a>
+                    </li>
                 </c:forEach>
                 <c:if test="${empty listCategories}">
                     <li><span class="dropdown-item py-2 text-muted">Chưa có danh mục</span></li>
                 </c:if>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item py-2 fw-bold text-danger" href="${ctx}/Home">Tất cả sản phẩm</a></li>
-                <li><a class="dropdown-item py-2 fw-bold" href="${ctx}/news"><i class="bi bi-newspaper me-2"></i>Tin tức công nghệ</a></li>
+                <li>
+                    <a class="dropdown-item py-2 fw-bold d-flex align-items-center gap-2" href="${ctx}/news">
+                        <i class="bi bi-newspaper category-icon"></i>
+                        <span>Tin tức công nghệ</span>
+                    </a>
+                </li>
             </ul>
         </div>
 
@@ -185,10 +219,10 @@
         <!-- KHU VỰC CÁC TÍNH NĂNG (ĐƠN HÀNG, LIÊN HỆ, GIỎ HÀNG, TÀI KHOẢN) -->
         <div class="d-flex align-items-center gap-2 flex-wrap flex-lg-nowrap flex-shrink-0">
 
-            <!-- LIÊN HỆ / HOTLINE -->
-            <a href="tel:0904112618" class="text-white text-decoration-none px-2 d-none d-xl-flex align-items-center gap-1 fw-semibold fs-6 text-nowrap">
-                <i class="bi bi-telephone-fill"></i>
-                <span>090.411.2618</span>
+            <!-- LIÊN HỆ -->
+            <a href="${ctx}/contact" class="nav-icon-btn">
+                <i class="bi bi-headset fs-5"></i>
+                <span>Liên hệ</span>
             </a>
 
             <!-- NÚT VỀ TRANG QUẢN LÝ (chỉ hiện với admin) -->
@@ -318,4 +352,45 @@
             if (e.key === 'Escape') hide();
         });
     })();
+</script>
+
+<c:if test="${not empty sessionScope.USER_LOGIN}">
+<script>
+    (function () {
+        var authCheckTimer = setInterval(function () {
+            fetch('${ctx}/check-auth')
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data && !data.loggedIn) {
+                        clearInterval(authCheckTimer);
+                        if (data.reason === 'password_changed') {
+                            alert('Mật khẩu của bạn vừa được thay đổi từ một thiết bị hoặc trình duyệt khác. Hệ thống sẽ tự động đăng xuất để bảo vệ an toàn!');
+                            window.location.href = '${ctx}/login?error=password_changed';
+                        } else if (data.reason === 'account_locked') {
+                            alert('Tài khoản của bạn đã bị khóa bởi Quản trị viên!');
+                            window.location.href = '${ctx}/login?error=account_locked';
+                        } else {
+                            window.location.href = '${ctx}/login?error=need_login';
+                        }
+                    }
+                })
+                .catch(function () {});
+        }, 3000); // Quét kiểm tra định kỳ mỗi 3 giây
+    })();
+</script>
+</c:if>
+
+
+<!-- Realtime Dual-Sync Client Engine -->
+<script src="${ctx}/assets/js/realtime-sync.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.RealtimeSync) {
+            window.RealtimeSync.init({
+                role: 'client',
+                userId: '${sessionScope.USER_LOGIN != null ? sessionScope.USER_LOGIN.id : 0}',
+                ctx: '${ctx}'
+            });
+        }
+    });
 </script>

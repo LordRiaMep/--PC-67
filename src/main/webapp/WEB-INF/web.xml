@@ -3,4 +3,37 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
+
+    <servlet>
+        <servlet-name>ContactServlet</servlet-name>
+        <servlet-class>Controller.Cilent.ContactServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ContactServlet</servlet-name>
+        <url-pattern>/contact</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ContactServlet</servlet-name>
+        <url-pattern>/contact/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminContactServlet</servlet-name>
+        <servlet-class>Controller.Admin.AdminContactServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminContactServlet</servlet-name>
+        <url-pattern>/admin/contacts</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RealtimeSyncServlet</servlet-name>
+        <servlet-class>Controller.RealtimeSyncServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RealtimeSyncServlet</servlet-name>
+        <url-pattern>/api/realtime-sync</url-pattern>
+    </servlet-mapping>
+
+
 </web-app>

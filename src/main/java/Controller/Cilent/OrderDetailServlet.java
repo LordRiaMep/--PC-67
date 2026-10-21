@@ -1,5 +1,13 @@
 package Controller.Cilent;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
+ * Phụ trách: Bạn (Gia Phú)
+ * Chức năng: Xem chi tiết thông tin đơn hàng, danh sách sản phẩm và trạng thái vận chuyển.
+ * ============================================================================
+ */
+
 import model.OrderDetail;
 import dao.OrderDao;
 import model.Order;

@@ -1,18 +1,25 @@
-package dao; // Đã thêm dòng này để hết lỗi package
+package dao;
+
+/**
+ * ============================================================================
+ * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
+ * Phụ trách: Quang
+ * Chức năng: Thao tác CSDL: Tính toán doanh thu, số lượng đơn hàng, top sản phẩm bán chạy.
+ * ============================================================================
+ */
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-import model.Order; // Đảm bảo bạn đã import model Order
+import model.Order;
 
 public class DashboardDAO {
 
-    // 1. Lấy tổng doanh thu
+    // 1. Lấy tổng doanh thu (chỉ tính các đơn hợp lệ, loại trừ đơn đã hủy / hoàn hàng / hoàn tiền)
     public double getTotalRevenue() {
-        String sql = "SELECT SUM(total_amount) FROM hoa_don";
-        // Đã sửa thành getConnect() theo đúng class ConnectDB của bạn
+        String sql = "SELECT SUM(total_amount) FROM hoa_don WHERE order_status NOT IN ('CANCELLED', 'CLIENT_CANCELLED', 'RETURNED', 'REFUNDED')";
         try (Connection conn = ConnectDB.getConnect();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -40,9 +47,9 @@ public class DashboardDAO {
         return 0;
     }
 
-    // 3. Lấy tổng số sản phẩm
+    // 3. Lấy tổng số sản phẩm còn hoạt động
     public int getTotalProducts() {
-        String sql = "SELECT COUNT(*) FROM san_pham";
+        String sql = "SELECT COUNT(*) FROM san_pham WHERE status = 'ACTIVE'";
         try (Connection conn = ConnectDB.getConnect();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -70,14 +77,13 @@ public class DashboardDAO {
         return 0;
     }
 
-    // 5. Lấy danh sách 5 đơn hàng gần đây cho bảng
+    // 5. Lấy danh sách 5 đơn hàng gần đây nhất
     public List<Order> getRecentOrders() {
         List<Order> list = new ArrayList<>();
-        // Query lấy dữ liệu từ bảng hoa_don và nối với users để lấy tên
-        String sql = "SELECT TOP 5 h.id, u.full_name as receiver_name, h.total_amount, h.order_status " +
+        String sql = "SELECT TOP 5 h.id, ISNULL(h.receiver_name, u.full_name) as receiver_name, h.total_amount, h.order_status " +
                 "FROM hoa_don h " +
-                "JOIN users u ON h.user_id = u.id " +
-                "ORDER BY h.created_at DESC";
+                "LEFT JOIN users u ON h.user_id = u.id " +
+                "ORDER BY h.id DESC";
         try (Connection conn = ConnectDB.getConnect();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {

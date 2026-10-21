@@ -1,5 +1,13 @@
 package model;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
+ * Phụ trách: Bảo
+ * Chức năng: Model giỏ hàng chứa danh sách các mặt hàng.
+ * ============================================================================
+ */
+
 import java.util.ArrayList;
 import java.util.List;
 

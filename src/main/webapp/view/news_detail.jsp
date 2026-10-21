@@ -34,6 +34,22 @@
     .news-content table {
         max-width: 100%;
     }
+    .news-content .news-callout {
+        border-left: 4px solid #E30019;
+        background-color: #fff5f5;
+        padding: 12px 16px;
+        margin: 16px 0;
+        border-radius: 0 8px 8px 0;
+    }
+    .news-content blockquote {
+        border-left: 4px solid #ced4da;
+        padding: 8px 16px;
+        margin: 16px 0;
+        color: #555;
+        font-style: italic;
+        background: #f8f9fa;
+        border-radius: 0 8px 8px 0;
+    }
 </style>
 
 <div class="container mt-4 mb-5">

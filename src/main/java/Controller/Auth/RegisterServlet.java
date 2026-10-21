@@ -1,15 +1,29 @@
 package Controller.Auth;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
+ * Phụ trách: Phong
+ * Chức năng: Xử lý đăng ký tài khoản mới và gửi mã OTP xác nhận.
+ * ============================================================================
+ */
+
 import dao.UserDao;
+import dao.UserTokenDao;
 import model.User;
+import model.UserToken;
+import util.EmailService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
-    private UserDao userDao = new UserDao();
+    private final UserDao userDao = new UserDao();
+    private final UserTokenDao userTokenDao = new UserTokenDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -26,17 +40,94 @@ public class RegisterServlet extends HttpServlet {
         String phone = request.getParameter("phone");
         String address = request.getParameter("address");
 
-        User user = new User();
-        user.setFullName(fullName);
-        user.setEmail(email);
-        user.setPasswordHash(password);
-        user.setPhone(phone);
-        user.setAddress(address);
+        if (fullName == null || fullName.trim().isEmpty() ||
+            email == null || email.trim().isEmpty() ||
+            password == null || password.trim().isEmpty()) {
+            request.setAttribute("error", "Vui lòng điền đầy đủ các trường bắt buộc (*).");
+            request.getRequestDispatcher("/view/register.jsp").forward(request, response);
+            return;
+        }
 
-        if (userDao.register(user)) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        String cleanName = fullName.trim();
+        if (cleanName.length() > 25) {
+            request.setAttribute("error", "Họ và tên không được vượt quá 25 ký tự.");
+            request.getRequestDispatcher("/view/register.jsp").forward(request, response);
+            return;
+        }
+
+        if (!cleanName.matches("^[\\p{L}\\s]{1,25}$")) {
+            request.setAttribute("error", "Họ và tên chỉ được chứa chữ cái và khoảng trắng, không được chứa số, icon hoặc ký tự lạ.");
+            request.getRequestDispatcher("/view/register.jsp").forward(request, response);
+            return;
+        }
+
+        if (password.length() < 6) {
+            request.setAttribute("error", "Mật khẩu phải có tối thiểu 6 ký tự.");
+            request.getRequestDispatcher("/view/register.jsp").forward(request, response);
+            return;
+        }
+
+        if (!password.matches("^[\\x21-\\x7E]{6,}$")) {
+            request.setAttribute("error", "Mật khẩu không được chứa khoảng trắng, icon hoặc ký tự lạ (chỉ dùng chữ cái, số và ký tự thông thường).");
+            request.getRequestDispatcher("/view/register.jsp").forward(request, response);
+            return;
+        }
+
+        String cleanPhone = phone != null ? phone.trim() : "";
+        if (!cleanPhone.isEmpty() && !cleanPhone.matches("^(0|\\+84)[35789][0-9]{8}$")) {
+            request.setAttribute("error", "Số điện thoại không hợp lệ. Vui lòng nhập đúng định dạng số Việt Nam (VD: 0912345678 hoặc +84912345678).");
+            request.getRequestDispatcher("/view/register.jsp").forward(request, response);
+            return;
+        }
+
+        String cleanEmail = email.trim().toLowerCase();
+        User existingUser = userDao.findByEmail(cleanEmail);
+
+        User userToRegister = new User();
+        userToRegister.setFullName(fullName.trim());
+        userToRegister.setEmail(cleanEmail);
+        userToRegister.setPasswordHash(password);
+        userToRegister.setPhone(phone != null ? phone.trim() : "");
+        userToRegister.setAddress(address != null ? address.trim() : "");
+
+        boolean isRegisteredOrUpdated = false;
+
+        if (existingUser != null) {
+            if (existingUser.isActive() || existingUser.isLocked()) {
+                request.setAttribute("error", "Địa chỉ email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác.");
+                request.getRequestDispatcher("/view/register.jsp").forward(request, response);
+                return;
+            } else if (existingUser.isPending()) {
+                // Người dùng đã từng đăng ký nhưng chưa kích hoạt email -> cập nhật lại thông tin mới
+                userToRegister.setId(existingUser.getId());
+                isRegisteredOrUpdated = userDao.updatePendingUser(userToRegister);
+            }
         } else {
-            request.setAttribute("error", "Email đã tồn tại hoặc xảy ra lỗi!");
+            // Đăng ký mới với trạng thái PENDING (chờ kích hoạt email)
+            isRegisteredOrUpdated = userDao.register(userToRegister);
+        }
+
+        if (isRegisteredOrUpdated) {
+            // Lấy id người dùng nếu có
+            User savedUser = userDao.findByEmail(cleanEmail);
+            Integer userId = savedUser != null ? savedUser.getId() : null;
+
+            // Tạo token kích hoạt tài khoản có hạn 24 giờ (1440 phút)
+            UserToken token = userTokenDao.createToken(userId, cleanEmail, "REGISTER_VERIFY", 1440);
+
+            if (token != null) {
+                // Xây dựng đường dẫn xác nhận
+                String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+                String verifyLink = baseUrl + "/verify-account?token=" + token.getToken();
+
+                // Gửi email xác nhận
+                EmailService.sendVerificationEmail(cleanEmail, userToRegister.getFullName(), verifyLink, token.getOtpCode());
+            }
+
+            // Chuyển sang trang thông báo chờ xác nhận email
+            response.sendRedirect(request.getContextPath() + "/register-success?email=" + URLEncoder.encode(cleanEmail, StandardCharsets.UTF_8.name()));
+        } else {
+            request.setAttribute("error", "Không thể tạo tài khoản. Vui lòng kiểm tra lại thông tin hoặc thử lại sau!");
             request.getRequestDispatcher("/view/register.jsp").forward(request, response);
         }
     }

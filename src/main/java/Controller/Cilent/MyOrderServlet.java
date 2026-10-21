@@ -1,5 +1,13 @@
 package Controller.Cilent;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
+ * Phụ trách: Bạn (Gia Phú)
+ * Chức năng: Hiển thị lịch sử đơn hàng cá nhân của khách hàng.
+ * ============================================================================
+ */
+
 import dao.OrderDao;
 import model.Order;
 import model.User;

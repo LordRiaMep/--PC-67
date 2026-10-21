@@ -1,5 +1,13 @@
 package model;
 
+/**
+ * ============================================================================
+ * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
+ * Phụ trách: Quang
+ * Chức năng: Model biểu diễn bài viết tin tức.
+ * ============================================================================
+ */
+
 import java.util.Date;
 
 public class News {

@@ -1,7 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
 
-<!-- Nhúng FontAwesome để hiển thị các icon -->
+<!-- Nhúng FontAwesome & Bootstrap Icons để hiển thị các icon -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <!-- ==================== PRE-FOOTER ==================== -->
 <!-- 1. Bốn đặc quyền mua sắm -->
@@ -134,20 +137,199 @@
     </div>
 </div>
 
-<!-- ==================== FOOTER CHÍNH ==================== -->
-<footer class="bg-black text-secondary text-center py-4 mt-auto border-top border-secondary">
-    <div class="container" style="line-height: 1.8;">
-        <p class="mb-0">
-            <strong class="text-white">CỬA HÀNG HI-END COMPUTER ĐỘ-PC 67</strong><br>
-            Trụ sở: Số 15/2/437 Đà Nẵng, Phường Đông Hải, Quận Hải An, Thành phố Hải Phòng, Việt Nam<br>
-            Email: dogiaphu50@gmail.com<br>
-            Tel: 0904 112 618
-        </p>
-        <p class="mt-3 mb-0" style="font-size: 0.95rem;">
-            Copyright ©2026 Độ PC 67 - Chất Lượng Vượt Ngân Hà
-        </p>
+<!-- ==================== FOOTER CHÍNH NỀN TRẮNG TINH GỌN ==================== -->
+<style>
+    .footer-pro {
+        background-color: #ffffff;
+        color: #4b5563;
+        font-size: 13.5px;
+        border-top: 1px solid #e5e7eb;
+    }
+    .footer-pro .footer-title {
+        color: #111827;
+        font-size: 13.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+    }
+    .footer-contact-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    .footer-contact-list li {
+        margin-bottom: 10px;
+        line-height: 1.5;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .footer-clean-links {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    .footer-clean-links li {
+        margin-bottom: 8px;
+    }
+    .footer-clean-links a {
+        color: #4b5563;
+        text-decoration: none;
+        font-size: 13.5px;
+        display: inline-block;
+        transition: color 0.15s ease, transform 0.15s ease;
+    }
+    .footer-clean-links a:hover {
+        color: #e30019;
+        transform: translateX(3px);
+    }
+    .footer-social-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background-color: #f3f4f6;
+        color: #4b5563;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+    .footer-social-btn:hover {
+        background-color: #e30019;
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+    .footer-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 8px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #4b5563;
+        height: 26px;
+        min-width: 50px;
+    }
+</style>
+
+<!-- FOOTER CHÍNH NỀN TRẮNG -->
+<footer class="footer-pro pt-5 mt-auto">
+    <div class="container pb-4">
+        <div class="row g-4">
+
+            <!-- CỘT 1: VỀ ĐỘ-PC 67 -->
+            <div class="col-lg-3 col-md-6">
+                <h6 class="footer-title">VỀ ĐỘ-PC 67</h6>
+                <p class="text-muted mb-3" style="font-size: 13px; line-height: 1.6;">
+                    Hệ thống máy tính Hi-End, PC Gaming, Workstation đồ họa và linh kiện máy tính chính hãng tại Hải Phòng.
+                </p>
+                <ul class="footer-contact-list text-muted" style="font-size: 13px;">
+                    <li>
+                        <i class="bi bi-geo-alt text-danger mt-1"></i>
+                        <span>15/2/437 Đà Nẵng, P. Đông Hải, Q. Hải An, TP. Hải Phòng</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-clock text-danger mt-1"></i>
+                        <span>08:00 - 21:30 (Mở cửa tất cả các ngày)</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-envelope text-danger mt-1"></i>
+                        <span>dogiaphu50@gmail.com</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- CỘT 2: TỔNG ĐÀI HỖ TRỢ -->
+            <div class="col-lg-3 col-md-6">
+                <h6 class="footer-title">TỔNG ĐÀI HỖ TRỢ</h6>
+                <div class="mb-3">
+                    <div class="text-muted small">Tư vấn mua hàng:</div>
+                    <a href="tel:0904112618" class="text-danger fw-bold fs-5 text-decoration-none">0904 112 618</a>
+                    <div class="text-muted" style="font-size: 11.5px;">(08:00 - 21:30)</div>
+                </div>
+                <div class="mb-3">
+                    <div class="text-muted small">Hỗ trợ kỹ thuật & bảo hành:</div>
+                    <a href="tel:0904112618" class="text-dark fw-bold text-decoration-none">0904 112 618</a>
+                    <div class="text-muted" style="font-size: 11.5px;">(08:30 - 18:00)</div>
+                </div>
+                <div class="pt-1">
+                    <a href="${ctx}/contact" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-medium" style="font-size: 12.5px;">
+                        <i class="bi bi-chat-dots me-1"></i> Gửi phản hồi / Liên hệ
+                    </a>
+                </div>
+            </div>
+
+            <!-- CỘT 3: CHÍNH SÁCH & DỊCH VỤ -->
+            <div class="col-lg-3 col-md-6">
+                <h6 class="footer-title">CHÍNH SÁCH & DỊCH VỤ</h6>
+                <ul class="footer-clean-links">
+                    <li><a href="${ctx}/contact">Liên hệ & Bản đồ showroom</a></li>
+                    <li><a href="${ctx}/service/assembly">Dịch vụ ráp máy tại nhà</a></li>
+                    <li><a href="${ctx}/service/trade-in">Chính sách thu cũ đổi mới</a></li>
+                    <li><a href="${ctx}/orders">Tra cứu tình trạng đơn hàng</a></li>
+                    <li><a href="${ctx}/Home">Chính sách bảo hành 30 ngày</a></li>
+                    <li><a href="${ctx}/Home">Chính sách giao hàng toàn quốc</a></li>
+                    <li><a href="${ctx}/Home">Chính sách bảo mật thông tin</a></li>
+                </ul>
+            </div>
+
+            <!-- CỘT 4: THANH TOÁN & KẾT NỐI -->
+            <div class="col-lg-3 col-md-6">
+                <h6 class="footer-title">KẾT NỐI & THANH TOÁN</h6>
+                
+                <!-- Mạng xã hội -->
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <a href="https://facebook.com" target="_blank" rel="noopener" class="footer-social-btn" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com" target="_blank" rel="noopener" class="footer-social-btn" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="https://tiktok.com" target="_blank" rel="noopener" class="footer-social-btn" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://zalo.me/0904112618" target="_blank" rel="noopener" class="footer-social-btn" title="Zalo"><i class="bi bi-chat-dots-fill"></i></a>
+                </div>
+
+                <!-- Phương thức thanh toán gọn gàng -->
+                <div class="mb-3">
+                    <div class="text-muted small mb-2" style="font-size: 12px;">Hỗ trợ thanh toán:</div>
+                    <div class="d-flex flex-wrap gap-1">
+                        <span class="footer-chip">VNPAY</span>
+                        <span class="footer-chip">VISA</span>
+                        <span class="footer-chip">Master</span>
+                        <span class="footer-chip">MoMo</span>
+                        <span class="footer-chip">COD</span>
+                    </div>
+                </div>
+
+                <!-- Đã thông báo Bộ Công Thương -->
+                <div class="pt-1">
+                    <a href="http://online.gov.vn" target="_blank" rel="noopener" class="text-decoration-none d-inline-flex align-items-center gap-2 px-2 py-1 border rounded bg-white" style="border-color: #cbd5e1 !important; font-size: 11px; color: #1e3a8a;">
+                        <i class="bi bi-patch-check-fill text-primary fs-6"></i>
+                        <span><strong>ĐÃ THÔNG BÁO</strong> &bull; BỘ CÔNG THƯƠNG</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- THANH BẢN QUYỀN CUỐI CÙNG GỌN GÀNG -->
+    <div class="py-3" style="background-color: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 text-center text-md-start">
+            <div>
+                © 2026 <strong>ĐỘ-PC 67</strong>. Tất cả quyền được bảo lưu.
+            </div>
+            <div class="text-muted" style="font-size: 11.5px;">
+                Chất Lượng Vượt Ngân Hà &bull; Hotline: <strong class="text-dark">0904 112 618</strong>
+            </div>
+        </div>
     </div>
 </footer>
+
+<!-- Nhúng Widget Chatbot AI Tư Vấn PC Độ-PC 67 -->
+<jsp:include page="chatbot_widget.jsp" />
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
