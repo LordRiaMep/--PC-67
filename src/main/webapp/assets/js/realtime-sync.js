@@ -201,6 +201,15 @@
 
             // 3. Cập nhật DOM theo từng ngữ cảnh trang cụ thể
             this.applyDomUpdates(ev);
+
+            // 4. Kích hoạt cập nhật biểu đồ lãi kinh doanh nếu có trên trang
+            if (typeof window.updateProfitChart === 'function') {
+                try {
+                    window.updateProfitChart(ev);
+                } catch (chartErr) {
+                    console.error('[RealtimeSync] Lỗi updateProfitChart:', chartErr);
+                }
+            }
         },
 
         // =========================================================================

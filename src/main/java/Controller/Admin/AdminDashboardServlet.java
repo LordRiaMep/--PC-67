@@ -33,6 +33,7 @@ public class AdminDashboardServlet extends HttpServlet {
             request.setAttribute("totalProducts", dao.getTotalProducts());
             request.setAttribute("totalUsers", dao.getTotalUsers());
             request.setAttribute("recentOrders", dao.getRecentOrders());
+            request.setAttribute("profitStats", dao.getProfitStats());
 
         } catch (Exception e) {
             System.out.println("Lỗi khi lấy dữ liệu Dashboard: " + e.getMessage());

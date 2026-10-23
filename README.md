@@ -34,6 +34,16 @@ Hệ thống được thiết kế theo mô hình **Chuỗi giá trị liên th�
 [BƯỚC 5: QUANG]     WebSocket Hub nổ chuông TingTing -> Tự động nhảy số Doanh thu trên Dashboard Realtime
 ```
 
+### 📊 Bảng Tổng Hợp Phân Công & Danh Mục File Chính Trên Git
+
+| Phân hệ chức năng | Thành viên | Danh mục file chính trên Git |
+| :--- | :--- | :--- |
+| **1. Đặt hàng, VNPay & Quản trị Kho** | **Bạn (Gia Phú)** | `PlaceOrderServlet`, `OrderDetailServlet`, `MyOrderServlet`, `ClientOrderActionServlet`, `VnpayPayServlet`, `VnpayReturnServlet`, `AdminOrderServlet`, `ConfirmPaymentServlet`, `AdminWarehouseServlet`, `OrderDao`, `WarehouseDao`, `Order`, `OrderDetail`, `WarehouseConfig`, `VnpayUtil`, `VnpayConfig`. |
+| **2. Realtime WebSocket Hub, Dashboard & CSKH** | **Quang** | `RealtimeHub`, `RealtimeWebSocket`, `RealtimeEvent`, `RealtimeSyncServlet`, `AdminDashboardServlet`, `AdminProfitStatsServlet`, `DashboardDAO`, `ProfitStats`, `NewsServlet`, `NewsDetailServlet`, `AdminNewsServlet`, `NewsDao`, `ContactServlet`, `AdminContactServlet`, `ContactDao`, `realtime-sync.js`, `chart.umd.min.js`. |
+| **3. Sản phẩm, Tùy chọn Nâng cấp PC & Gemini AI** | **Nhân Hiếu** | `DetailServlet`, `SearchServlet`, `SearchSuggestServlet`, `ChatbotServlet`, `AdminProductServlet`, `AdminCategoryServlet`, `ProductDao`, `CategoryDao`, `UpgradeDao`, `GeminiService`, `ChatbotKnowledgeService`, `Product`, `Category`, `UpgradeOption`. |
+| **4. Giỏ hàng, Voucher & Vận chuyển GHN** | **Bảo** | `CartServlet`, `AddToCartServlet`, `UpdateCartServlet`, `RemoveCartServlet`, `CheckoutServlet`, `ShippingApiServlet`, `AdminVoucherServlet`, `CartDao`, `VoucherDao`, `GhnService`, `GhnConfig`, `Cart`, `CartItem`, `Voucher`. |
+| **5. Tài khoản, Email OTP & Phân quyền Bảo mật** | **Phong** | `LoginServlet`, `LogoutServlet`, `RegisterServlet`, `VerifyAccountServlet`, `ForgotPasswordServlet`, `ResetPasswordServlet`, `ProfileServlet`, `ChangePasswordServlet`, `AdminUserServlet`, `AdminFilter`, `UserStatusFilter`, `LoginSecurityService`, `EmailService`, `UserDao`, `UserTokenDao`. |
+
 ---
 
 ### 1. 💳 Phân hệ 1: Đặt hàng, Cổng thanh toán VNPay & Quản trị Đơn hàng - Tồn kho
@@ -70,6 +80,7 @@ Hệ thống được thiết kế theo mô hình **Chuỗi giá trị liên th�
   * **Controllers:**
     * `src/main/java/Controller/RealtimeSyncServlet.java` — Fallback Long-polling khi rớt WS.
     * `src/main/java/Controller/Admin/AdminDashboardServlet.java` — Dashboard thống kê doanh thu.
+    * `src/main/java/Controller/Admin/AdminProfitStatsServlet.java` — API tính toán cơ cấu Lãi kinh doanh & hỗ trợ Doughnut Realtime.
     * `src/main/java/Controller/Admin/AdminNewsServlet.java` — Quản trị tin tức công nghệ.
     * `src/main/java/Controller/Admin/AdminContactServlet.java` — Xử lý khiếu nại khách hàng.
     * `src/main/java/Controller/Cilent/NewsServlet.java` & `NewsDetailServlet.java` — Trang tin tức.
@@ -81,9 +92,11 @@ Hệ thống được thiết kế theo mô hình **Chuỗi giá trị liên th�
     * `src/main/java/util/realtime/RealtimeHub.java`
     * `src/main/java/util/realtime/RealtimeWebSocket.java`
     * `src/main/java/util/realtime/RealtimeEvent.java`
+    * `src/main/java/model/ProfitStats.java`
     * `src/main/java/model/News.java`, `src/main/java/model/Contact.java`
   * **Views & Scripts:**
     * `src/main/webapp/assets/js/realtime-sync.js`
+    * `src/main/webapp/assets/js/chart.umd.min.js`
     * `src/main/webapp/view/dashboard.jsp`, `src/main/webapp/view/admin_news.jsp`, `src/main/webapp/view/admin_contacts.jsp`
     * `src/main/webapp/view/news.jsp`, `src/main/webapp/view/news_detail.jsp`, `src/main/webapp/view/contact.jsp`
 
