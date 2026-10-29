@@ -1,13 +1,5 @@
 package Controller.Auth;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Khách yêu cầu đặt lại mật khẩu qua email.
- * ============================================================================
- */
-
 import dao.UserDao;
 import dao.UserTokenDao;
 import model.User;
@@ -83,7 +75,6 @@ public class ForgotPasswordServlet extends HttpServlet {
             return;
         }
 
-        // Tạo token đặt lại mật khẩu có thời hạn 30 phút
         UserToken token = userTokenDao.createToken(user.getId(), cleanEmail, "RESET_PASSWORD", 30);
         if (token != null) {
             String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();

@@ -1,13 +1,5 @@
 package Controller.Auth;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Hiển thị trang thông báo đăng ký thành công, chờ kích hoạt.
- * ============================================================================
- */
-
 import util.EmailConfig;
 import util.EmailService;
 import jakarta.servlet.*;

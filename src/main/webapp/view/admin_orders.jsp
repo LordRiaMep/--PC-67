@@ -27,7 +27,6 @@
         </div>
     </header>
 
-    <!-- Thông báo kết quả -->
     <c:if test="${not empty successMessage}">
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
             <i class="fa-solid fa-circle-check fs-5 me-2"></i>
@@ -46,7 +45,6 @@
 
     <div class="row g-4">
 
-        <!-- Danh sách đơn -->
         <div class="col-xl-7">
             <div class="panel overflow-hidden">
                 <div class="panel-head">
@@ -142,7 +140,6 @@
             </c:if>
         </div>
 
-        <!-- Chi tiết đơn -->
         <div class="col-xl-5">
             <c:choose>
                 <c:when test="${not empty selectedOrder}">
@@ -171,7 +168,6 @@
                                 </span>
                             </div>
 
-                            <!-- Xác nhận đã nhận tiền (đơn QR) -->
                             <c:if test="${lockPay && selectedOrder.status != 'CANCELLED'}">
                                 <div class="pay-warn mt-3">
                                     <div class="warn-text small mb-2"><i class="fa-solid fa-triangle-exclamation me-1"></i>
@@ -185,7 +181,6 @@
                                 </div>
                             </c:if>
 
-                            <!-- Cập nhật trạng thái theo quy trình tiến trình đơn hàng -->
                             <c:choose>
                                 <c:when test="${selectedOrder.status == 'CANCELLED' || selectedOrder.status == 'CLIENT_CANCELLED'}">
                                     <div class="mt-3 p-3 item-box bg-danger bg-opacity-10 border-danger d-flex align-items-center gap-2">
@@ -203,7 +198,7 @@
                                                 <div>
                                                     <strong class="text-danger d-block fs-6"><i class="fa-solid fa-hand-holding-dollar me-1"></i>QUY TRÌNH HOÀN TIỀN: ĐƠN QR ĐÃ THANH TOÁN</strong>
                                                     <div class="small text-dark mt-1">
-                                                        Đơn hàng này đã bị hủy nhưng khách hàng <strong>ĐÃ THANH TOÁN</strong> số tiền: 
+                                                        Đơn hàng này đã bị hủy nhưng khách hàng <strong>ĐÃ THANH TOÁN</strong> số tiền:
                                                         <strong class="text-danger fs-6"><fmt:formatNumber value="${selectedOrder.totalMoney}" pattern="#,##0"/> đ</strong>.
                                                         <br>
                                                         <span class="text-danger fw-semibold">Cảnh báo Admin:</span> Phải liên hệ khách hàng và thực hiện quy trình hoàn tiền, không được để thất lạc tiền của khách!
@@ -258,7 +253,7 @@
                                           onsubmit="var sel = this.querySelector('select[name=status]'); if (sel && sel.value === 'CANCELLED' && ${selectedOrder.paymentMethod == 'QR' && (selectedOrder.paymentStatus == 'PAID' || selectedOrder.transferAmount > 0)}) { return confirm('CẢNH BÁO: Đơn hàng này khách ĐÃ THANH TOÁN QR (<fmt:formatNumber value="${selectedOrder.totalMoney}" pattern="#,##0"/> đ). Sau khi hủy, bạn phải thực hiện quy trình hoàn tiền cho khách! Bạn có chắc chắn muốn hủy đơn không?'); } return true;">
                                         <input type="hidden" name="id" value="${selectedOrder.id}">
                                         <input type="hidden" name="page" value="${currentPage}">
-                                        
+
                                         <div class="field-label d-flex justify-content-between align-items-center mb-1">
                                             <span>Cập nhật tiến trình đơn hàng</span>
                                             <span class="badge ${selectedOrder.statusBadgeClass}">${selectedOrder.statusDisplayName}</span>
@@ -315,7 +310,6 @@
                                 </c:otherwise>
                             </c:choose>
 
-                            <!-- Sản phẩm -->
                             <div class="field-label mt-4">Sản phẩm đã đặt</div>
                             <c:forEach items="${orderDetails}" var="item">
                                 <div class="item-box">
@@ -375,6 +369,8 @@
         </div>
     </div>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+
+</script>
 </body>
 </html>

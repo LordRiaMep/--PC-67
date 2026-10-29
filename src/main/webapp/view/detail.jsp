@@ -142,6 +142,134 @@
     .related-card .rc-name { color: #212529; font-weight: 600; font-size: 14px; height: 40px; overflow: hidden; }
     .related-card .rc-price { color: #dc3545; font-weight: bold; font-size: 16px; }
 
+    /* Gallery Styles for Multi-Image */
+    .product-gallery-container {
+        margin-bottom: 24px;
+    }
+    .product-main-image-wrap {
+        position: relative;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        min-height: 380px;
+        max-height: 420px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        padding: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+    .product-detail-img {
+        max-height: 380px;
+        max-width: 100%;
+        object-fit: contain;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .gallery-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 5;
+        outline: none;
+    }
+    .gallery-nav-btn:hover {
+        background: #E6021A;
+        color: #ffffff;
+        border-color: #E6021A;
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 6px 18px rgba(230, 2, 26, 0.35);
+    }
+    .gallery-nav-btn.prev-btn { left: 12px; }
+    .gallery-nav-btn.next-btn { right: 12px; }
+
+    /* Khay dải ảnh thu nhỏ (Thumbnails Tray) cao cấp */
+    .gallery-thumbnails-strip {
+        display: flex;
+        align-items: center;
+        justify-content: safe center;
+        gap: 12px;
+        margin-top: 14px;
+        padding: 10px 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .gallery-thumbnails-strip::-webkit-scrollbar {
+        height: 5px;
+    }
+    .gallery-thumbnails-strip::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 999px;
+    }
+    .gallery-thumbnails-strip::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+    }
+    .gallery-thumbnails-strip::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* Từng thẻ ảnh nhỏ - Tỉ lệ ngang chuẩn tech, bo góc 10px, hiệu ứng đổ bóng */
+    .thumb-item {
+        width: 88px;
+        height: 64px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        background: #ffffff;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        opacity: 0.72;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+    .thumb-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 7px;
+        transition: transform 0.25s ease;
+    }
+    .thumb-item:hover {
+        opacity: 1;
+        border-color: #fca5a5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .thumb-item:hover img {
+        transform: scale(1.05);
+    }
+    .thumb-item.active {
+        opacity: 1;
+        border-color: #E6021A;
+        box-shadow: 0 0 0 3px rgba(230, 2, 26, 0.2), 0 6px 16px rgba(230, 2, 26, 0.25);
+        transform: translateY(-2px);
+        background: #ffffff;
+    }
+    .thumb-item.active img {
+        transform: scale(1.02);
+    }
 </style>
 
 <div class="container my-4">
@@ -160,11 +288,43 @@
     <div class="row bg-white p-4 rounded-3 border align-items-start shadow-sm">
         <!-- Cột bên trái: Khung ảnh sản phẩm, Khung Khuyến Mãi & Khung Bảo hành -->
         <div class="col-md-6">
-            <div class="text-center mb-4">
-                <c:set var="imgUrl" value="${fn:startsWith(p.image, 'http') ? p.image : ctx.concat('/').concat(p.image)}" />
-                <img src="${imgUrl}" class="img-fluid rounded product-detail-img w-100 bg-light border" alt="${p.name}"
-                     referrerpolicy="no-referrer"
-                     onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=No+Image';">
+            <!-- BỘ SƯU TẬP ẢNH SẢN PHẨM (NHIỀU ẢNH) -->
+            <div class="product-gallery-container mb-4">
+                <c:set var="firstImg" value="${not empty p.images && fn:length(p.images) > 0 ? p.images[0] : p.image}" />
+                <c:set var="mainImgSrc" value="${fn:startsWith(firstImg, 'http') ? firstImg : ctx.concat('/').concat(firstImg)}" />
+
+                <!-- Khung hiển thị ảnh lớn -->
+                <div class="product-main-image-wrap">
+                    <img id="mainProductImg" src="${mainImgSrc}" class="product-detail-img" alt="${p.name}"
+                         referrerpolicy="no-referrer"
+                         onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=No+Image';">
+
+                    <c:if test="${not empty p.images && fn:length(p.images) > 1}">
+                        <button type="button" class="gallery-nav-btn prev-btn" id="btnGalleryPrev" title="Xem ảnh trước">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="gallery-nav-btn next-btn" id="btnGalleryNext" title="Xem ảnh tiếp theo">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <span class="badge rounded-pill bg-dark bg-opacity-75 text-white position-absolute bottom-0 end-0 m-3 px-3 py-1" style="font-size: 11px;">
+                            <i class="fas fa-camera me-1"></i> <span id="galleryCurrentIdx">1</span> / ${fn:length(p.images)}
+                        </span>
+                    </c:if>
+                </div>
+
+                <!-- Dải thumbnail các ảnh phụ nếu có nhiều ảnh -->
+                <c:if test="${not empty p.images && fn:length(p.images) > 1}">
+                    <div class="gallery-thumbnails-strip">
+                        <c:forEach items="${p.images}" var="imgItem" varStatus="loop">
+                            <c:set var="itemSrc" value="${fn:startsWith(imgItem, 'http') ? imgItem : ctx.concat('/').concat(imgItem)}" />
+                            <div class="thumb-item ${loop.first ? 'active' : ''}" data-index="${loop.index}" data-src="${itemSrc}">
+                                <img src="${itemSrc}" alt="${p.name} - Ảnh ${loop.index + 1}"
+                                     referrerpolicy="no-referrer"
+                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/80?text=No+Image';">
+                            </div>
+                        </c:forEach>
+                    </div>
+                </c:if>
             </div>
 
             <!-- Khung Khuyến Mãi -->
@@ -724,6 +884,65 @@
                 }
             });
         });
+
+        // Bộ sưu tập nhiều ảnh sản phẩm (Interactive Image Gallery)
+        const mainImg = document.getElementById('mainProductImg');
+        const thumbs = document.querySelectorAll('.thumb-item');
+        const prevBtn = document.getElementById('btnGalleryPrev');
+        const nextBtn = document.getElementById('btnGalleryNext');
+        const counterEl = document.getElementById('galleryCurrentIdx');
+
+        if (thumbs && thumbs.length > 1) {
+            let currentGalleryIdx = 0;
+            const totalGalleryCount = thumbs.length;
+
+            function showGalleryIndex(idx) {
+                if (idx < 0) idx = totalGalleryCount - 1;
+                if (idx >= totalGalleryCount) idx = 0;
+                currentGalleryIdx = idx;
+
+                const targetThumb = thumbs[currentGalleryIdx];
+                const newSrc = targetThumb.getAttribute('data-src');
+
+                if (mainImg) {
+                    mainImg.style.opacity = '0.3';
+                    setTimeout(function() {
+                        mainImg.src = newSrc;
+                        mainImg.style.opacity = '1';
+                    }, 140);
+                }
+
+                thumbs.forEach(function(t) { t.classList.remove('active'); });
+                targetThumb.classList.add('active');
+                targetThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+                if (counterEl) counterEl.innerText = (currentGalleryIdx + 1);
+            }
+
+            thumbs.forEach(function(thumb) {
+                thumb.addEventListener('click', function() {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    showGalleryIndex(idx);
+                });
+                thumb.addEventListener('mouseenter', function() {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    showGalleryIndex(idx);
+                });
+            });
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showGalleryIndex(currentGalleryIdx - 1);
+                });
+            }
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showGalleryIndex(currentGalleryIdx + 1);
+                });
+            }
+        }
 
         refresh();
     });

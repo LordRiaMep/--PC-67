@@ -6,8 +6,7 @@
 <jsp:include page="header.jsp" />
 
 <style>
-  /* Khung Card Đăng Nhập - Thuận mắt, gọn gàng */
-  .auth-box-card {
+.auth-box-card {
     background: #ffffff;
     max-width: 440px;
     width: 100%;
@@ -41,7 +40,6 @@
     display: block;
   }
 
-  /* Ô input - Ghi đè triệt để mọi viền xanh & outline xanh của Bootstrap */
   .custom-auth-input {
     height: 44px;
     border: 1px solid #ced4da !important;
@@ -60,7 +58,6 @@
     outline: none !important;
   }
 
-  /* Xóa màu nền xanh nhạt khi Chrome / Edge tự động điền (Autofill) */
   .custom-auth-input:-webkit-autofill,
   .custom-auth-input:-webkit-autofill:hover,
   .custom-auth-input:-webkit-autofill:focus,
@@ -71,7 +68,6 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
-  /* Nút con mắt ẩn/hiện mật khẩu nằm gọn gàng góc phải */
   .pass-wrapper {
     position: relative;
   }
@@ -98,28 +94,34 @@
     color: #E30019;
   }
 
-  /* Nút bấm Đăng Nhập màu đỏ thương hiệu Độ-PC 67 */
   .btn-auth-red {
-    background-color: #E30019;
-    border: none;
-    color: #ffffff;
-    height: 44px;
-    border-radius: 8px;
+    background-color: #E30019 !important;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+    height: 46px;
+    border-radius: 10px;
     font-size: 15px;
     font-weight: 700;
     width: 100%;
     margin-top: 10px;
     margin-bottom: 20px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    box-shadow: 0 4px 14px rgba(227, 0, 25, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease;
   }
 
   .btn-auth-red:hover {
-    background-color: #c80016;
-    color: #ffffff;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+    background-color: #b91c1c !important;
+    color: #ffffff !important;
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 18px rgba(220, 38, 38, 0.45) !important;
   }
 
-  /* Dòng chuyển hướng sang Đăng ký */
   .switch-auth-box {
     text-align: center;
     font-size: 14px;
@@ -138,7 +140,6 @@
     text-decoration: underline;
   }
 
-  /* Hàng nhớ mật khẩu & quên mật khẩu */
   .auth-remember-row {
     display: flex;
     justify-content: space-between;
@@ -172,7 +173,6 @@
     text-decoration: underline;
   }
 
-  /* Báo khóa tài khoản */
   .lock-alert-box {
     background-color: #fff1f2;
     border: 1px solid #fecdd3;
@@ -200,7 +200,6 @@
       <h2>ĐĂNG NHẬP</h2>
       <p class="sub-text">Chào mừng bạn quay lại với Độ-PC 67</p>
 
-      <!-- THÔNG BÁO TÀI KHOẢN BỊ KHÓA -->
       <c:if test="${accountLocked}">
         <div class="lock-alert-box">
           <div class="fw-bold mb-1"><i class="bi bi-shield-x me-1"></i>Tài khoản đã bị tạm khóa!</div>
@@ -219,14 +218,12 @@
         </div>
       </c:if>
 
-      <!-- THÔNG BÁO THÀNH CÔNG (KÍCH HOẠT / ĐỔI MẬT KHẨU) -->
       <c:if test="${not empty successMessage}">
         <div class="alert alert-success p-3 text-center small mb-3 rounded-3 shadow-sm border-0" style="background-color: #d1fae5; color: #065f46;">
           <i class="bi bi-check-circle-fill me-1 fs-6"></i> ${successMessage}
         </div>
       </c:if>
 
-      <!-- THÔNG BÁO TÀI KHOẢN CHƯA KÍCH HOẠT EMAIL -->
       <c:if test="${accountPending}">
         <div class="alert alert-warning p-3 small mb-3 rounded-3" style="background-color: #fef3c7; border: 1px solid #fde68a; color: #92400e;">
           <div class="fw-bold mb-1"><i class="bi bi-envelope-exclamation-fill me-1 text-warning"></i>Tài khoản chưa được kích hoạt!</div>
@@ -239,7 +236,6 @@
         </div>
       </c:if>
 
-      <!-- THÔNG BÁO TẠM KHÓA DO NHẬP SAI MẬT KHẨU QUÁ 5 LẦN -->
       <c:if test="${tempLocked}">
         <div class="lock-alert-box mb-3">
           <div class="fw-bold mb-1 text-danger"><i class="bi bi-shield-lock-fill me-1"></i>Tài khoản tạm thời bị khóa!</div>
@@ -255,7 +251,6 @@
         </div>
       </c:if>
 
-      <!-- THÔNG BÁO LỖI THÔNG THƯỜNG -->
       <c:if test="${not empty error && !accountLocked && !accountPending && !tempLocked}">
         <div class="alert alert-danger p-2 text-center small mb-3 rounded-3">${error}</div>
       </c:if>
@@ -264,12 +259,12 @@
 
         <div class="mb-3">
           <label>Email <span class="text-danger">*</span></label>
-          <input type="email" 
-                 name="email" 
-                 id="loginEmail" 
-                 class="form-control custom-auth-input" 
-                 required 
-                 placeholder="Nhập email..." 
+          <input type="email"
+                 name="email"
+                 id="loginEmail"
+                 class="form-control custom-auth-input"
+                 required
+                 placeholder="Nhập email..."
                  autocomplete="email"
                  value="<c:out value='${enteredEmail}'/>">
         </div>
@@ -277,12 +272,12 @@
         <div class="mb-3">
           <label>Mật khẩu <span class="text-danger">*</span></label>
           <div class="pass-wrapper">
-            <input type="password" 
-                   name="password" 
-                   id="loginPassword" 
-                   class="form-control custom-auth-input" 
-                   required 
-                   placeholder="Nhập mật khẩu..." 
+            <input type="password"
+                   name="password"
+                   id="loginPassword"
+                   class="form-control custom-auth-input"
+                   required
+                   placeholder="Nhập mật khẩu..."
                    autocomplete="current-password">
             <span class="pass-toggle-btn" onclick="togglePass('loginPassword', this)" title="Hiện/ẩn mật khẩu">
               <i class="bi bi-eye"></i>
@@ -313,7 +308,7 @@
 </div>
 
 <script>
-  function togglePass(inputId, el) {
+function togglePass(inputId, el) {
     var input = document.getElementById(inputId);
     if (!input) return;
     var icon = el.querySelector('i');

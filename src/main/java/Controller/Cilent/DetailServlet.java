@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Hiển thị trang chi tiết sản phẩm, tải nhóm tùy chọn nâng cấp và tính tiền linh hoạt.
- * ============================================================================
- */
-
 import dao.ProductDao;
 import dao.UpgradeDao;
 import jakarta.servlet.*;
@@ -30,7 +22,6 @@ public class DetailServlet extends HttpServlet {
         ProductDao dao = new ProductDao();
         Product p = dao.getProductById(id);
 
-        // Sản phẩm không tồn tại -> về trang chủ
         if (p == null) {
             response.sendRedirect(request.getContextPath() + "/Home");
             return;
@@ -38,10 +29,8 @@ public class DetailServlet extends HttpServlet {
 
         Map<String, List<UpgradeOption>> upgradeGroups = new UpgradeDao().getGroupsByProduct(id);
 
-        // Sản phẩm tương tự: cùng danh mục, giá gần nhất, tối đa 8 sản phẩm
         List<Product> relatedProducts = dao.getRelatedProducts(p.getId(), p.getCategoryId(), p.getPrice(), 8);
 
-        // Danh sách Voucher ưu đãi khả dụng
         List<model.Voucher> voucherList = new dao.VoucherDao().getAvailableVouchersForDisplay();
 
         request.setAttribute("p", p);

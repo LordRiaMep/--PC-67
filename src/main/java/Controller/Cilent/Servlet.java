@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [HỆ THỐNG DÙNG CHUNG (HOME CONTROLLER)]
- * Phụ trách: Cả nhóm
- * Chức năng: Điều hướng trang chủ, nạp sản phẩm nổi bật và tin tức công nghệ.
- * ============================================================================
- */
-
 import dao.CategoryDao;
 import dao.ProductDao;
 import jakarta.servlet.*;

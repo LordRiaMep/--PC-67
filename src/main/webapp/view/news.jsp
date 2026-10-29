@@ -5,7 +5,7 @@
 <jsp:include page="header.jsp" />
 
 <style>
-    .news-clamp-2 {
+.news-clamp-2 {
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -30,21 +30,18 @@
         </c:when>
         <c:otherwise>
 
-            <!-- NỔI BẬT NHẤT (chỉ hiện khi có bài nổi bật) -->
             <c:if test="${not empty featuredNews}">
                 <h5 class="fw-bold mb-3 border-start border-danger border-4 ps-2">Nổi Bật Nhất</h5>
                 <c:set var="blockList" value="${featuredNews}" scope="request" />
                 <jsp:include page="news_block.jsp" />
             </c:if>
 
-            <!-- TIN TỨC MỚI (không trùng với mục Nổi bật) -->
             <c:if test="${not empty listNews}">
                 <h5 class="fw-bold ${empty featuredNews ? 'mt-0' : 'mt-5'} mb-3 border-start border-danger border-4 ps-2">Tin Tức Mới</h5>
                 <c:set var="blockList" value="${listNews}" scope="request" />
                 <jsp:include page="news_block.jsp" />
             </c:if>
 
-            <!-- Phân trang -->
             <c:if test="${totalPages > 1}">
                 <nav aria-label="Page navigation" class="mt-4">
                     <ul class="pagination justify-content-center">

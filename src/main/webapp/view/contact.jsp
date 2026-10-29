@@ -4,43 +4,67 @@
 <c:set var="zaloUrl" value="https://zalo.me/0904112618" />
 
 <%
-    if ("POST".equalsIgnoreCase(request.getMethod())) {
-        request.setCharacterEncoding("UTF-8");
+if ("POST".equalsIgnoreCase(request.getMethod())) {
+    request.setCharacterEncoding("UTF-8");
+    // Nếu đã có thông báo từ ContactServlet thì không xử lý lại
+    if (request.getAttribute("successMessage") == null && request.getAttribute("errorMessage") == null) {
         String fullName = request.getParameter("fullName");
         String phone = request.getParameter("phone");
         String email = request.getParameter("email");
         String topic = request.getParameter("topic");
         String message = request.getParameter("message");
 
-        if (fullName != null && !fullName.trim().isEmpty() && phone != null && !phone.trim().isEmpty()) {
-            if (request.getAttribute("successMessage") == null) {
-                model.Contact c = new model.Contact();
-                c.setFullName(fullName.trim());
-                c.setPhone(phone.trim());
-                c.setEmail(email != null ? email.trim() : "");
-                c.setTopic(topic != null ? topic.trim() : "Tư vấn cấu hình PC");
-                c.setMessage(message != null ? message.trim() : "");
-                c.setStatus("Chưa xử lý");
-                new dao.ContactDao().insert(c);
+        String cleanFullName = fullName != null ? fullName.trim() : "";
+        String cleanPhone = phone != null ? phone.trim().replaceAll("[\\s.-]", "") : "";
+        String cleanEmail = email != null ? email.trim() : "";
+        String cleanTopic = topic != null ? topic.trim() : "Tư vấn cấu hình PC Gaming";
+        String cleanMessage = message != null ? message.trim() : "";
 
-                request.setAttribute("successMessage", "Cảm ơn quý khách " + fullName.trim() + "! Độ-PC 67 đã tiếp nhận yêu cầu liên hệ của bạn. Chuyên viên tư vấn sẽ liên hệ lại qua số " + phone.trim() + " trong vòng 15 phút.");
-                request.setAttribute("submitted", true);
+        request.setAttribute("formFullName", fullName);
+        request.setAttribute("formPhone", phone);
+        request.setAttribute("formEmail", email);
+        request.setAttribute("formTopic", topic);
+        request.setAttribute("formMessage", message);
+
+        String vnPhoneRegex = "^(0|\\+84)[35789][0-9]{8}$";
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+
+        if (cleanFullName.isEmpty()) {
+            request.setAttribute("errorMessage", "Vui lòng nhập Họ và tên của bạn!");
+        } else if (cleanPhone.isEmpty()) {
+            request.setAttribute("errorMessage", "Vui lòng nhập Số điện thoại liên hệ!");
+        } else if (!cleanPhone.matches(vnPhoneRegex)) {
+            request.setAttribute("errorMessage", "Số điện thoại không hợp lệ. Vui lòng nhập đúng số điện thoại theo định dạng Việt Nam (VD: 0904112618 hoặc +84904112618)!");
+        } else if (!cleanEmail.isEmpty() && !cleanEmail.matches(emailRegex)) {
+            request.setAttribute("errorMessage", "Địa chỉ email không đúng định dạng. Vui lòng nhập email hợp lệ (VD: name@example.com)!");
+        } else {
+            model.Contact c = new model.Contact();
+            c.setFullName(cleanFullName);
+            c.setPhone(cleanPhone);
+            c.setEmail(cleanEmail);
+            c.setTopic(cleanTopic);
+            c.setMessage(cleanMessage);
+            c.setStatus("Chưa xử lý");
+            boolean ok = new dao.ContactDao().insert(c);
+            if (ok) {
+                util.realtime.RealtimeHub.broadcastContactCreated(c.getId(), c.getFullName(), c.getPhone(), c.getEmail(), c.getTopic(), c.getMessage());
             }
-        } else if (request.getAttribute("errorMessage") == null) {
-            request.setAttribute("errorMessage", "Vui lòng nhập đầy đủ Họ và tên và Số điện thoại liên hệ!");
-            request.setAttribute("formFullName", fullName);
-            request.setAttribute("formPhone", phone);
-            request.setAttribute("formEmail", email);
-            request.setAttribute("formTopic", topic);
-            request.setAttribute("formMessage", message);
+
+            request.setAttribute("successMessage", "Cảm ơn " + cleanFullName + "! Độ-PC 67 đã tiếp nhận yêu cầu liên hệ của bạn. Chuyên viên tư vấn sẽ liên hệ lại qua số " + cleanPhone + " trong vòng 15 phút.");
+            request.setAttribute("submitted", true);
+            request.removeAttribute("formFullName");
+            request.removeAttribute("formPhone");
+            request.removeAttribute("formEmail");
+            request.removeAttribute("formMessage");
         }
     }
+}
 %>
 
 <jsp:include page="header.jsp" />
 
 <style>
-    .contact-hero {
+.contact-hero {
         background: linear-gradient(135deg, #181c24 0%, #0d1015 100%);
         border-radius: 16px;
         color: #fff;
@@ -119,7 +143,6 @@
 
 <div class="container py-4 flex-grow-1">
 
-    <!-- BREADCRUMB -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="${ctx}/Home" class="text-decoration-none text-danger">Trang chủ</a></li>
@@ -127,7 +150,6 @@
         </ol>
     </nav>
 
-    <!-- HERO HEADER -->
     <div class="contact-hero mb-4 shadow-sm">
         <div class="row align-items-center">
             <div class="col-lg-8">
@@ -150,9 +172,8 @@
         </div>
     </div>
 
-    <!-- 4 QUICK CONTACT CARDS -->
     <div class="row g-3 mb-4">
-        <!-- 1. Bán hàng -->
+
         <div class="col-sm-6 col-lg-3">
             <div class="contact-card">
                 <div class="contact-icon-circle bg-danger-subtle text-danger">
@@ -165,7 +186,6 @@
             </div>
         </div>
 
-        <!-- 2. Kỹ thuật -->
         <div class="col-sm-6 col-lg-3">
             <div class="contact-card">
                 <div class="contact-icon-circle bg-primary-subtle text-primary">
@@ -178,7 +198,6 @@
             </div>
         </div>
 
-        <!-- 3. Showroom -->
         <div class="col-sm-6 col-lg-3">
             <div class="contact-card">
                 <div class="contact-icon-circle bg-success-subtle text-success">
@@ -191,7 +210,6 @@
             </div>
         </div>
 
-        <!-- 4. Email & Chat -->
         <div class="col-sm-6 col-lg-3">
             <div class="contact-card">
                 <div class="contact-icon-circle bg-warning-subtle text-warning">
@@ -205,9 +223,8 @@
         </div>
     </div>
 
-    <!-- MAIN SECTION: FORM LIÊN HỆ + SHOWROOM MAP -->
     <div class="row g-4 mb-5">
-        <!-- CỘT TRÁI: FORM LIÊN HỆ -->
+
         <div class="col-lg-7">
             <div class="form-box">
                 <div class="d-flex align-items-center gap-2 mb-3">
@@ -218,7 +235,6 @@
                     </div>
                 </div>
 
-                <!-- THÔNG BÁO THÀNH CÔNG HOẶC LỖI -->
                 <c:if test="${not empty successMessage}">
                     <div class="alert alert-success d-flex align-items-center gap-2 mb-4 shadow-sm" role="alert">
                         <i class="bi bi-check-circle-fill fs-4 flex-shrink-0"></i>
@@ -232,19 +248,26 @@
                     </div>
                 </c:if>
 
-                <form action="${ctx}/contact/" method="post">
+                <form action="${ctx}/contact/" method="post" id="contactForm" onsubmit="return validateContactForm(event)">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small text-dark">Họ và tên <span class="text-danger">*</span></label>
-                            <input type="text" name="fullName" class="form-control py-2" placeholder="VD: Nguyễn Văn A" value="${formFullName}" required>
+                            <input type="text" name="fullName" id="contactFullName" class="form-control py-2" placeholder="VD: Nguyễn Văn A" value="${formFullName}" required maxlength="50">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small text-dark">Số điện thoại <span class="text-danger">*</span></label>
-                            <input type="tel" name="phone" class="form-control py-2" placeholder="VD: 0904 112 618" value="${formPhone}" required>
+                            <input type="tel" name="phone" id="contactPhone" class="form-control py-2" placeholder="VD: 0904 112 618" value="${formPhone}" 
+                                   pattern="^(0|\+84)[35789][0-9]{8}$" 
+                                   title="Số điện thoại Việt Nam gồm 10 chữ số (VD: 0904112618 hoặc +84904112618)" 
+                                   required>
+                            <div class="form-text text-muted" style="font-size: 11.5px;">Đầu số VN (03, 05, 07, 08, 09 hoặc +84)</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small text-dark">Địa chỉ Email</label>
-                            <input type="email" name="email" class="form-control py-2" placeholder="name@example.com" value="${formEmail}">
+                            <input type="email" name="email" id="contactEmail" class="form-control py-2" placeholder="name@example.com" value="${formEmail}"
+                                   pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                                   title="Địa chỉ email hợp lệ (VD: name@example.com)">
+                            <div class="form-text text-muted" style="font-size: 11.5px;">Ví dụ: name@example.com</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small text-dark">Nhu cầu cần hỗ trợ</label>
@@ -272,7 +295,6 @@
             </div>
         </div>
 
-        <!-- CỘT PHẢI: BẢN ĐỒ VÀ THÔNG TIN SHOWROOM -->
         <div class="col-lg-5">
             <div class="map-box">
                 <div class="p-3 bg-light border-bottom d-flex align-items-center justify-content-between">
@@ -285,7 +307,6 @@
                     </a>
                 </div>
 
-                <!-- GOOGLE MAPS EMBED IFRAME (Hải Phòng) -->
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14901.782806733235!2d106.7027552!3d20.8652399!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314a70086d9a04a3%3A0xe54e5653b6cb5922!2zxJDDoCBO4bq1bmcsIEjhuqNpIEFuLCBI4bqjaSBQaMOybmcsIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1700000000000!5m2!1svi!2s"
                     allowfullscreen=""
@@ -313,7 +334,6 @@
         </div>
     </div>
 
-    <!-- BANNER DỊCH VỤ ĐẶC QUYỀN -->
     <div class="row g-3 mb-5">
         <div class="col-md-6">
             <div class="p-4 rounded-4 text-white d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #be0015 0%, #e30019 100%);">
@@ -341,7 +361,6 @@
         </div>
     </div>
 
-    <!-- CÂU HỎI THƯỜNG GẶP (FAQ) -->
     <div class="mb-5">
         <div class="text-center mb-4">
             <span class="text-danger fw-bold text-uppercase small" style="letter-spacing: 1px;">Hỗ trợ khách hàng</span>
@@ -404,5 +423,37 @@
     </div>
 
 </div>
+
+<script>
+function validateContactForm(e) {
+    const phoneInput = document.getElementById('contactPhone');
+    const emailInput = document.getElementById('contactEmail');
+
+    if (phoneInput) {
+        const cleanPhone = phoneInput.value.replace(/[\s.-]/g, '');
+        const vnPhoneRegex = /^(0|\+84)[35789][0-9]{8}$/;
+        if (!vnPhoneRegex.test(cleanPhone)) {
+            alert('Số điện thoại không hợp lệ!\nVui lòng nhập đúng số điện thoại theo định dạng Việt Nam (VD: 0904112618 hoặc +84904112618).');
+            phoneInput.focus();
+            if (e) e.preventDefault();
+            return false;
+        }
+        phoneInput.value = cleanPhone;
+    }
+
+    if (emailInput && emailInput.value.trim() !== '') {
+        const cleanEmail = emailInput.value.trim();
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(cleanEmail)) {
+            alert('Địa chỉ email không đúng định dạng!\nVui lòng nhập email hợp lệ (VD: name@example.com).');
+            emailInput.focus();
+            if (e) e.preventDefault();
+            return false;
+        }
+    }
+
+    return true;
+}
+</script>
 
 <jsp:include page="footer.jsp" />

@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
     <style>
-        .kpi-card {
+.kpi-card {
             background: #fff;
             border: 1px solid var(--border-color);
             border-radius: 10px;
@@ -92,7 +92,7 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-    </style>
+</style>
 </head>
 <body>
 
@@ -110,7 +110,6 @@
         </div>
     </header>
 
-    <!-- Thông báo kết quả -->
     <c:if test="${not empty successMessage}">
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4 shadow-sm" role="alert">
             <i class="fa-solid fa-circle-check fs-5 me-2"></i>
@@ -127,7 +126,6 @@
         </div>
     </c:if>
 
-    <!-- 1. CÁC THẺ THỐNG KÊ KPI TỔNG QUAN -->
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
@@ -175,7 +173,6 @@
         </div>
     </div>
 
-    <!-- 2. BỘ LỌC VÀ TÌM KIẾM NÂNG CAO -->
     <div class="filter-panel shadow-sm">
         <form action="${ctx}/admin/users" method="GET" class="row g-2 align-items-center">
             <div class="col-12 col-md-5">
@@ -212,7 +209,6 @@
         </form>
     </div>
 
-    <!-- 3. BẢNG DANH SÁCH KHÁCH HÀNG -->
     <div class="panel overflow-hidden">
         <div class="panel-head">
             <h5><i class="fa-solid fa-users me-2"></i>Danh sách tài khoản (${totalUsersCount != null ? totalUsersCount : 0})</h5>
@@ -281,14 +277,13 @@
                         </td>
                         <td class="muted small text-nowrap"><fmt:formatDate value="${u.createdAt}" pattern="dd/MM/yyyy"/></td>
                         <td class="text-end text-nowrap">
-                            <!-- NÚT 1: XEM TẤT CẢ THÔNG TIN CHI TIẾT TÀI KHOẢN -->
+
                             <button type="button" class="btn btn-sm btn-outline-primary"
                                     onclick="viewUserDetail(${u.id})"
                                     title="Xem tất cả thông tin tài khoản">
                                 <i class="fa-solid fa-eye me-1"></i>Chi tiết
                             </button>
 
-                            <!-- NÚT 2: KHÓA HOẶC MỞ KHÓA -->
                             <c:choose>
                                 <c:when test="${u.role == 'ADMIN'}">
                                     <span class="text-muted small fst-italic ms-1">Bảo vệ</span>
@@ -325,7 +320,6 @@
         </div>
     </div>
 
-    <!-- 4. PHÂN TRANG -->
     <c:if test="${totalPages > 1}">
         <ul class="pagination justify-content-end mt-4 mb-0">
             <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
@@ -343,9 +337,6 @@
     </c:if>
 </main>
 
-<!-- ==========================================
-     MODAL 1: XEM TẤT CẢ THÔNG TIN CHI TIẾT TÀI KHOẢN
-     ========================================== -->
 <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
@@ -366,7 +357,7 @@
                 </div>
 
                 <div id="modalUserContent" style="display:none;">
-                    <!-- KHỐI CẢNH BÁO NẾU TÀI KHOẢN BỊ KHÓA -->
+
                     <div id="modalLockAlert" class="alert alert-danger border-danger shadow-sm mb-4" style="display:none;">
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <i class="fa-solid fa-triangle-exclamation fs-4 text-danger"></i>
@@ -386,7 +377,6 @@
                         </div>
                     </div>
 
-                    <!-- THẺ THÔNG TIN CÁ NHÂN -->
                     <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
                         <i class="fa-solid fa-user text-primary me-2"></i>Hồ sơ tài khoản
                     </h6>
@@ -431,7 +421,6 @@
                         </div>
                     </div>
 
-                    <!-- THỐNG KÊ MUA HÀNG (SHOPPING INSIGHTS) -->
                     <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
                         <i class="fa-solid fa-chart-line text-success me-2"></i>Thống kê mua sắm của khách
                     </h6>
@@ -456,7 +445,6 @@
                         </div>
                     </div>
 
-                    <!-- DANH SÁCH ĐƠN HÀNG GẦN ĐÂY -->
                     <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
                         <i class="fa-solid fa-clock-rotate-left text-info me-2"></i>Đơn hàng gần đây
                     </h6>
@@ -485,9 +473,6 @@
     </div>
 </div>
 
-<!-- ==========================================
-     MODAL 2: KHÓA TÀI KHOẢN VỚI LÝ DO
-     ========================================== -->
 <div class="modal fade" id="lockModal" tabindex="-1" aria-labelledby="lockModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -515,7 +500,6 @@
                         <div class="p-2 bg-light rounded border fw-bold text-dark" id="lockUserDisplay">-</div>
                     </div>
 
-                    <!-- GỢI Ý LÝ DO NHANH -->
                     <div class="mb-2">
                         <label class="form-label small text-muted fw-semibold d-block">Gợi ý lý do nhanh (bấm để chọn):</label>
                         <div class="d-flex flex-wrap gap-1 mb-2">
@@ -557,19 +541,19 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+
+</script>
 <script>
-    var ctx = '${ctx}';
+var ctx = '${ctx}';
     var userDetailModal = new bootstrap.Modal(document.getElementById('userDetailModal'));
     var lockModal = new bootstrap.Modal(document.getElementById('lockModal'));
 
-    // Định dạng tiền tệ VNĐ
     function formatMoney(amount) {
         if (!amount) return '0 ₫';
         return Number(amount).toLocaleString('vi-VN') + ' ₫';
     }
 
-    // Mở Modal xem tất cả thông tin chi tiết tài khoản
     function viewUserDetail(userId) {
         document.getElementById('modalUserLoading').style.display = 'block';
         document.getElementById('modalUserContent').style.display = 'none';
@@ -599,7 +583,6 @@
             document.getElementById('modalAddress').innerText = u.address || 'Chưa cập nhật địa chỉ';
             document.getElementById('modalCreatedAt').innerText = u.createdAt || 'Chưa cập nhật';
 
-            // Vai trò
             var roleBadge = document.getElementById('modalRoleBadge');
             if (u.role === 'ADMIN') {
                 roleBadge.className = 'badge bg-danger';
@@ -609,7 +592,6 @@
                 roleBadge.innerText = 'Khách hàng';
             }
 
-            // Trạng thái
             var statusBadge = document.getElementById('modalStatusBadge');
             var lockAlert = document.getElementById('modalLockAlert');
 
@@ -627,12 +609,10 @@
                 lockAlert.style.display = 'none';
             }
 
-            // Thống kê
             document.getElementById('modalTotalOrders').innerText = stats.total || 0;
             document.getElementById('modalPendingOrders').innerText = stats.pending || 0;
             document.getElementById('modalSpentMoney').innerText = formatMoney(stats.spent || 0);
 
-            // Bảng đơn hàng
             var tbody = document.getElementById('modalOrdersBody');
             tbody.innerHTML = '';
 
@@ -651,7 +631,6 @@
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Khách hàng chưa có đơn hàng nào.</td></tr>';
             }
 
-            // Nút điều khiển nhanh trong modal footer
             var footer = document.getElementById('modalUserFooter');
             footer.innerHTML = '<button type="button" class="btn btn-secondary shadow-none" data-bs-dismiss="modal">Đóng</button>';
 
@@ -686,7 +665,6 @@
         });
     }
 
-    // Mở Modal khóa tài khoản
     function openLockModal(userId, fullName, email) {
         document.getElementById('lockUserId').value = userId;
         document.getElementById('lockUserDisplay').innerText = fullName + ' (' + email + ')';
@@ -694,7 +672,6 @@
         lockModal.show();
     }
 
-    // Chọn nhanh lý do
     function selectQuickReason(text) {
         document.getElementById('lockReasonInput').value = text;
     }

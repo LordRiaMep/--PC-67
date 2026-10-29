@@ -3,13 +3,9 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
-<%--
-  Phần dùng chung cho các trang tài khoản: banner + thanh tab ngang.
-  Cách dùng: <jsp:include page="profile_nav.jsp"><jsp:param name="active" value="info"/></jsp:include>
-  active = info | password
---%>
+
 <style>
-    .pf-banner {
+.pf-banner {
         background: linear-gradient(120deg, #E30019 0%, #b80015 55%, #7a000e 100%);
         border-radius: 20px;
         color: #fff;
@@ -82,7 +78,6 @@
     .btn-brand:hover { background: #BE0015; color: #fff; }
 </style>
 
-<!-- BANNER -->
 <div class="pf-banner mb-3">
     <div class="d-flex align-items-center gap-4 flex-wrap position-relative" style="z-index:1;">
         <div class="pf-avatar">
@@ -109,7 +104,6 @@
     </div>
 </div>
 
-<!-- TAB NGANG -->
 <div class="pf-tabs mb-4">
     <a class="pf-tab ${param.active == 'info' ? 'active' : ''}" href="${ctx}/profile">
         <i class="bi bi-person-vcard"></i>Thông tin tài khoản

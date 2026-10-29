@@ -1,13 +1,5 @@
 package util;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Tích hợp REST API Giao Hàng Nhanh (tính phí ship, tra cứu địa chỉ).
- * ============================================================================
- */
-
 import dao.WarehouseDao;
 import model.WarehouseConfig;
 
@@ -21,22 +13,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Service kết nối và xử lý dữ liệu với API Giao Hàng Nhanh (GHN)
- * Địa chỉ kho xuất hàng được lấy động từ cấu hình Admin trong Database (bảng cau_hinh_kho).
- */
 public class GhnService {
 
-    // Cache danh sách Tỉnh/Thành phố trong bộ nhớ để load tức thì
     private static volatile String cachedProvincesJson = null;
 
-    // Cache cấu hình kho hàng từ database
     private static volatile WarehouseConfig cachedWarehouse = null;
     private static final WarehouseDao warehouseDao = new WarehouseDao();
 
-    /**
-     * Lấy thông tin kho hàng hiện tại (có cache)
-     */
     public static WarehouseConfig getWarehouseConfig() {
         if (cachedWarehouse == null) {
             cachedWarehouse = warehouseDao.getWarehouseConfig();
@@ -44,16 +27,10 @@ public class GhnService {
         return cachedWarehouse;
     }
 
-    /**
-     * Làm mới cache kho hàng khi admin cập nhật
-     */
     public static void reloadWarehouseConfig() {
         cachedWarehouse = warehouseDao.getWarehouseConfig();
     }
 
-    /**
-     * Gửi HTTP request đến GHN API (tương thích Java 8)
-     */
     private static String sendHttpRequest(String urlStr, String method, String jsonBody, boolean includeShopId) {
         HttpURLConnection conn = null;
         try {
@@ -103,9 +80,6 @@ public class GhnService {
         }
     }
 
-    /**
-     * Lấy danh sách Tỉnh / Thành phố từ GHN
-     */
     public static String getProvinces() {
         if (cachedProvincesJson != null) {
             return cachedProvincesJson;
@@ -119,9 +93,6 @@ public class GhnService {
         return "{\"code\":500,\"message\":\"Không thể tải danh sách tỉnh thành\",\"data\":[]}";
     }
 
-    /**
-     * Lấy danh sách Quận / Huyện theo ProvinceID
-     */
     public static String getDistricts(int provinceId) {
         String jsonBody = "{\"province_id\":" + provinceId + "}";
         String res = sendHttpRequest(GhnConfig.API_DISTRICT, "POST", jsonBody, false);
@@ -131,9 +102,6 @@ public class GhnService {
         return "{\"code\":500,\"message\":\"Không thể tải danh sách quận huyện\",\"data\":[]}";
     }
 
-    /**
-     * Lấy danh sách Phường / Xã theo DistrictID
-     */
     public static String getWards(int districtId) {
         String jsonBody = "{\"district_id\":" + districtId + "}";
         String res = sendHttpRequest(GhnConfig.API_WARD, "POST", jsonBody, false);
@@ -143,16 +111,9 @@ public class GhnService {
         return "{\"code\":500,\"message\":\"Không thể tải danh sách phường xã\",\"data\":[]}";
     }
 
-    /**
-     * Tính phí vận chuyển thực tế từ kho hàng được cấu hình trong Admin tới địa chỉ nhận của khách
-     * @param toDistrictId Mã quận/huyện nhận
-     * @param toWardCode Mã phường/xã nhận
-     * @param weightGram Trọng lượng kiện hàng (gram), mặc định 1000g nếu <= 0
-     * @return Phí vận chuyển (VNĐ)
-     */
     public static double calculateShippingFee(int toDistrictId, String toWardCode, int weightGram) {
         if (toDistrictId <= 0 || toWardCode == null || toWardCode.trim().isEmpty()) {
-            return 30000.0; // Phí tiêu chuẩn mặc định nếu chưa chọn đủ
+            return 30000.0;
         }
 
         int weight = weightGram > 0 ? weightGram : 1000;
@@ -187,7 +148,6 @@ public class GhnService {
             }
         }
 
-        // Mặc định fallback nếu GHN phản hồi chậm hoặc lỗi mạng
         return 30000.0;
     }
 }

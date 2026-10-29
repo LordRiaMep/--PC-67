@@ -1,13 +1,5 @@
 package Controller.Admin;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Admin quản lý danh sách người dùng, phân quyền và khóa/mở tài khoản.
- * ============================================================================
- */
-
 import dao.OrderDao;
 import dao.UserDao;
 import model.Order;
@@ -34,25 +26,21 @@ public class AdminUserServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
 
-        // 1. XEM CHI TIẾT KHÁCH HÀNG (API JSON CHO MODAL HOẶC VIEW THƯỜNG)
         if ("detail".equalsIgnoreCase(action)) {
             handleUserDetail(req, resp);
             return;
         }
 
-        // 2. MỞ KHÓA TÀI KHOẢN (qua link GET tiện lợi)
         if ("unlock".equalsIgnoreCase(action)) {
             handleUnlock(req, resp);
             return;
         }
 
-        // 3. TOGGLE STATUS CŨ (Tương thích ngược)
         if ("toggle-status".equalsIgnoreCase(action)) {
             handleToggleStatus(req, resp);
             return;
         }
 
-        // 4. DANH SÁCH & BỘ LỌC TÌM KIẾM
         String keyword = req.getParameter("q");
         String status = req.getParameter("status");
         String role = req.getParameter("role");
@@ -84,7 +72,6 @@ public class AdminUserServlet extends HttpServlet {
             pageUsers = filteredUsers.subList(fromIndex, toIndex);
         }
 
-        // Thống kê thẻ KPI
         Map<String, Integer> userCounts = userDao.getUserCounts();
 
         req.setAttribute("users", pageUsers);
@@ -96,7 +83,6 @@ public class AdminUserServlet extends HttpServlet {
         req.setAttribute("filterStatus", status);
         req.setAttribute("filterRole", role);
 
-        // Thông báo kết quả
         String msg = req.getParameter("msg");
         String err = req.getParameter("error");
         if ("locked".equals(msg)) req.setAttribute("successMessage", "Đã khóa tài khoản khách hàng thành công!");
@@ -204,9 +190,6 @@ public class AdminUserServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Xử lý lấy thông tin chi tiết tài khoản của khách hàng
-     */
     private void handleUserDetail(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String idParam = req.getParameter("id");

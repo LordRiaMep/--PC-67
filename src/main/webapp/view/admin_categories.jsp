@@ -29,7 +29,6 @@
         </div>
     </header>
 
-    <!-- Thông báo kết quả -->
     <c:if test="${not empty successMessage}">
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
             <i class="fa-solid fa-circle-check fs-5 me-2"></i>
@@ -47,7 +46,7 @@
     </c:if>
 
     <div class="row g-4">
-        <!-- Form thêm / sửa -->
+
         <div class="col-lg-4">
             <form action="${url}" method="post" class="panel sticky-panel">
                 <div class="panel-head">
@@ -75,7 +74,6 @@
             </form>
         </div>
 
-        <!-- Danh sách -->
         <div class="col-lg-8">
             <div class="panel overflow-hidden">
                 <div class="panel-head">
@@ -126,6 +124,8 @@
     </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+
+</script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <c:set var="url" value="${ctx}/admin/contacts" />
 <%
-    if ("POST".equalsIgnoreCase(request.getMethod())) {
+if ("POST".equalsIgnoreCase(request.getMethod())) {
         request.setCharacterEncoding("UTF-8");
         String _action = request.getParameter("action");
         dao.ContactDao _daoPost = new dao.ContactDao();
@@ -56,7 +56,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
     <style>
-        .stat-card {
+.stat-card {
             background: #fff;
             border-radius: 10px;
             padding: 20px;
@@ -97,7 +97,7 @@
             line-height: 1.5;
             color: #495057;
         }
-    </style>
+</style>
 </head>
 <body>
 
@@ -115,7 +115,6 @@
         </div>
     </header>
 
-    <!-- Thông báo kết quả -->
     <c:if test="${not empty sessionScope.successMessage}">
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
             <i class="fa-solid fa-circle-check fs-5 me-2"></i>
@@ -134,7 +133,6 @@
         <c:remove var="errorMessage" scope="session"/>
     </c:if>
 
-    <!-- THỐNG KÊ 4 THẺ -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3">
             <div class="stat-card">
@@ -174,18 +172,16 @@
         </div>
     </div>
 
-    <!-- BẢNG DANH SÁCH & BỘ LỌC -->
     <div class="panel">
         <div class="panel-head">
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <!-- Bộ lọc trạng thái -->
+
                 <a href="${url}?status=ALL&keyword=${keyword}" class="btn btn-sm ${currentStatus == 'ALL' ? 'btn-neon' : 'btn-ghost'}">Tất cả (${totalContacts})</a>
                 <a href="${url}?status=Chưa xử lý&keyword=${keyword}" class="btn btn-sm ${currentStatus == 'Chưa xử lý' ? 'btn-danger' : 'btn-ghost'}">Chưa xử lý (${pendingCount})</a>
                 <a href="${url}?status=Đang liên hệ&keyword=${keyword}" class="btn btn-sm ${currentStatus == 'Đang liên hệ' ? 'btn-warning text-dark' : 'btn-ghost'}">Đang liên hệ (${contactingCount})</a>
                 <a href="${url}?status=Đã hoàn thành&keyword=${keyword}" class="btn btn-sm ${currentStatus == 'Đã hoàn thành' ? 'btn-success' : 'btn-ghost'}">Đã hoàn thành (${completedCount})</a>
             </div>
 
-            <!-- Ô tìm kiếm -->
             <form action="${url}" method="get" class="d-flex gap-2">
                 <input type="hidden" name="status" value="${currentStatus}">
                 <input type="text" name="keyword" class="form-control form-control-sm field" placeholder="Tìm tên, SĐT, email..." value="${keyword}" style="width: 220px;">
@@ -289,7 +285,6 @@
     </div>
 </main>
 
-<!-- MODAL XỬ LÝ & PHẢN HỒI -->
 <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -338,15 +333,16 @@
     </div>
 </div>
 
-<!-- FORM ẨN XÓA -->
 <form id="deleteForm" action="${url}" method="post" style="display:none;">
     <input type="hidden" name="action" value="delete">
     <input type="hidden" name="id" id="deleteContactId">
 </form>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+
+</script>
 <script>
-    var replyModalObj = null;
+var replyModalObj = null;
 
     function openReplyModal(id, name, phone, status, note) {
         document.getElementById('modalContactId').value = id;

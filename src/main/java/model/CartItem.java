@@ -1,22 +1,13 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Model một dòng sản phẩm trong giỏ kèm các tùy chọn nâng cấp.
- * ============================================================================
- */
-
 public class CartItem {
     private Product product;
     private int quantity;
 
-    // --- Thông tin nâng cấp ---
-    private String upgradeKey = "";     // vd "12,40" (id linh kiện đã sắp xếp), "" = cấu hình gốc
-    private String upgradeInfo = "";    // vd "CPU: Core i5-13400F (+1.500.000 đ)|RAM: ..." (ngăn cách bằng |)
-    private String displayName;         // tên đã gắn linh kiện nâng cấp
-    private double unitPrice;           // đơn giá = giá gốc + tiền nâng cấp
+    private String upgradeKey = "";
+    private String upgradeInfo = "";
+    private String displayName;
+    private double unitPrice;
 
     public CartItem() {
     }

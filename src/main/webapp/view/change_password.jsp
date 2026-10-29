@@ -30,7 +30,7 @@
         <p class="text-muted small mb-4">Để bảo vệ tài khoản, hệ thống yêu cầu xác thực mã OTP gửi về Email trước khi cập nhật mật khẩu mới.</p>
 
         <form method="post" action="${ctx}/change-password" onsubmit="return checkPw();">
-            <!-- 3 ô mật khẩu nằm ngang -->
+
             <div class="row g-3 mb-3">
                 <div class="col-md-4">
                     <label class="form-label">Mật khẩu hiện tại <span class="text-danger">*</span></label>
@@ -55,7 +55,6 @@
                 </div>
             </div>
 
-            <!-- XÁC THỰC MÃ OTP QUA EMAIL -->
             <div class="p-3 rounded-3 border bg-light mb-4">
                 <label class="form-label fw-bold text-dark d-block mb-1">
                     <i class="bi bi-envelope-shield text-danger me-1"></i>Xác thực mã OTP gửi qua Email <span class="text-danger">*</span>
@@ -65,12 +64,12 @@
                 </div>
                 <div class="row g-2 align-items-center" style="max-width: 450px;">
                     <div class="col-7">
-                        <input type="text" 
-                               name="otpCode" 
-                               id="otpCode" 
-                               class="form-control fw-bold text-center letter-spacing-2" 
-                               required 
-                               maxlength="6" 
+                        <input type="text"
+                               name="otpCode"
+                               id="otpCode"
+                               class="form-control fw-bold text-center letter-spacing-2"
+                               required
+                               maxlength="6"
                                placeholder="Nhập 6 số OTP...">
                     </div>
                     <div class="col-5">
@@ -90,7 +89,7 @@
 </div>
 
 <script>
-    function checkPw() {
+function checkPw() {
         var oldPw = document.getElementById('oldPw').value;
         var newPw = document.getElementById('newPw').value;
         var confirmPw = document.getElementById('confirmPw').value;
@@ -111,7 +110,6 @@
         return true;
     }
 
-    // Nút hiện / ẩn mật khẩu
     document.querySelectorAll('.pw-toggle').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var input = btn.parentElement.querySelector('input');
@@ -122,7 +120,6 @@
         });
     });
 
-    // Gửi mã OTP qua AJAX
     function sendOtpEmail() {
         var btn = document.getElementById('btnSendOtp');
         var notice = document.getElementById('otpNotice');
@@ -144,7 +141,6 @@
                 var text = '<i class="bi bi-check-circle me-1"></i>' + data.message;
                 notice.innerHTML = text;
 
-                // Đếm ngược 60 giây
                 var countdown = 60;
                 var timer = setInterval(function() {
                     countdown--;

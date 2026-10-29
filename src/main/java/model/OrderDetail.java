@@ -1,13 +1,5 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Model biểu diễn chi tiết từng sản phẩm trong đơn hàng.
- * ============================================================================
- */
-
 public class OrderDetail {
     private int id;
     private int orderId;
@@ -15,7 +7,7 @@ public class OrderDetail {
     private String productName;
     private double price;
     private int quantity;
-    private String upgradeInfo;   // các dòng nâng cấp, ngăn cách bằng '|'
+    private String upgradeInfo;
 
     public OrderDetail() {}
 

@@ -1,13 +1,5 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: Model biểu diễn bài viết tin tức.
- * ============================================================================
- */
-
 import java.util.Date;
 
 public class News {
@@ -21,6 +13,12 @@ public class News {
     private boolean featured;
     private String status;
     private Date createdAt;
+
+    private String homeRole = "NONE";
+
+    private int homeOrder = 0;
+
+    private int sortOrder = 0;
 
     public News() {
     }
@@ -54,4 +52,21 @@ public class News {
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public String getHomeRole() { return homeRole != null ? homeRole : "NONE"; }
+    public void setHomeRole(String homeRole) { this.homeRole = homeRole; }
+
+    public int getHomeOrder() { return homeOrder; }
+    public void setHomeOrder(int homeOrder) { this.homeOrder = homeOrder; }
+
+    public int getSortOrder() { return sortOrder; }
+    public void setSortOrder(int sortOrder) { this.sortOrder = sortOrder; }
+
+    public boolean isHomeMain() {
+        return "MAIN".equalsIgnoreCase(this.homeRole);
+    }
+
+    public boolean isHomeSub() {
+        return "SUB".equalsIgnoreCase(this.homeRole);
+    }
 }

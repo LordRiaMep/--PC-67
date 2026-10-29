@@ -1,13 +1,5 @@
 package Controller.Auth;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: API kiểm tra trạng thái đăng nhập nhanh qua AJAX.
- * ============================================================================
- */
-
 import dao.UserDao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,10 +11,6 @@ import model.User;
 
 import java.io.IOException;
 
-/**
- * Endpoint kiểm tra định kỳ phiên đăng nhập của người dùng.
- * Quét kiểm tra xem tài khoản có bị đổi mật khẩu hoặc bị khóa từ trình duyệt khác không.
- */
 @WebServlet("/check-auth")
 public class CheckAuthServlet extends HttpServlet {
 
@@ -62,7 +50,6 @@ public class CheckAuthServlet extends HttpServlet {
             return;
         }
 
-        // Kiểm tra xem mật khẩu có bị đổi ở trình duyệt khác không
         if (sessionUser.getPasswordHash() != null && latestUser.getPasswordHash() != null
                 && !sessionUser.getPasswordHash().equals(latestUser.getPasswordHash())) {
             session.removeAttribute("USER_LOGIN");

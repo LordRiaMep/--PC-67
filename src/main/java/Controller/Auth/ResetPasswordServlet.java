@@ -1,13 +1,5 @@
 package Controller.Auth;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Nhập OTP và đặt mật khẩu mới.
- * ============================================================================
- */
-
 import dao.UserDao;
 import dao.UserTokenDao;
 import model.UserToken;
@@ -82,7 +74,6 @@ public class ResetPasswordServlet extends HttpServlet {
             return;
         }
 
-        // Cập nhật mật khẩu mới cho user
         boolean updated = userDao.updatePasswordByEmail(userToken.getEmail(), newPassword);
         if (updated) {
             userTokenDao.markUsed(userToken.getId());

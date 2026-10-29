@@ -1,25 +1,12 @@
 package service;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Bảo mật: Giới hạn số lần đăng nhập sai, chống tấn công Brute-force.
- * ============================================================================
- */
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Quản lý bảo mật đăng nhập:
- * Giới hạn nhập sai mật khẩu tối đa 5 lần liên tiếp.
- * Nếu vượt quá 5 lần sẽ tạm thời khóa đăng nhập trong vòng 15 phút vì lý do an toàn bảo mật.
- */
 public class LoginSecurityService {
 
     public static final int MAX_FAILED_ATTEMPTS = 5;
-    public static final long LOCK_DURATION_MS = 15 * 60 * 1000; // Khóa 15 phút
+    public static final long LOCK_DURATION_MS = 15 * 60 * 1000;
 
     public static class AttemptRecord {
         private int failedCount;
@@ -46,9 +33,6 @@ public class LoginSecurityService {
         return email != null ? email.trim().toLowerCase() : "";
     }
 
-    /**
-     * Kiểm tra xem tài khoản email này có đang bị tạm khóa đăng nhập không.
-     */
     public static boolean isLocked(String email) {
         String key = normalizeEmail(email);
         if (key.isEmpty()) return false;
@@ -59,16 +43,13 @@ public class LoginSecurityService {
         if (record.isLocked()) {
             return true;
         } else if (record.getLockUntilMillis() > 0 && System.currentTimeMillis() >= record.getLockUntilMillis()) {
-            // Hết hạn khóa -> xóa bản ghi để người dùng thử lại
+
             attemptsMap.remove(key);
             return false;
         }
         return false;
     }
 
-    /**
-     * Trả về số phút còn lại bị khóa
-     */
     public static long getRemainingLockMinutes(String email) {
         String key = normalizeEmail(email);
         AttemptRecord record = attemptsMap.get(key);
@@ -78,10 +59,6 @@ public class LoginSecurityService {
         return Math.max(1, (diff + 59999) / 60000);
     }
 
-    /**
-     * Ghi nhận một lần nhập sai mật khẩu.
-     * Trả về số lần đã sai hiện tại.
-     */
     public static int recordFailedAttempt(String email) {
         String key = normalizeEmail(email);
         if (key.isEmpty()) return 1;
@@ -102,9 +79,6 @@ public class LoginSecurityService {
         return record.getFailedCount();
     }
 
-    /**
-     * Đăng nhập thành công -> xóa bỏ mọi lịch sử sai mật khẩu
-     */
     public static void resetAttempts(String email) {
         String key = normalizeEmail(email);
         if (!key.isEmpty()) {

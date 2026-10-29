@@ -1,13 +1,5 @@
 package Controller.Admin;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: Controller quản trị bài viết công nghệ, duyệt bài, ghim tin tức trang chủ.
- * ============================================================================
- */
-
 import dao.NewsDao;
 import model.News;
 import model.User;
@@ -35,6 +27,8 @@ public class AdminNewsServlet extends HttpServlet {
         String keyword = req.getParameter("keyword");
         String status = req.getParameter("status");
         String featured = req.getParameter("featured");
+        String homeFilter = req.getParameter("homeFilter");
+        String sort = req.getParameter("sort");
 
         int page = 1;
         if (pageParam != null && !pageParam.trim().isEmpty()) {
@@ -43,7 +37,6 @@ public class AdminNewsServlet extends HttpServlet {
             } catch (NumberFormatException ignored) {}
         }
 
-        // Tạo chuỗi query giữ nguyên bộ lọc khi chuyển trang hoặc thao tác
         StringBuilder queryKeep = new StringBuilder();
         if (page > 1) queryKeep.append("&page=").append(page);
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -55,9 +48,14 @@ public class AdminNewsServlet extends HttpServlet {
         if (featured != null && !featured.trim().isEmpty()) {
             queryKeep.append("&featured=").append(urlEncode(featured.trim()));
         }
+        if (homeFilter != null && !homeFilter.trim().isEmpty() && !"ALL".equalsIgnoreCase(homeFilter)) {
+            queryKeep.append("&homeFilter=").append(urlEncode(homeFilter.trim()));
+        }
+        if (sort != null && !sort.trim().isEmpty() && !"DEFAULT".equalsIgnoreCase(sort)) {
+            queryKeep.append("&sort=").append(urlEncode(sort.trim()));
+        }
         String keepParams = queryKeep.toString();
 
-        // 1. Thao tác xóa bài viết
         if ("delete".equalsIgnoreCase(action)) {
             try {
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -73,7 +71,6 @@ public class AdminNewsServlet extends HttpServlet {
             return;
         }
 
-        // 2. Thao tác đổi nhanh trạng thái ACTIVE <-> HIDDEN
         if ("toggle_status".equalsIgnoreCase(action)) {
             try {
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -85,7 +82,6 @@ public class AdminNewsServlet extends HttpServlet {
             return;
         }
 
-        // 3. Thao tác đổi nhanh trạng thái Nổi bật (Featured 1 <-> 0)
         if ("toggle_featured".equalsIgnoreCase(action)) {
             try {
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -97,7 +93,22 @@ public class AdminNewsServlet extends HttpServlet {
             return;
         }
 
-        // 4. Chế độ sửa bài viết (load dữ liệu vào form)
+        if ("set_home_role".equalsIgnoreCase(action)) {
+            try {
+                int id = Integer.parseInt(req.getParameter("id"));
+                String role = req.getParameter("role");
+                boolean ok = newsDao.setHomeRole(id, role);
+                if (ok) {
+                    resp.sendRedirect(req.getContextPath() + "/admin/news?msg=home_role_success" + keepParams);
+                } else {
+                    resp.sendRedirect(req.getContextPath() + "/admin/news?error=system_error" + keepParams);
+                }
+            } catch (Exception e) {
+                resp.sendRedirect(req.getContextPath() + "/admin/news?error=invalid_id" + keepParams);
+            }
+            return;
+        }
+
         if ("edit".equalsIgnoreCase(action)) {
             try {
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -108,37 +119,38 @@ public class AdminNewsServlet extends HttpServlet {
             } catch (Exception ignored) {}
         }
 
-        // Phân trang & lọc dữ liệu
         int pageSize = 8;
-        int totalNews = newsDao.countAdminNews(keyword, status, featured);
+        int totalNews = newsDao.countAdminNews(keyword, status, featured, homeFilter);
         int totalPages = (int) Math.ceil((double) totalNews / pageSize);
         if (totalPages > 0 && page > totalPages) {
             page = totalPages;
         }
         if (page < 1) page = 1;
 
-        List<News> listNews = newsDao.getAdminNewsByPage(page, pageSize, keyword, status, featured);
+        List<News> listNews = newsDao.getAdminNewsByPage(page, pageSize, keyword, status, featured, homeFilter, sort);
         List<Integer> top5HomeIds = newsDao.getTop5HomeNewsIds();
+        List<News> currentHomeNews = newsDao.getLatestNews(5);
+        List<News> allActiveNews = newsDao.getAllActiveNews();
 
-        // Gửi dữ liệu sang JSP
         req.setAttribute("listNews", listNews);
         req.setAttribute("currentPage", page);
         req.setAttribute("totalPages", totalPages);
         req.setAttribute("totalNews", totalNews);
         req.setAttribute("top5HomeIds", top5HomeIds);
+        req.setAttribute("currentHomeNews", currentHomeNews);
+        req.setAttribute("allActiveNews", allActiveNews);
 
-        // Giữ lại giá trị bộ lọc
         req.setAttribute("keyword", keyword);
         req.setAttribute("status", (status != null && !status.isEmpty()) ? status : "ALL");
         req.setAttribute("featured", (featured != null && !featured.isEmpty()) ? featured : "ALL");
+        req.setAttribute("homeFilter", (homeFilter != null && !homeFilter.isEmpty()) ? homeFilter : "ALL");
+        req.setAttribute("sort", (sort != null && !sort.isEmpty()) ? sort : "DEFAULT");
 
-        // Số liệu thống kê tổng thể
         req.setAttribute("statTotal", newsDao.getStatTotalCount());
         req.setAttribute("statActive", newsDao.getStatActiveCount());
         req.setAttribute("statHidden", newsDao.getStatHiddenCount());
         req.setAttribute("statFeatured", newsDao.getStatFeaturedCount());
 
-        // Xử lý thông báo phản hồi
         String msg = req.getParameter("msg");
         String err = req.getParameter("error");
         if ("insert_success".equals(msg)) req.setAttribute("successMessage", "Thêm bài viết mới thành công!");
@@ -146,6 +158,8 @@ public class AdminNewsServlet extends HttpServlet {
         else if ("delete_success".equals(msg)) req.setAttribute("successMessage", "Xóa bài viết thành công!");
         else if ("status_success".equals(msg)) req.setAttribute("successMessage", "Đổi trạng thái hiển thị bài viết thành công!");
         else if ("featured_success".equals(msg)) req.setAttribute("successMessage", "Cập nhật trạng thái nổi bật thành công!");
+        else if ("home_role_success".equals(msg)) req.setAttribute("successMessage", "Cập nhật vị trí hiển thị trên Trang chủ thành công!");
+        else if ("home_layout_success".equals(msg)) req.setAttribute("successMessage", "Đã lưu bố cục bài chính và bài phụ trên Trang chủ thành công!");
 
         if ("invalid_title".equals(err)) req.setAttribute("errorMessage", "Tiêu đề bài viết không được để trống!");
         else if ("title_too_long".equals(err)) req.setAttribute("errorMessage", "Tiêu đề bài viết quá dài (tối đa 255 ký tự)!");
@@ -164,6 +178,8 @@ public class AdminNewsServlet extends HttpServlet {
         String keyword = req.getParameter("keyword");
         String statusFilter = req.getParameter("statusFilter");
         String featuredFilter = req.getParameter("featuredFilter");
+        String homeFilter = req.getParameter("homeFilter");
+        String sort = req.getParameter("sort");
 
         StringBuilder queryKeep = new StringBuilder();
         if (pageParam != null && !pageParam.trim().isEmpty()) {
@@ -178,16 +194,34 @@ public class AdminNewsServlet extends HttpServlet {
         if (featuredFilter != null && !featuredFilter.trim().isEmpty()) {
             queryKeep.append("&featured=").append(urlEncode(featuredFilter.trim()));
         }
+        if (homeFilter != null && !homeFilter.trim().isEmpty()) {
+            queryKeep.append("&homeFilter=").append(urlEncode(homeFilter.trim()));
+        }
+        if (sort != null && !sort.trim().isEmpty()) {
+            queryKeep.append("&sort=").append(urlEncode(sort.trim()));
+        }
         String keepParams = queryKeep.toString();
 
         try {
             String action = req.getParameter("action");
-            int id = 0;
-            String idStr = req.getParameter("id");
-            if (idStr != null && !idStr.trim().isEmpty()) {
-                id = Integer.parseInt(idStr.trim());
+
+            if ("save_home_layout".equalsIgnoreCase(action)) {
+                int mainId = parseIntSafe(req.getParameter("mainId"));
+                int subId1 = parseIntSafe(req.getParameter("subId1"));
+                int subId2 = parseIntSafe(req.getParameter("subId2"));
+                int subId3 = parseIntSafe(req.getParameter("subId3"));
+                int subId4 = parseIntSafe(req.getParameter("subId4"));
+
+                boolean ok = newsDao.setHomeLayout(mainId, subId1, subId2, subId3, subId4);
+                if (ok) {
+                    resp.sendRedirect(req.getContextPath() + "/admin/news?msg=home_layout_success" + keepParams);
+                } else {
+                    resp.sendRedirect(req.getContextPath() + "/admin/news?error=system_error" + keepParams);
+                }
+                return;
             }
 
+            int id = parseIntSafe(req.getParameter("id"));
             String title = req.getParameter("title");
             String summary = req.getParameter("summary");
             String content = req.getParameter("content");
@@ -198,6 +232,11 @@ public class AdminNewsServlet extends HttpServlet {
                     || "true".equalsIgnoreCase(req.getParameter("isFeatured"))
                     || "1".equals(req.getParameter("isFeatured"));
 
+            String homeRole = req.getParameter("homeRole");
+            if (homeRole == null || homeRole.trim().isEmpty()) {
+                homeRole = "NONE";
+            }
+
             if (title == null || title.trim().isEmpty()) {
                 resp.sendRedirect(req.getContextPath() + "/admin/news?error=invalid_title" + keepParams);
                 return;
@@ -207,7 +246,6 @@ public class AdminNewsServlet extends HttpServlet {
                 return;
             }
 
-            // Nếu không nhập tác giả, lấy tên Admin đăng nhập hiện tại
             if (author == null || author.trim().isEmpty()) {
                 HttpSession session = req.getSession(false);
                 if (session != null && session.getAttribute("USER_LOGIN") instanceof User) {
@@ -235,6 +273,7 @@ public class AdminNewsServlet extends HttpServlet {
             n.setAuthor(author.trim());
             n.setFeatured(isFeatured);
             n.setStatus(status.toUpperCase());
+            n.setHomeRole(homeRole.toUpperCase());
 
             if ("update".equalsIgnoreCase(action) && id > 0) {
                 boolean ok = newsDao.update(n);
@@ -254,6 +293,15 @@ public class AdminNewsServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             resp.sendRedirect(req.getContextPath() + "/admin/news?error=system_error" + keepParams);
+        }
+    }
+
+    private int parseIntSafe(String val) {
+        if (val == null || val.trim().isEmpty()) return 0;
+        try {
+            return Integer.parseInt(val.trim());
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 

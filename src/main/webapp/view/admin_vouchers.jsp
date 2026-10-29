@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
     <style>
-        .voucher-badge {
+.voucher-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -58,7 +58,7 @@
             justify-content: center;
             font-size: 20px;
         }
-    </style>
+</style>
 </head>
 <body>
 
@@ -76,7 +76,6 @@
         </div>
     </header>
 
-    <!-- Thống kê nhanh -->
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <div class="stat-card">
@@ -113,7 +112,6 @@
         </div>
     </div>
 
-    <!-- Thông báo kết quả -->
     <c:if test="${not empty successMessage}">
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
             <i class="fa-solid fa-circle-check fs-5 me-2"></i>
@@ -131,7 +129,7 @@
     </c:if>
 
     <div class="row g-4">
-        <!-- Form thêm / sửa Voucher -->
+
         <div class="col-xl-4 col-lg-5">
             <form action="${url}" method="post" class="panel sticky-panel" id="voucherForm">
                 <div class="panel-head">
@@ -148,7 +146,6 @@
                     <input type="hidden" name="page" value="${currentPage}">
                     <input type="hidden" name="action" value="${not empty voucher ? 'update' : 'insert'}">
 
-                    <!-- Mã voucher -->
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="field-label m-0">Mã Voucher <span class="text-danger">*</span></label>
@@ -161,14 +158,12 @@
                         <div class="form-text small text-muted">Tự động viết hoa, viết liền không dấu.</div>
                     </div>
 
-                    <!-- Tên chương trình -->
                     <div class="mb-3">
                         <label class="field-label">Tên chương trình ưu đãi <span class="text-danger">*</span></label>
                         <input type="text" name="name" class="form-control field shadow-none"
                                value="${voucher.name}" placeholder="Ví dụ: Giảm 5% khi mua máy Gaming" required maxlength="255">
                     </div>
 
-                    <!-- Loại giảm & Mức giảm -->
                     <div class="row g-2 mb-3">
                         <div class="col-sm-6">
                             <label class="field-label">Loại giảm giá <span class="text-danger">*</span></label>
@@ -184,7 +179,6 @@
                         </div>
                     </div>
 
-                    <!-- Giảm tối đa (Chỉ áp dụng khi chọn %) -->
                     <div class="mb-3" id="maxDiscountGroup">
                         <label class="field-label">Giảm tối đa (VNĐ)</label>
                         <input type="number" step="1000" name="maxDiscountAmount" class="form-control field shadow-none"
@@ -192,7 +186,6 @@
                         <div class="form-text small text-muted">Tránh giảm quá sâu cho đơn hàng giá trị cao.</div>
                     </div>
 
-                    <!-- Giá trị đơn hàng tối thiểu -->
                     <div class="mb-3">
                         <label class="field-label">Giá trị sản phẩm/đơn tối thiểu (VNĐ)</label>
                         <input type="number" step="1000" name="minOrderAmount" class="form-control field shadow-none"
@@ -200,7 +193,6 @@
                         <div class="form-text small text-muted">Sản phẩm hoặc đơn hàng phải có giá trị từ mức này mới được dùng mã.</div>
                     </div>
 
-                    <!-- Số lượng mã phát hành -->
                     <div class="mb-3">
                         <label class="field-label">Số lượng lượt dùng tối đa <span class="text-danger">*</span></label>
                         <input type="number" name="usageLimit" class="form-control field shadow-none"
@@ -208,7 +200,6 @@
                         <div class="form-text small text-muted">Khi khách dùng hết số lượt này, mã sẽ tự động hết hạn.</div>
                     </div>
 
-                    <!-- Thời hạn hiệu lực -->
                     <div class="row g-2 mb-3">
                         <div class="col-sm-6">
                             <label class="field-label">Bắt đầu từ ngày</label>
@@ -222,7 +213,6 @@
                         </div>
                     </div>
 
-                    <!-- Trạng thái -->
                     <div class="mb-4">
                         <label class="field-label">Trạng thái phát hành</label>
                         <select name="status" class="form-select field shadow-none">
@@ -241,13 +231,11 @@
             </form>
         </div>
 
-        <!-- Danh sách Voucher -->
         <div class="col-xl-8 col-lg-7">
             <div class="panel overflow-hidden">
                 <div class="panel-head flex-wrap gap-2">
                     <h5 class="m-0"><i class="fa-solid fa-list me-2"></i>Danh sách Voucher (${totalItems})</h5>
 
-                    <!-- Tìm kiếm -->
                     <form action="${url}" method="get" class="d-flex gap-2 ms-auto">
                         <input type="text" name="keyword" class="form-control form-control-sm field"
                                placeholder="Tìm mã hoặc tên..." value="${keyword}" style="width: 200px;">
@@ -366,7 +354,6 @@
                     </table>
                 </div>
 
-                <!-- Phân trang -->
                 <c:if test="${totalPages > 1}">
                     <div class="p-3 border-top d-flex justify-content-center">
                         <nav>
@@ -391,10 +378,11 @@
     </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+
+</script>
 <script>
-    // 1. Chuyển đổi nhãn và ẩn hiện khung "Giảm tối đa" theo loại giảm giá
-    const typeSelect = document.getElementById('discountTypeSelect');
+const typeSelect = document.getElementById('discountTypeSelect');
     const valueLabel = document.getElementById('discountValueLabel');
     const valueInput = document.getElementById('discountValueInput');
     const maxGroup = document.getElementById('maxDiscountGroup');
@@ -415,7 +403,6 @@
     typeSelect.addEventListener('change', updateDiscountTypeUI);
     updateDiscountTypeUI();
 
-    // 2. Tự động sinh mã nhanh
     document.getElementById('btnGenCode').addEventListener('click', function() {
         const prefixes = ['DEAL', 'SALE', 'VIP', 'GAMING', 'HOT', 'PC'];
         const p = prefixes[Math.floor(Math.random() * prefixes.length)];
@@ -423,7 +410,6 @@
         document.getElementById('voucherCode').value = p + nums;
     });
 
-    // 3. Khởi tạo ngày mặc định nếu thêm mới
     const startInput = document.getElementById('startDateInput');
     const endInput = document.getElementById('endDateInput');
     if (!startInput.value) {
@@ -436,7 +422,6 @@
         endInput.value = nextMonth.toISOString().split('T')[0];
     }
 
-    // 4. Copy mã voucher
     function copyCode(code) {
         navigator.clipboard.writeText(code).then(function() {
             alert('Đã sao chép mã voucher: ' + code);

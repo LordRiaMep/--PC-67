@@ -9,7 +9,6 @@ public class NewsAdminFlowTest {
         NewsDao dao = new NewsDao();
         System.out.println("=== KIỂM TRA HỆ THỐNG QUẢN LÝ BÀI VIẾT (NEWS ADMIN FLOW) ===");
 
-        // 1. Kiểm tra lấy 5 bài viết trang chủ
         List<Integer> top5Home = dao.getTop5HomeNewsIds();
         System.out.println("1. Top 5 bài viết hiển thị trên Trang chủ: " + top5Home);
         if (!top5Home.isEmpty()) {
@@ -19,7 +18,6 @@ public class NewsAdminFlowTest {
             }
         }
 
-        // 2. Kiểm tra thống kê
         int total = dao.getStatTotalCount();
         int active = dao.getStatActiveCount();
         int hidden = dao.getStatHiddenCount();
@@ -30,7 +28,6 @@ public class NewsAdminFlowTest {
         System.out.println("   - Đang ẩn (HIDDEN): " + hidden);
         System.out.println("   - Nổi bật: " + featured);
 
-        // 3. Kiểm tra tìm kiếm & phân trang
         List<News> page1 = dao.getAdminNewsByPage(1, 5, "", "ALL", "ALL");
         System.out.println("3. Lấy trang 1 (5 bài): " + page1.size() + " bài");
         for (News n : page1) {
@@ -43,7 +40,6 @@ public class NewsAdminFlowTest {
             System.out.println("   [#" + n.getId() + "] " + n.getTitle() + " | Vị trí: " + role + " | Trạng thái: " + n.getStatus());
         }
 
-        // 4. Test chu trình Tạo -> Sửa -> Toggle -> Xóa bài viết thử nghiệm
         System.out.println("4. Thử nghiệm Thêm mới bài viết...");
         News testNews = new News();
         testNews.setTitle("TEST BÀI VIẾT TỰ ĐỘNG - " + System.currentTimeMillis());
@@ -63,17 +59,14 @@ public class NewsAdminFlowTest {
             int newId = insertedNews.getId();
             System.out.println("   -> ID bài viết vừa tạo: #" + newId);
 
-            // Test Toggle Status (ACTIVE -> HIDDEN)
             dao.toggleStatus(newId);
             News updated1 = dao.getNewsById(newId);
             System.out.println("   -> Sau toggleStatus: " + updated1.getStatus() + " (Kỳ vọng: HIDDEN)");
 
-            // Test Toggle Featured (false -> true)
             dao.toggleFeatured(newId);
             News updated2 = dao.getNewsById(newId);
             System.out.println("   -> Sau toggleFeatured: " + updated2.isFeatured() + " (Kỳ vọng: true)");
 
-            // Test Delete
             boolean deleted = dao.delete(newId);
             System.out.println("   -> Xóa bài test: " + deleted);
         }

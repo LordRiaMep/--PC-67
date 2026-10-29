@@ -12,9 +12,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
-    <script src="${ctx}/assets/js/chart.umd.min.js"></script>
+    <script src="${ctx}/assets/js/chart.umd.min.js">
+
+</script>
     <style>
-        .live-dot-pulse {
+.live-dot-pulse {
             display: inline-block;
             width: 7px;
             height: 7px;
@@ -45,7 +47,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        /* Hiệu ứng nhảy số khi có đơn hàng mới hoặc hủy */
         @keyframes numberJumpEffect {
             0% { transform: scale(1); filter: brightness(1); }
             35% { transform: scale(1.12); filter: brightness(1.3); text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
@@ -56,7 +57,6 @@
             animation: numberJumpEffect 0.7s ease;
         }
 
-        /* Tùy chỉnh toàn bộ bong bóng chú thích (Tooltip) nền trắng đồng bộ với nền trang */
         .tooltip .tooltip-inner {
             background-color: #ffffff !important;
             color: #1e293b !important;
@@ -71,7 +71,6 @@
             text-align: left !important;
         }
 
-        /* Mũi tên của Tooltip đồng bộ màu trắng */
         .tooltip.bs-tooltip-top .tooltip-arrow::before {
             border-top-color: #cbd5e1 !important;
         }
@@ -84,7 +83,7 @@
         .tooltip.bs-tooltip-end .tooltip-arrow::before {
             border-right-color: #cbd5e1 !important;
         }
-    </style>
+</style>
 </head>
 <body>
 
@@ -104,7 +103,6 @@
         </div>
     </header>
 
-    <!-- Thống kê nhanh 4 chỉ số -->
     <div class="row g-4">
         <div class="col-md-6 col-xl-3">
             <div class="stat-card">
@@ -144,9 +142,8 @@
         </div>
     </div>
 
-    <!-- KHU VỰC BIỂU ĐỒ TRÒN LÃI KINH DOANH REALTIME & CHỈ SỐ LỢI NHUẬN -->
     <div class="row g-4 mt-1">
-        <!-- CỘT BIỂU ĐỒ HÌNH TRÒN (CHART BY %) - CHUẨN MOCKUP YÊU CẦU -->
+
         <div class="col-xl-5 col-lg-6">
             <div class="panel h-100" id="profit-chart-panel" style="background:#fff; border-radius:12px; border:1px solid var(--border-color); box-shadow:0 2px 10px rgba(0,0,0,0.04); transition:all 0.35s ease;">
                 <div class="panel-head d-flex align-items-center justify-content-between" style="border-bottom: 1px solid #f1f5f9; padding:18px 22px 12px 22px;">
@@ -179,12 +176,12 @@
                 </div>
 
                 <div class="panel-body p-4">
-                    <!-- Khung đồ thị và chú thích: Bên trái Legend, Bên phải Doughnut Chart -->
+
                     <div class="row align-items-center">
-                        <!-- Legend bên trái -->
+
                         <div class="col-5">
                             <div class="d-flex flex-column gap-3">
-                                <!-- Products -->
+
                                 <div class="chart-legend-box p-2 rounded" style="background:#f8fafc; border-left: 3px solid #38bdf8;">
                                     <div class="d-flex align-items-center gap-2 mb-1">
                                         <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#38bdf8; flex-shrink:0;"></span>
@@ -199,7 +196,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Services -->
                                 <div class="chart-legend-box p-2 rounded" style="background:#f8fafc; border-left: 3px solid #f43f5e;">
                                     <div class="d-flex align-items-center gap-2 mb-1">
                                         <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#f43f5e; flex-shrink:0;"></span>
@@ -216,11 +212,10 @@
                             </div>
                         </div>
 
-                        <!-- Vòng tròn Doughnut Chart bên phải -->
                         <div class="col-7">
                             <div style="position: relative; width: 100%; max-width: 200px; margin: 0 auto; aspect-ratio: 1;">
                                 <canvas id="profitDoughnutChart"></canvas>
-                                <!-- Tâm rỗng của Doughnut hiển thị tổng lãi (đã bỏ phần phẩy) -->
+
                                 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; width: 85%;">
                                     <div class="text-uppercase text-muted" style="font-size: 10px; letter-spacing: 0.5px; font-weight: 600;" id="donut-center-label">Tổng lãi</div>
                                     <div class="fw-bold text-dark lh-1" style="font-size: 1.05rem;" id="donut-center-val">
@@ -235,7 +230,6 @@
             </div>
         </div>
 
-        <!-- CỘT CHI TIẾT LÃI KINH DOANH & TÁC ĐỘNG ĐƠN HỦY -->
         <div class="col-xl-7 col-lg-6">
             <div class="panel h-100" style="background:#fff; border-radius:12px; border:1px solid var(--border-color); box-shadow:0 2px 10px rgba(0,0,0,0.04);">
                 <div class="panel-head d-flex align-items-center justify-content-between" style="border-bottom: 1px solid #f1f5f9; padding:18px 22px 12px 22px;">
@@ -249,7 +243,7 @@
 
                 <div class="panel-body p-4">
                     <div class="row g-3">
-                        <!-- Tổng lãi kinh doanh (Đã loại bỏ số phẩy đằng sau) -->
+
                         <div class="col-sm-6">
                             <div class="p-3 rounded border h-100" style="background: #f0fdf4; border-color: #bbf7d0 !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -266,7 +260,6 @@
                             </div>
                         </div>
 
-                        <!-- Tác động đơn đã hủy (Đã loại bỏ số phẩy đằng sau) -->
                         <div class="col-sm-6">
                             <div class="p-3 rounded border h-100" style="background: #fef2f2; border-color: #fecaca !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -283,7 +276,6 @@
                             </div>
                         </div>
 
-                        <!-- Lợi nhuận Products (Đã loại bỏ số phẩy đằng sau) -->
                         <div class="col-sm-6">
                             <div class="p-3 rounded border h-100" style="background: #f8fafc; border-color: #e2e8f0 !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -300,7 +292,6 @@
                             </div>
                         </div>
 
-                        <!-- Lợi nhuận Services (Đã loại bỏ số phẩy đằng sau) -->
                         <div class="col-sm-6">
                             <div class="p-3 rounded border h-100" style="background: #f8fafc; border-color: #e2e8f0 !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -318,7 +309,6 @@
                         </div>
                     </div>
 
-                    <!-- Thanh tiến trình so sánh trực quan -->
                     <div class="mt-3 pt-2">
                         <div class="d-flex justify-content-between small text-muted mb-1" style="font-size: 11px;">
                             <span><i class="fa-solid fa-circle text-info me-1"></i>Products: <strong id="bar-prod-pct"><fmt:formatNumber value="${profitStats != null ? profitStats.productPercent : 83}" maxFractionDigits="0"/>%</strong></span>
@@ -334,7 +324,6 @@
         </div>
     </div>
 
-    <!-- Đơn hàng gần đây -->
     <div class="panel overflow-hidden mt-4">
         <div class="panel-head">
             <h5><i class="fa-solid fa-clock-rotate-left me-2"></i>Đơn hàng gần đây</h5>
@@ -382,20 +371,20 @@
     </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
 
-<!-- Script khởi tạo Doughnut Chart và cơ chế TỰ ĐỘNG NHẢY SỐ Realtime khi khách mua / hủy -->
+</script>
+
 <script>
-    (function () {
-        // Khởi tạo chú thích Tooltips tinh tế cho các icon (?)
+(function () {
+
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
 
-        var currentMode = 'profit'; // 'profit' hoặc 'revenue'
+        var currentMode = 'profit';
         var initialProdPct = Math.round(${profitStats != null ? profitStats.productPercent : 83});
         var initialServPct = Math.round(${profitStats != null ? profitStats.servicePercent : 17});
 
-        // 1. Khởi tạo Chart.js Doughnut Chart
         var canvas = document.getElementById('profitDoughnutChart');
         if (!canvas) return;
         var ctx = canvas.getContext('2d');
@@ -449,7 +438,6 @@
             }
         });
 
-        // 2. Chuyển đổi giữa chế độ hiển thị Lãi kinh doanh (Profit) vs Doanh thu (Revenue)
         window.setChartMode = function (mode) {
             currentMode = mode;
             var btnP = document.getElementById('btnModeProfit');
@@ -468,7 +456,6 @@
             refreshProfitData(null);
         };
 
-        // 3. Hàm kích hoạt chuyển động biểu đồ và TỰ ĐỘNG NHẢY SỐ khi nhận sự kiện Realtime
         window.updateProfitChart = function (ev) {
             var type = ev ? ev.type : '';
             var data = ev ? (ev.data || {}) : {};
@@ -480,7 +467,6 @@
 
             if (updateTime) updateTime.textContent = new Date().toLocaleTimeString('vi-VN');
 
-            // Hiệu ứng ánh sáng viền khi khách mua hoặc hủy
             if (type === 'ORDER_CREATED') {
                 if (panel) {
                     panel.classList.add('pulse-border-green');
@@ -508,11 +494,9 @@
                 }
             }
 
-            // Gọi API lấy dữ liệu mới nhất và kích hoạt hiệu ứng nhảy số
             refreshProfitData(ev);
         };
 
-        // 4. Lấy số liệu mới từ Servlet `/api/admin/profit-stats` và animate biểu đồ
         function refreshProfitData(ev) {
             fetch('${ctx}/api/admin/profit-stats', { cache: 'no-store' })
                 .then(function (res) { return res.json(); })
@@ -532,18 +516,15 @@
                 });
         }
 
-        // 5. Cập nhật DOM, BỎ HOÀN TOÀN PHẦN PHẨY THẬP PHÂN và KÍCH HOẠT HIỆU ỨNG NHẢY SỐ MƯỢT MÀ
         function applyStatsToUI(stats) {
             if (!stats) return;
 
             var prodPct = Math.round(currentMode === 'revenue' ? stats.productRevPercent : stats.productPercent);
             var servPct = Math.round(currentMode === 'revenue' ? stats.serviceRevPercent : stats.servicePercent);
 
-            // 1. Chuyển động quay / co dãn biểu đồ hình tròn
             profitChart.data.datasets[0].data = [prodPct, servPct];
             profitChart.update();
 
-            // 2. Tự động nhảy số trong Legend
             var elProdPct = document.getElementById('chart-product-pct');
             var elServPct = document.getElementById('chart-service-pct');
             var elProdAmt = document.getElementById('chart-product-amt');
@@ -558,12 +539,10 @@
             if (elProdAmt) animateRollingNumber(elProdAmt, parseNumber(elProdAmt), amtP, ' đ');
             if (elServAmt) animateRollingNumber(elServAmt, parseNumber(elServAmt), amtS, ' đ');
 
-            // 3. Tự động nhảy số ở tâm rỗng của hình tròn
             var centerVal = document.getElementById('donut-center-val');
             var targetCenter = Math.round(currentMode === 'revenue' ? stats.totalRevenue : stats.totalProfit);
             if (centerVal) animateRollingNumber(centerVal, parseNumber(centerVal), targetCenter, '');
 
-            // 4. Tự động nhảy số ở bảng chỉ số bên phải (TẤT CẢ ĐỀU LÀ SỐ NGUYÊN KHÔNG CÓ DẤU PHẨY)
             var dtProfit = document.getElementById('detail-total-profit');
             var dtCancelAmt = document.getElementById('detail-cancelled-amount');
             var dtCancelCnt = document.getElementById('detail-cancelled-count');
@@ -589,7 +568,6 @@
             if (badgeProd) badgeProd.textContent = prodPct + '%';
             if (badgeServ) badgeServ.textContent = servPct + '%';
 
-            // 5. Cập nhật thanh so sánh bên dưới
             var barProdPct = document.getElementById('bar-prod-pct');
             var barServPct = document.getElementById('bar-serv-pct');
             var barProdProg = document.getElementById('bar-prod-progress');
@@ -606,14 +584,12 @@
                 barServProg.setAttribute('aria-valuenow', servPct);
             }
 
-            // 6. Nhảy số tổng doanh thu trên ô thống kê đầu trang
             var kpiRev = document.getElementById('kpi-total-revenue');
             if (kpiRev && stats.totalRevenue > 0) {
                 animateRollingNumber(kpiRev, parseNumber(kpiRev), Math.round(stats.totalRevenue), ' đ');
             }
         }
 
-        // HÀM HIỆU ỨNG NHẢY SỐ MƯỢT MÀ (ROLLING NUMBER COUNTER - 100% SỐ NGUYÊN)
         function animateRollingNumber(element, startVal, endVal, suffix) {
             if (!element) return;
             suffix = suffix || '';
@@ -626,13 +602,13 @@
             }
 
             element.classList.add('number-jumping');
-            var duration = 750; // ms
+            var duration = 750;
             var startTime = null;
 
             function step(timestamp) {
                 if (!startTime) startTime = timestamp;
                 var progress = Math.min((timestamp - startTime) / duration, 1);
-                // Easing mượt
+
                 var ease = 1 - Math.pow(1 - progress, 3);
                 var current = Math.round(startVal + (endVal - startVal) * ease);
 
@@ -656,7 +632,6 @@
             return isNegative ? -n : n;
         }
 
-        // 6. Mô phỏng khách mua / hủy phục vụ kiểm thử nhanh
         window.simulateOrderEvent = function (action) {
             fetch('${ctx}/api/admin/profit-stats', {
                 method: 'POST',
@@ -670,7 +645,6 @@
             .catch(function (err) { console.error(err); });
         };
 
-        // 7. Thêm dòng đơn hàng mới vào bảng Đơn gần đây
         function addRecentOrderRow(data) {
             var tbody = document.querySelector('#dashboard-recent-orders-table tbody');
             if (!tbody) return;

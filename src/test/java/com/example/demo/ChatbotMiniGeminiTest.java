@@ -14,7 +14,6 @@ public class ChatbotMiniGeminiTest {
         System.out.println("TESTING MINI-GEMINI CHATBOT & SMART PC ENGINE");
         System.out.println("=================================================\n");
 
-        // TEST 1: cho tôi xem pc amd 30tr
         total++;
         System.out.println(">>> TEST 1: 'cho tôi xem pc amd 30tr'");
         ChatbotKnowledgeService.ChatResult cr1 = service.handleQuery("cho tôi xem pc amd 30tr", null);
@@ -34,7 +33,6 @@ public class ChatbotMiniGeminiTest {
             System.out.println("===> TEST 1: FAILED! (Contains non-AMD or debug tokens)\n");
         }
 
-        // TEST 2: gợi ý pc amd 30tr
         total++;
         System.out.println(">>> TEST 2: 'gợi ý pc amd 30tr'");
         ChatbotKnowledgeService.ChatResult cr2 = service.handleQuery("gợi ý pc amd 30tr", null);
@@ -53,7 +51,6 @@ public class ChatbotMiniGeminiTest {
             System.out.println("===> TEST 2: FAILED!\n");
         }
 
-        // TEST 3: pc intel 20tr
         total++;
         System.out.println(">>> TEST 3: 'pc intel 20tr'");
         ChatbotKnowledgeService.ChatResult cr3 = service.handleQuery("pc intel 20tr", null);
@@ -72,7 +69,6 @@ public class ChatbotMiniGeminiTest {
             System.out.println("===> TEST 3: FAILED!\n");
         }
 
-        // TEST 4: pc rtx 5060
         total++;
         System.out.println(">>> TEST 4: 'pc rtx 5060'");
         ChatbotKnowledgeService.ChatResult cr4 = service.handleQuery("pc rtx 5060", null);
@@ -89,7 +85,6 @@ public class ChatbotMiniGeminiTest {
             System.out.println("===> TEST 4: FAILED!\n");
         }
 
-        // TEST 5: so sánh chip amd và intel
         total++;
         System.out.println(">>> TEST 5: 'so sánh chip amd và intel'");
         ChatbotKnowledgeService.ChatResult cr5 = service.handleQuery("so sánh chip amd và intel", null);
@@ -101,7 +96,6 @@ public class ChatbotMiniGeminiTest {
             System.out.println("===> TEST 5: FAILED!\n");
         }
 
-        // TEST 6: lập trình web nên học gì
         total++;
         System.out.println(">>> TEST 6: 'lập trình web nên học gì'");
         ChatbotKnowledgeService.ChatResult cr6 = service.handleQuery("lập trình web nên học gì", null);
@@ -113,7 +107,6 @@ public class ChatbotMiniGeminiTest {
             System.out.println("===> TEST 6: FAILED!\n");
         }
 
-        // TEST 7: 15 triệu trả góp 6 tháng mỗi tháng bao nhiêu
         total++;
         System.out.println(">>> TEST 7: '15 triệu trả góp 6 tháng mỗi tháng bao nhiêu'");
         ChatbotKnowledgeService.ChatResult cr7 = service.handleQuery("15 triệu trả góp 6 tháng mỗi tháng bao nhiêu", null);
@@ -125,7 +118,6 @@ public class ChatbotMiniGeminiTest {
             System.out.println("===> TEST 7: FAILED!\n");
         }
 
-        // TEST 8: bạn là ai
         total++;
         System.out.println(">>> TEST 8: 'bạn là ai'");
         ChatbotKnowledgeService.ChatResult cr8 = service.handleQuery("bạn là ai", null);
@@ -137,7 +129,6 @@ public class ChatbotMiniGeminiTest {
             System.out.println("===> TEST 8: FAILED!\n");
         }
 
-        // TEST 9: kể chuyện cười đi
         total++;
         System.out.println(">>> TEST 9: 'kể chuyện cười đi'");
         ChatbotKnowledgeService.ChatResult cr9 = service.handleQuery("kể chuyện cười đi", null);
@@ -149,7 +140,6 @@ public class ChatbotMiniGeminiTest {
             System.out.println("===> TEST 9: FAILED!\n");
         }
 
-        // TEST 10: Kiểm tra mô tả thông số chi tiết của sản phẩm #51 (Card RTX 5090)
         total++;
         System.out.println(">>> TEST 10: 'Kiểm tra thông số sản phẩm #51 (ASUS ROG Astral RTX 5090)'");
         dao.ProductDao pDao = new dao.ProductDao();

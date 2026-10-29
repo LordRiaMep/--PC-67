@@ -1,13 +1,5 @@
 package dao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: Thao tác CSDL: Tiếp nhận liên hệ/khiếu nại khách hàng và cập nhật phản hồi.
- * ============================================================================
- */
-
 import model.Contact;
 
 import java.sql.Connection;

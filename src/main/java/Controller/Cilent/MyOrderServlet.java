@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Hiển thị lịch sử đơn hàng cá nhân của khách hàng.
- * ============================================================================
- */
-
 import dao.OrderDao;
 import model.Order;
 import model.User;
@@ -30,9 +22,32 @@ public class MyOrderServlet extends HttpServlet {
         }
 
         OrderDao dao = new OrderDao();
-        List<Order> orders = dao.getOrdersByUserId(user.getId());
+        int pageSize = 5;
+        int page = 1;
+
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+            } catch (NumberFormatException ignored) {}
+        }
+
+        int totalOrders = dao.getTotalOrdersCountByUserId(user.getId());
+        int totalPages = (int) Math.ceil((double) totalOrders / pageSize);
+        if (totalPages > 0 && page > totalPages) {
+            page = totalPages;
+        }
+        if (page < 1) {
+            page = 1;
+        }
+
+        int offset = Math.max(0, (page - 1) * pageSize);
+        List<Order> orders = dao.getOrdersByUserIdAndPage(user.getId(), offset, pageSize);
 
         request.setAttribute("orders", orders);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalOrders", totalOrders);
         request.getRequestDispatcher("/view/my_orders.jsp").forward(request, response);
     }
 }

@@ -5,7 +5,7 @@
 <jsp:include page="header.jsp" />
 
 <style>
-  .auth-box-card {
+.auth-box-card {
     background: #ffffff;
     max-width: 460px;
     width: 100%;
@@ -146,11 +146,11 @@
         <div class="mb-3">
           <label>Mật khẩu mới <span class="text-danger">*</span></label>
           <div class="pass-wrapper">
-            <input type="password" 
-                   name="newPassword" 
-                   id="newPassword" 
-                   class="form-control custom-auth-input" 
-                   required 
+            <input type="password"
+                   name="newPassword"
+                   id="newPassword"
+                   class="form-control custom-auth-input"
+                   required
                    minlength="6"
                    placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)...">
             <span class="pass-toggle-btn" onclick="togglePass('newPassword', this)" title="Hiện/ẩn mật khẩu">
@@ -162,11 +162,11 @@
         <div class="mb-3">
           <label>Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
           <div class="pass-wrapper">
-            <input type="password" 
-                   name="confirmPassword" 
-                   id="confirmPassword" 
-                   class="form-control custom-auth-input" 
-                   required 
+            <input type="password"
+                   name="confirmPassword"
+                   id="confirmPassword"
+                   class="form-control custom-auth-input"
+                   required
                    placeholder="Nhập lại mật khẩu mới...">
             <span class="pass-toggle-btn" onclick="togglePass('confirmPassword', this)" title="Hiện/ẩn mật khẩu">
               <i class="bi bi-eye"></i>
@@ -189,7 +189,7 @@
 </div>
 
 <script>
-  function togglePass(inputId, el) {
+function togglePass(inputId, el) {
     var input = document.getElementById(inputId);
     if (!input) return;
     var icon = el.querySelector('i');

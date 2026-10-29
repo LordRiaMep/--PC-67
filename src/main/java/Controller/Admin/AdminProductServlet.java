@@ -1,17 +1,10 @@
 package Controller.Admin;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Admin CRUD sản phẩm, cấu hình tùy chọn nâng cấp RAM/VGA/Màu sắc.
- * ============================================================================
- */
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dao.CategoryDao;
 import dao.ProductDao;
+import dao.ProductImageDao;
 import dao.UpgradeDao;
 import model.Product;
 import model.UpgradeOption;
@@ -29,6 +22,7 @@ public class AdminProductServlet extends HttpServlet {
     private final ProductDao productDao = new ProductDao();
     private final CategoryDao categoryDao = new CategoryDao();
     private final UpgradeDao upgradeDao = new UpgradeDao();
+    private final ProductImageDao productImageDao = new ProductImageDao();
     private final Gson gson = new Gson();
 
     @Override
@@ -43,7 +37,6 @@ public class AdminProductServlet extends HttpServlet {
             } catch (NumberFormatException ignored) {}
         }
 
-        // 0. AJAX: Lấy danh sách tùy chọn (nâng cấp / đổi màu) của sản phẩm
         if ("get_options_ajax".equals(action)) {
             resp.setContentType("application/json;charset=UTF-8");
             try {
@@ -56,7 +49,6 @@ public class AdminProductServlet extends HttpServlet {
             return;
         }
 
-        // 1. Xóa sản phẩm
         if ("delete".equals(action)) {
             try {
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -75,7 +67,6 @@ public class AdminProductServlet extends HttpServlet {
             return;
         }
 
-        // 2. Chế độ sửa
         if ("edit".equals(action)) {
             try {
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -85,6 +76,10 @@ public class AdminProductServlet extends HttpServlet {
                     List<UpgradeOption> options = upgradeDao.getOptionsByProductId(id);
                     req.setAttribute("productOptions", options);
                     req.setAttribute("productOptionsJson", gson.toJson(options));
+
+                    List<String> images = p.getImages();
+                    req.setAttribute("productImages", images);
+                    req.setAttribute("productImagesJson", gson.toJson(images));
                 }
             } catch (Exception ignored) {}
         }
@@ -98,20 +93,20 @@ public class AdminProductServlet extends HttpServlet {
 
         List<Product> listProducts = productDao.getProductsByPage(page, pageSize);
 
-        // Lấy số lượng tùy chọn cấu hình cho từng sản phẩm trong bảng
         List<Integer> pids = new ArrayList<>();
         for (Product pr : listProducts) {
             pids.add(pr.getId());
         }
         Map<Integer, Integer> optionCountMap = upgradeDao.getOptionCountByProductIds(pids);
+        Map<Integer, Integer> imageCountMap = productImageDao.getImageCountByProductIds(pids);
 
         req.setAttribute("listProducts", listProducts);
         req.setAttribute("optionCountMap", optionCountMap);
+        req.setAttribute("imageCountMap", imageCountMap);
         req.setAttribute("currentPage", page);
         req.setAttribute("totalPages", totalPages);
         req.setAttribute("listCategories", categoryDao.findAll());
 
-        // Đẩy thông báo phản hồi (nếu có)
         String msg = req.getParameter("msg");
         String err = req.getParameter("error");
         if ("delete_success".equals(msg)) req.setAttribute("successMessage", "Xóa / Ẩn sản phẩm thành công!");
@@ -133,7 +128,6 @@ public class AdminProductServlet extends HttpServlet {
         String redirectPage = (pageParam != null && !pageParam.isEmpty()) ? "&page=" + pageParam : "";
         String action = req.getParameter("action");
 
-        // 1. AJAX: Lưu nhanh tùy chọn từ Modal
         if ("quick_save_options".equals(action)) {
             resp.setContentType("application/json;charset=UTF-8");
             try {
@@ -148,7 +142,6 @@ public class AdminProductServlet extends HttpServlet {
             return;
         }
 
-        // 2. Lưu form sản phẩm (Thêm mới hoặc Cập nhật)
         try {
             int id = 0;
             String idStr = req.getParameter("id");
@@ -162,6 +155,8 @@ public class AdminProductServlet extends HttpServlet {
             double price = Double.parseDouble(req.getParameter("price"));
             int stock = Integer.parseInt(req.getParameter("stock"));
             String imageUrl = req.getParameter("imageUrl");
+            String imagesJson = req.getParameter("imagesJson");
+            String subImagesText = req.getParameter("subImagesText");
             String specDetail = normalizeSpec(req.getParameter("specDetail"));
 
             if (name == null || name.trim().isEmpty() || price < 0 || stock < 0 || categoryId <= 0) {
@@ -169,16 +164,50 @@ public class AdminProductServlet extends HttpServlet {
                 return;
             }
 
+            // Xử lý danh sách nhiều ảnh từ Admin
+            List<String> allImages = new ArrayList<>();
+            if (imagesJson != null && !imagesJson.trim().isEmpty()) {
+                try {
+                    Type type = new TypeToken<List<String>>(){}.getType();
+                    List<String> parsed = gson.fromJson(imagesJson, type);
+                    if (parsed != null) {
+                        for (String img : parsed) {
+                            if (img != null && !img.trim().isEmpty()) {
+                                String clean = img.trim();
+                                if (!allImages.contains(clean)) allImages.add(clean);
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+            if (subImagesText != null && !subImagesText.trim().isEmpty()) {
+                for (String line : subImagesText.split("\\r?\\n")) {
+                    String clean = line.trim();
+                    if (!clean.isEmpty() && !allImages.contains(clean)) {
+                        allImages.add(clean);
+                    }
+                }
+            }
+            if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                String cleanMain = imageUrl.trim();
+                if (!allImages.contains(cleanMain)) {
+                    allImages.add(0, cleanMain);
+                }
+            } else if (!allImages.isEmpty()) {
+                imageUrl = allImages.get(0);
+            }
+
             Product p = new Product(id, categoryId, name.trim(), description, price, imageUrl, stock, "ACTIVE", null);
             p.setSpecDetail(specDetail);
+            p.setImages(allImages);
 
-            // Đọc danh sách tùy chọn nâng cấp / đổi màu từ JSON
             String upgradeOptionsJson = req.getParameter("upgradeOptionsJson");
             List<UpgradeOption> optionsToSave = parseOptionsJson(upgradeOptionsJson);
 
             if ("update".equals(action) && id > 0) {
                 productDao.update(p);
                 upgradeDao.saveProductOptions(id, optionsToSave);
+                productImageDao.saveProductImages(id, allImages);
                 util.realtime.RealtimeHub.broadcastProductChanged("update", id, p.getName(), p.getPrice(), p.getQuantity(), p.getImage());
                 resp.sendRedirect(req.getContextPath() + "/admin/products?msg=update_success" + redirectPage);
             } else {
@@ -186,6 +215,9 @@ public class AdminProductServlet extends HttpServlet {
                 if (newId > 0) {
                     if (!optionsToSave.isEmpty()) {
                         upgradeDao.saveProductOptions(newId, optionsToSave);
+                    }
+                    if (!allImages.isEmpty()) {
+                        productImageDao.saveProductImages(newId, allImages);
                     }
                     util.realtime.RealtimeHub.broadcastProductChanged("create", newId, p.getName(), p.getPrice(), p.getQuantity(), p.getImage());
                     resp.sendRedirect(req.getContextPath() + "/admin/products?msg=insert_success&page=1");
@@ -199,7 +231,6 @@ public class AdminProductServlet extends HttpServlet {
         }
     }
 
-    /** Chuyển đổi chuỗi JSON gửi từ Client thành danh sách UpgradeOption an toàn */
     private List<UpgradeOption> parseOptionsJson(String json) {
         List<UpgradeOption> result = new ArrayList<>();
         if (json == null || json.trim().isEmpty()) return result;
@@ -225,7 +256,6 @@ public class AdminProductServlet extends HttpServlet {
         return result;
     }
 
-    /** Mỗi dòng trong textarea -> 1 thông số; ghép lại bằng dấu | để lưu vào DB. */
     private String normalizeSpec(String raw) {
         if (raw == null) return null;
         StringBuilder sb = new StringBuilder();

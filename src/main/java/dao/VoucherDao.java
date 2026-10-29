@@ -1,13 +1,5 @@
 package dao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Thao tác CSDL: Quản lý mã giảm giá, kiểm tra điều kiện áp dụng và trừ lượt dùng.
- * ============================================================================
- */
-
 import model.Voucher;
 
 import java.sql.*;
@@ -145,9 +137,6 @@ public class VoucherDao {
         return null;
     }
 
-    /**
-     * Lấy các voucher đang còn hiệu lực và chưa hết lượt dùng
-     */
     public List<Voucher> getActiveVouchers() {
         List<Voucher> list = new ArrayList<>();
         String sql = "SELECT * FROM voucher " +
@@ -167,10 +156,6 @@ public class VoucherDao {
         return list;
     }
 
-    /**
-     * Lấy các voucher hiển thị cho chi tiết sản phẩm hoặc trang giỏ hàng
-     * Bao gồm voucher đủ điều kiện và voucher sắp đủ điều kiện (để kích thích mua hàng)
-     */
     public List<Voucher> getAvailableVouchersForDisplay() {
         List<Voucher> list = new ArrayList<>();
         String sql = "SELECT * FROM voucher " +
@@ -290,7 +275,7 @@ public class VoucherDao {
     }
 
     public boolean delete(int id) {
-        // Kiểm tra xem voucher đã từng được dùng trong hóa đơn nào chưa
+
         String checkSql = "SELECT COUNT(*) FROM hoa_don h " +
                           "INNER JOIN voucher v ON h.voucher_code = v.code " +
                           "WHERE v.id = ?";
@@ -301,7 +286,7 @@ public class VoucherDao {
                 psCheck.setInt(1, id);
                 try (ResultSet rs = psCheck.executeQuery()) {
                     if (rs.next() && rs.getInt(1) > 0) {
-                        // Đã có đơn hàng sử dụng -> Đổi sang INACTIVE để lưu vết lịch sử
+
                         String sqlInactive = "UPDATE voucher SET status = 'INACTIVE' WHERE id = ?";
                         try (PreparedStatement psIn = con.prepareStatement(sqlInactive)) {
                             psIn.setInt(1, id);
@@ -311,7 +296,6 @@ public class VoucherDao {
                 }
             }
 
-            // Chưa có đơn hàng nào dùng -> Cho phép xóa vĩnh viễn
             String deleteSql = "DELETE FROM voucher WHERE id = ?";
             try (PreparedStatement psDel = con.prepareStatement(deleteSql)) {
                 psDel.setInt(1, id);
@@ -323,9 +307,6 @@ public class VoucherDao {
         return false;
     }
 
-    /**
-     * Tăng số lượt đã dùng của voucher lên 1 khi đơn hàng được tạo (chạy trong transaction)
-     */
     public boolean incrementUsedCount(String code, Connection con) throws SQLException {
         if (code == null || code.trim().isEmpty()) return true;
         String sql = "UPDATE voucher SET used_count = used_count + 1 WHERE UPPER(code) = UPPER(?)";

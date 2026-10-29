@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Xử lý thao tác hủy đơn và yêu cầu đổi trả hàng từ phía khách hàng.
- * ============================================================================
- */
-
 import dao.OrderDao;
 import model.Order;
 import model.User;
@@ -47,7 +39,7 @@ public class ClientOrderActionServlet extends HttpServlet {
             String message = "";
 
             if ("cancel".equals(action)) {
-                // Khách chủ động hủy đơn (chỉ khi đơn đang PENDING)
+
                 success = orderDao.clientCancelOrder(orderId, user.getId());
                 if (success) {
                     message = "Đã hủy đơn hàng thành công! Sản phẩm đã được hoàn lại kho.";
@@ -56,7 +48,7 @@ public class ClientOrderActionServlet extends HttpServlet {
                     message = "Không thể hủy đơn hàng do đơn đã được shop tiếp nhận xử lý hoặc không hợp lệ.";
                 }
             } else if ("return_request".equals(action)) {
-                // Khách gửi yêu cầu đổi trả (chỉ khi đơn đã hoàn thành)
+
                 success = orderDao.clientRequestReturn(orderId, user.getId());
                 if (success) {
                     message = "Đã gửi yêu cầu đổi trả thành công! Shop sẽ liên hệ và xử lý sớm nhất.";

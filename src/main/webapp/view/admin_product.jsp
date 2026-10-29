@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
     <style>
-        .group-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+.group-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
         .group-header { background: #f8fafc; padding: 8px 12px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
         .group-title { font-weight: 700; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 6px; }
         .group-body { padding: 10px 12px; }
@@ -25,7 +25,7 @@
         .opt-radio-wrap input[type="radio"] { cursor: pointer; width: 16px; height: 16px; accent-color: var(--brand); }
         .btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 4px; font-weight: 600; }
         .opt-col-label { font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
-    </style>
+</style>
 </head>
 <body>
 
@@ -43,7 +43,6 @@
         </div>
     </header>
 
-    <!-- Khu vực thông báo kết quả -->
     <div id="dynamicAlertArea"></div>
 
     <c:if test="${not empty successMessage}">
@@ -63,7 +62,7 @@
     </c:if>
 
     <div class="row g-4">
-        <!-- Form thêm / sửa sản phẩm -->
+
         <div class="col-lg-5 col-xl-5">
             <form action="${url}" method="post" id="productForm" class="panel sticky-panel">
                 <div class="panel-head">
@@ -75,8 +74,9 @@
                     <input type="hidden" name="id" value="${product.id}">
                     <input type="hidden" name="page" value="${currentPage}">
                     <input type="hidden" name="action" value="${not empty product ? 'update' : 'insert'}">
-                    <!-- JSON chứa các tùy chọn nâng cấp / màu sắc -->
+
                     <input type="hidden" name="upgradeOptionsJson" id="upgradeOptionsJson" value="">
+                    <input type="hidden" name="imagesJson" id="imagesJson" value="">
 
                     <div class="mb-3">
                         <label class="field-label">Danh mục <span class="text-danger">*</span></label>
@@ -116,18 +116,54 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="field-label">Ảnh sản phẩm (URL)</label>
-                        <input type="text" id="imageUrl" name="imageUrl" class="form-control field shadow-none mb-2" value="${product.image}" placeholder="https://... hoặc /assets/images/...">
-                        <div class="img-preview" id="imgPreview" style="height: 120px;">
-                            <c:choose>
-                                <c:when test="${not empty product.image}"><img src="${product.image}" alt="Ảnh xem trước" onerror="this.src='https://via.placeholder.com/150?text=No+Image'"></c:when>
-                                <c:otherwise><i class="fa-regular fa-image fs-2"></i></c:otherwise>
-                            </c:choose>
+                    <!-- BỘ SƯU TẬP ẢNH SẢN PHẨM (NHIỀU ẢNH) -->
+                    <div class="mb-4 p-3 bg-light border rounded-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <label class="field-label m-0 text-dark fw-bold d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-images text-danger"></i>
+                                <span>Bộ sưu tập ảnh sản phẩm</span>
+                            </label>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1" id="imageCountBadge">0 ảnh</span>
                         </div>
+                        <div class="text-secondary small mb-3" style="font-size: 12px; line-height: 1.4;">
+                            Thêm được nhiều ảnh cho sản phẩm. Ảnh đầu tiên được đánh dấu <strong>Ảnh chính</strong> (hiển thị ở trang chủ, giỏ hàng). Khách hàng vào trang chi tiết sẽ xem được đầy đủ tất cả các ảnh.
+                        </div>
+
+                        <!-- Ô nhập link ảnh đơn lẻ -->
+                        <div class="input-group mb-2">
+                            <input type="text" id="newImageUrlInput" class="form-control field shadow-none" placeholder="Dán link ảnh (https://... hoặc /assets/images/...)">
+                            <button type="button" class="btn btn-danger" id="btnAddSingleImageBtn">
+                                <i class="fa-solid fa-plus me-1"></i>Thêm ảnh
+                            </button>
+                        </div>
+
+                        <!-- Nút bật khung dán nhiều ảnh cùng lúc -->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <button type="button" class="btn btn-xs btn-outline-secondary" id="btnToggleBatchBox">
+                                <i class="fa-solid fa-list-check me-1"></i>Nhập nhiều link ảnh cùng lúc
+                            </button>
+                            <span class="text-muted" style="font-size: 11px;">Hỗ trợ link web hoặc ảnh nội bộ</span>
+                        </div>
+
+                        <!-- Khung dán nhiều link ảnh (ẩn mặc định) -->
+                        <div id="batchBoxContainer" class="d-none mb-3 p-2 bg-white border rounded-2">
+                            <label class="form-label small fw-bold mb-1">Dán danh sách link ảnh (mỗi dòng 1 link URL):</label>
+                            <textarea id="batchUrlsInput" class="form-control field shadow-none mb-2" rows="3" placeholder="https://cdn.../hinh1.jpg&#10;https://cdn.../hinh2.jpg&#10;https://cdn.../hinh3.jpg"></textarea>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-xs btn-secondary" id="btnCancelBatch">Hủy</button>
+                                <button type="button" class="btn btn-xs btn-danger" id="btnApplyBatch">Nạp danh sách ảnh</button>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách các thẻ ảnh đã thêm -->
+                        <div id="galleryCardsList" class="d-flex flex-column gap-2 mb-2" style="max-height: 320px; overflow-y: auto;">
+                            <!-- Render bằng JavaScript -->
+                        </div>
+
+                        <!-- Input ẩn lưu link ảnh đại diện chính (tương thích backward) -->
+                        <input type="hidden" id="imageUrl" name="imageUrl" value="${product.image}">
                     </div>
 
-                    <!-- ================= KHU VỰC CẤU HÌNH TÙY CHỌN & NÂNG CẤP ================= -->
                     <div class="opt-builder-box mb-4">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <label class="field-label m-0 text-dark fw-bold d-flex align-items-center gap-1">
@@ -140,7 +176,6 @@
                             Tùy biến linh hoạt theo từng sản phẩm: Cho phép khách chọn đổi màu (Đen, Trắng...) hoặc nâng cấp linh kiện (CPU, RAM, SSD, VGA...). Có thể để trống nếu sản phẩm không có tùy chọn.
                         </div>
 
-                        <!-- Thanh mẫu nhanh -->
                         <div class="d-flex flex-wrap gap-1 mb-3">
                             <span class="text-secondary small align-self-center me-1" style="font-size: 11px; font-weight: 600;">Mẫu nhanh:</span>
                             <button type="button" class="btn btn-xs btn-outline-danger" onclick="formBuilder.addPreset('color')" title="Tạo nhóm Màu sắc: Đen (Mặc định) và Trắng">
@@ -157,10 +192,8 @@
                             </button>
                         </div>
 
-                        <!-- Container danh sách nhóm tùy chọn -->
                         <div id="formGroupsContainer"></div>
 
-                        <!-- Thêm nhóm tùy chỉnh mới -->
                         <div class="input-group input-group-sm mt-2">
                             <input type="text" id="customGroupNameInput" class="form-control field shadow-none" placeholder="Tên nhóm mới (VD: Màu sắc, CPU, RAM, Vỏ case...)">
                             <button type="button" class="btn btn-outline-danger" id="btnAddCustomGroupBtn">
@@ -168,7 +201,6 @@
                             </button>
                         </div>
                     </div>
-                    <!-- ================= KẾT THÚC KHU VỰC CẤU HÌNH ================= -->
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-neon px-4 flex-grow-1"><i class="fa-solid fa-floppy-disk me-1"></i> Lưu sản phẩm</button>
@@ -178,7 +210,6 @@
             </form>
         </div>
 
-        <!-- Danh sách sản phẩm -->
         <div class="col-lg-7 col-xl-7">
             <div class="panel overflow-hidden">
                 <div class="panel-head">
@@ -205,8 +236,14 @@
                         <c:forEach items="${listProducts}" var="p">
                             <tr class="${product != null && product.id == p.id ? 'row-edit' : ''}">
                                 <td>
-                                    <div class="thumb" style="width: 52px; height: 52px;">
+                                    <div class="thumb position-relative" style="width: 52px; height: 52px;">
                                         <img src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/60?text=No+Image'">
+                                        <c:set var="subCount" value="${imageCountMap[p.id]}" />
+                                        <c:if test="${not empty subCount && subCount > 0}">
+                                            <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-danger border border-light" style="font-size: 9px; padding: 2px 4px;" title="Sản phẩm có ${subCount} ảnh">
+                                                <i class="fa-solid fa-images"></i> ${subCount}
+                                            </span>
+                                        </c:if>
                                     </div>
                                 </td>
                                 <td>
@@ -268,7 +305,6 @@
     </div>
 </main>
 
-<!-- ================= MODAL QUẢN LÝ TÙY CHỌN & NÂNG CẤP NHANH ================= -->
 <div class="modal fade" id="quickOptionsModal" tabindex="-1" aria-labelledby="quickOptionsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
@@ -288,7 +324,7 @@
                 </div>
 
                 <div id="modalContent" style="display:none;">
-                    <!-- Thanh mẫu nhanh -->
+
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-2 bg-light rounded-3 mb-3 border">
                         <div class="d-flex flex-wrap gap-1 align-items-center">
                             <span class="text-secondary small me-1" style="font-size: 11px; font-weight: 600;">Mẫu nhanh:</span>
@@ -300,10 +336,8 @@
                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle badge-count" id="modalOptionsBadge">0 lựa chọn</span>
                     </div>
 
-                    <!-- Container các nhóm tùy chọn trong modal -->
                     <div id="modalGroupsContainer"></div>
 
-                    <!-- Thêm nhóm tùy chỉnh mới trong modal -->
                     <div class="input-group input-group-sm mt-3">
                         <input type="text" id="modalGroupNameInput" class="form-control field shadow-none" placeholder="Tên nhóm mới (VD: Màu sắc, CPU, RAM, Vỏ case...)">
                         <button type="button" class="btn btn-outline-danger" id="btnAddModalGroupBtn">
@@ -322,15 +356,15 @@
     </div>
 </div>
 
-<!-- Dữ liệu ban đầu cho form (khi đang sửa sản phẩm) -->
 <script id="initialProductOptionsData" type="application/json">
     <c:out value="${empty productOptionsJson ? '[]' : productOptionsJson}" escapeXml="false" />
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+
+</script>
 <script>
-    // Live update preview ảnh khi thay đổi URL
-    const imgInput = document.getElementById('imageUrl');
+const imgInput = document.getElementById('imageUrl');
     const previewBox = document.getElementById('imgPreview');
     if (imgInput && previewBox) {
         imgInput.addEventListener('input', function () {
@@ -343,7 +377,6 @@
         });
     }
 
-    // Lọc nhanh sản phẩm trong trang hiện tại
     const quickSearch = document.getElementById('quickSearch');
     if (quickSearch) {
         quickSearch.addEventListener('input', function () {
@@ -362,18 +395,14 @@
         });
     }
 
-    // =========================================================================
-    // LỚP QUẢN LÝ BUILDER TÙY CHỌN & NÂNG CẤP (DÙNG CHUNG CHO FORM VÀ MODAL)
-    // =========================================================================
     class OptionsBuilder {
         constructor(containerId, badgeId, prefix) {
             this.container = document.getElementById(containerId);
             this.badge = document.getElementById(badgeId);
             this.prefix = prefix;
-            this.groups = {}; // { "Màu sắc": [ { name, priceDelta, defaultOption } ] }
+            this.groups = {};
         }
 
-        // Tải dữ liệu từ danh sách mảng UpgradeOption
         loadData(optionsList) {
             this.groups = {};
             if (Array.isArray(optionsList)) {
@@ -392,7 +421,6 @@
             this.render();
         }
 
-        // Đảm bảo mỗi nhóm có đúng 1 tùy chọn mặc định
         ensureDefaults() {
             Object.keys(this.groups).forEach(g => {
                 const list = this.groups[g];
@@ -403,7 +431,6 @@
             });
         }
 
-        // Thêm nhóm mới
         addGroup(groupName) {
             const g = (groupName || '').trim();
             if (!g) return;
@@ -413,7 +440,6 @@
             }
         }
 
-        // Xóa nhóm
         removeGroup(groupName) {
             if (confirm('Bạn có chắc chắn muốn xóa toàn bộ nhóm tùy chọn "' + groupName + '"?')) {
                 delete this.groups[groupName];
@@ -421,7 +447,6 @@
             }
         }
 
-        // Thêm lựa chọn vào 1 nhóm
         addOption(groupName, name, priceDelta, isDefault) {
             if (!this.groups[groupName]) this.groups[groupName] = [];
             const isFirst = this.groups[groupName].length === 0;
@@ -434,7 +459,6 @@
             this.render();
         }
 
-        // Xóa 1 lựa chọn trong nhóm
         removeOption(groupName, index) {
             if (this.groups[groupName] && this.groups[groupName][index] !== undefined) {
                 const wasDefault = this.groups[groupName][index].defaultOption;
@@ -446,7 +470,6 @@
             }
         }
 
-        // Chọn tùy chọn mặc định cho nhóm
         setDefault(groupName, index) {
             if (this.groups[groupName]) {
                 this.groups[groupName].forEach((opt, idx) => {
@@ -456,7 +479,6 @@
             }
         }
 
-        // Cập nhật giá trị tên của lựa chọn
         updateName(groupName, index, val) {
             if (this.groups[groupName] && this.groups[groupName][index]) {
                 this.groups[groupName][index].name = val;
@@ -464,14 +486,12 @@
             }
         }
 
-        // Cập nhật giá trị chênh lệch giá
         updatePrice(groupName, index, val) {
             if (this.groups[groupName] && this.groups[groupName][index]) {
                 this.groups[groupName][index].priceDelta = parseFloat(val) || 0;
             }
         }
 
-        // Thêm theo mẫu nhanh
         addPreset(type) {
             if (type === 'color') {
                 if (!this.groups['Màu sắc']) this.groups['Màu sắc'] = [];
@@ -500,7 +520,6 @@
             this.render();
         }
 
-        // Lấy icon tương ứng theo tên nhóm
         getIcon(groupName) {
             const g = (groupName || '').toLowerCase();
             if (g.includes('màu') || g.includes('color')) return 'fa-palette text-danger';
@@ -511,7 +530,6 @@
             return 'fa-sliders text-secondary';
         }
 
-        // Lấy toàn bộ danh sách phẳng hợp lệ để gửi lên server
         getData() {
             const result = [];
             Object.keys(this.groups).forEach(g => {
@@ -532,7 +550,6 @@
             return result;
         }
 
-        // Cập nhật số lượng trên badge
         updateBadge() {
             let total = 0;
             Object.keys(this.groups).forEach(g => {
@@ -545,7 +562,6 @@
             }
         }
 
-        // Render toàn bộ giao diện HTML
         render() {
             if (!this.container) return;
             const groupNames = Object.keys(this.groups);
@@ -562,7 +578,7 @@
                 const radioName = this.prefix + '_def_' + gIdx;
 
                 html += '<div class="group-card shadow-sm">';
-                // Header nhóm
+
                 html += '  <div class="group-header">';
                 html += '    <div class="group-title"><i class="fa-solid ' + icon + '"></i> ' + this.escapeHtml(g) + ' <span class="badge bg-secondary-subtle text-secondary small" style="font-size:11px;">' + opts.length + ' mục</span></div>';
                 html += '    <div class="d-flex gap-1">';
@@ -571,7 +587,6 @@
                 html += '    </div>';
                 html += '  </div>';
 
-                // Body nhóm
                 html += '  <div class="group-body">';
                 if (opts.length > 0) {
                     html += '    <div class="d-grid opt-col-label" style="grid-template-columns: 28px 1fr 125px 32px; gap: 6px;">';
@@ -619,12 +634,8 @@
         }
     }
 
-    // =========================================================================
-    // KHỞI TẠO BUILDER CHO FORM BÊN TRÁI
-    // =========================================================================
     const formBuilder = new OptionsBuilder('formGroupsContainer', 'formOptionBadge', 'formBuilder');
 
-    // Tải dữ liệu ban đầu cho form (nếu đang ở chế độ sửa sản phẩm)
     try {
         const rawJson = document.getElementById('initialProductOptionsData').textContent.trim();
         if (rawJson && rawJson !== '[]') {
@@ -638,7 +649,6 @@
         formBuilder.loadData([]);
     }
 
-    // Nút thêm nhóm tùy chỉnh ở form
     const btnAddCustomGroupBtn = document.getElementById('btnAddCustomGroupBtn');
     const customGroupNameInput = document.getElementById('customGroupNameInput');
     if (btnAddCustomGroupBtn && customGroupNameInput) {
@@ -659,18 +669,159 @@
         });
     }
 
-    // Khi submit form sản phẩm: tuần tự hóa danh sách tùy chọn vào input ẩn
+    // QUẢN LÝ BỘ SƯU TẬP NHIỀU ẢNH CHO SẢN PHẨM
+    let galleryImages = [];
+    try {
+        const preloadedJson = '${productImagesJson}';
+        if (preloadedJson && preloadedJson.trim() !== '' && preloadedJson !== 'null') {
+            galleryImages = JSON.parse(preloadedJson);
+        } else {
+            const singleImg = '${product.image}';
+            if (singleImg && singleImg.trim() !== '') {
+                galleryImages = [singleImg.trim()];
+            }
+        }
+    } catch (e) {
+        console.error('Lỗi parse productImagesJson:', e);
+        galleryImages = [];
+    }
+
+    const galleryListEl = document.getElementById('galleryCardsList');
+    const imageCountBadge = document.getElementById('imageCountBadge');
+    const newImageUrlInput = document.getElementById('newImageUrlInput');
+    const btnAddSingleImageBtn = document.getElementById('btnAddSingleImageBtn');
+    const btnToggleBatchBox = document.getElementById('btnToggleBatchBox');
+    const batchBoxContainer = document.getElementById('batchBoxContainer');
+    const batchUrlsInput = document.getElementById('batchUrlsInput');
+    const btnCancelBatch = document.getElementById('btnCancelBatch');
+    const btnApplyBatch = document.getElementById('btnApplyBatch');
+    const hiddenImageUrl = document.getElementById('imageUrl');
+    const hiddenImagesJson = document.getElementById('imagesJson');
+
+    function renderGalleryCards() {
+        if (!galleryListEl) return;
+        galleryListEl.innerHTML = '';
+
+        if (galleryImages.length === 0) {
+            galleryListEl.innerHTML = '<div class="text-center p-3 text-muted bg-white border border-dashed rounded-2" style="font-size: 12.5px;">' +
+                '<i class="fa-regular fa-image fs-3 d-block mb-1 text-secondary opacity-50"></i>' +
+                'Chưa có ảnh nào. Hãy dán link ảnh vào ô trên rồi nhấn <strong>+ Thêm ảnh</strong>.' +
+                '</div>';
+            if (imageCountBadge) imageCountBadge.innerText = '0 ảnh';
+            if (hiddenImageUrl) hiddenImageUrl.value = '';
+            if (hiddenImagesJson) hiddenImagesJson.value = '[]';
+            return;
+        }
+
+        if (imageCountBadge) imageCountBadge.innerText = galleryImages.length + ' ảnh';
+        if (hiddenImageUrl) hiddenImageUrl.value = galleryImages[0] || '';
+        if (hiddenImagesJson) hiddenImagesJson.value = JSON.stringify(galleryImages);
+
+        galleryImages.forEach(function(url, idx) {
+            const card = document.createElement('div');
+            card.className = 'd-flex align-items-center gap-2 p-2 bg-white border rounded-2 shadow-xs';
+            card.style.fontSize = '13px';
+
+            const isMain = (idx === 0);
+
+            card.innerHTML =
+                '<div style="width: 52px; height: 52px; flex-shrink: 0; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center;">' +
+                '  <img src="' + url + '" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.src=\'https://via.placeholder.com/60?text=Error\'">' +
+                '</div>' +
+                '<div class="flex-grow-1 overflow-hidden">' +
+                '  <div class="d-flex align-items-center gap-1 mb-1">' +
+                (isMain ? '    <span class="badge bg-danger" style="font-size: 10px;"><i class="fa-solid fa-star me-1"></i>Ảnh chính</span>'
+                        : '    <span class="badge bg-secondary" style="font-size: 10px;">Ảnh phụ #' + (idx + 1) + '</span>') +
+                '  </div>' +
+                '  <div class="text-truncate text-secondary" style="font-size: 11.5px; font-family: monospace;" title="' + url + '">' + url + '</div>' +
+                '</div>' +
+                '<div class="d-flex gap-1 flex-shrink-0">' +
+                (!isMain ? '  <button type="button" class="btn btn-xs btn-outline-warning" title="Đặt làm ảnh chính" onclick="setAsMainImage(' + idx + ')"><i class="fa-regular fa-star"></i></button>' : '') +
+                '  <button type="button" class="btn btn-xs btn-outline-danger" title="Xóa ảnh này" onclick="removeGalleryImage(' + idx + ')"><i class="fa-solid fa-trash-can"></i></button>' +
+                '</div>';
+
+            galleryListEl.appendChild(card);
+        });
+    }
+
+    window.setAsMainImage = function(idx) {
+        if (idx <= 0 || idx >= galleryImages.length) return;
+        const chosen = galleryImages.splice(idx, 1)[0];
+        galleryImages.unshift(chosen);
+        renderGalleryCards();
+    };
+
+    window.removeGalleryImage = function(idx) {
+        if (idx < 0 || idx >= galleryImages.length) return;
+        galleryImages.splice(idx, 1);
+        renderGalleryCards();
+    };
+
+    if (btnAddSingleImageBtn && newImageUrlInput) {
+        btnAddSingleImageBtn.addEventListener('click', function() {
+            const val = newImageUrlInput.value.trim();
+            if (val) {
+                if (!galleryImages.includes(val)) {
+                    galleryImages.push(val);
+                    renderGalleryCards();
+                }
+                newImageUrlInput.value = '';
+            } else {
+                newImageUrlInput.focus();
+            }
+        });
+        newImageUrlInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btnAddSingleImageBtn.click();
+            }
+        });
+    }
+
+    if (btnToggleBatchBox && batchBoxContainer) {
+        btnToggleBatchBox.addEventListener('click', function() {
+            batchBoxContainer.classList.toggle('d-none');
+            if (!batchBoxContainer.classList.contains('d-none')) {
+                batchUrlsInput.focus();
+            }
+        });
+    }
+    if (btnCancelBatch && batchBoxContainer) {
+        btnCancelBatch.addEventListener('click', function() {
+            batchBoxContainer.classList.add('d-none');
+        });
+    }
+    if (btnApplyBatch && batchUrlsInput) {
+        btnApplyBatch.addEventListener('click', function() {
+            const lines = batchUrlsInput.value.split(/\r?\n/);
+            lines.forEach(function(line) {
+                const clean = line.trim();
+                if (clean && !galleryImages.includes(clean)) {
+                    galleryImages.push(clean);
+                }
+            });
+            batchUrlsInput.value = '';
+            batchBoxContainer.classList.add('d-none');
+            renderGalleryCards();
+        });
+    }
+
+    renderGalleryCards();
+
     const productForm = document.getElementById('productForm');
     if (productForm) {
         productForm.addEventListener('submit', function() {
             const data = formBuilder.getData();
             document.getElementById('upgradeOptionsJson').value = JSON.stringify(data);
+            if (hiddenImagesJson) {
+                hiddenImagesJson.value = JSON.stringify(galleryImages);
+            }
+            if (hiddenImageUrl) {
+                hiddenImageUrl.value = galleryImages.length > 0 ? galleryImages[0] : '';
+            }
         });
     }
 
-    // =========================================================================
-    // KHỞI TẠO BUILDER CHO MODAL QUẢN LÝ NHANH
-    // =========================================================================
     const modalBuilder = new OptionsBuilder('modalGroupsContainer', 'modalOptionsBadge', 'modalBuilder');
     let currentModalProductId = null;
     let quickModalInstance = null;
@@ -686,7 +837,6 @@
         }
         quickModalInstance.show();
 
-        // Tải danh sách tùy chọn hiện tại qua AJAX
         fetch('${url}?action=get_options_ajax&productId=' + productId)
             .then(res => res.json())
             .then(data => {
@@ -700,7 +850,6 @@
             });
     }
 
-    // Nút thêm nhóm trong modal
     const btnAddModalGroupBtn = document.getElementById('btnAddModalGroupBtn');
     const modalGroupNameInput = document.getElementById('modalGroupNameInput');
     if (btnAddModalGroupBtn && modalGroupNameInput) {
@@ -721,7 +870,6 @@
         });
     }
 
-    // Nút Lưu tùy chọn trong modal
     const btnSaveModalOptions = document.getElementById('btnSaveModalOptions');
     if (btnSaveModalOptions) {
         btnSaveModalOptions.addEventListener('click', function() {
@@ -746,7 +894,7 @@
                     btnSaveModalOptions.disabled = false;
                     btnSaveModalOptions.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i>Lưu tùy chọn';
                     if (res.success) {
-                        // Cập nhật lại badge nút trên bảng
+
                         const badgeBtn = document.getElementById('opt-badge-' + currentModalProductId);
                         if (badgeBtn) {
                             if (options.length > 0) {
@@ -758,7 +906,6 @@
                             }
                         }
 
-                        // Nếu sản phẩm trong modal đang được sửa ở form bên trái thì cập nhật luôn form bên trái
                         const formId = document.querySelector('input[name="id"]');
                         if (formId && formId.value == currentModalProductId) {
                             formBuilder.loadData(options);
@@ -779,7 +926,6 @@
         });
     }
 
-    // Hiển thị thông báo động
     function showDynamicAlert(msg, type) {
         const area = document.getElementById('dynamicAlertArea');
         if (!area) return;

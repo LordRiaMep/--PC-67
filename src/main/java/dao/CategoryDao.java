@@ -1,13 +1,5 @@
 package dao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Thao tác CSDL: Quản lý danh mục loại sản phẩm linh kiện PC.
- * ============================================================================
- */
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +9,7 @@ public class CategoryDao {
 
     public List<Category> findAll() {
         List<Category> categories = new ArrayList<>();
-        // Vẫn giữ điều kiện status = 'ACTIVE' để an toàn nếu trong DB vẫn còn dữ liệu cũ
+
         String sql = "SELECT * FROM danh_muc WHERE status = 'ACTIVE' ORDER BY id ASC";
 
         try (Connection c = ConnectDB.getConnect();
@@ -77,9 +69,8 @@ public class CategoryDao {
         }
     }
 
-    // Đã sửa thành boolean và xóa tận gốc (Cách 1)
     public boolean delete(int id) {
-        // 1. Kiểm tra xem danh mục này có đang chứa sản phẩm nào không
+
         String checkSql = "SELECT COUNT(*) FROM san_pham WHERE category_id = ?";
 
         try (Connection c = ConnectDB.getConnect();
@@ -88,17 +79,16 @@ public class CategoryDao {
             psCheck.setInt(1, id);
             try (ResultSet rs = psCheck.executeQuery()) {
                 if (rs.next() && rs.getInt(1) > 0) {
-                    // Trả về false ngay lập tức vì danh mục đang chứa sản phẩm
+
                     return false;
                 }
             }
 
-            // 2. Nếu vượt qua bước trên (không có sản phẩm), tiến hành XÓA VĨNH VIỄN
             String deleteSql = "DELETE FROM danh_muc WHERE id = ?";
             try (PreparedStatement psDelete = c.prepareStatement(deleteSql)) {
                 psDelete.setInt(1, id);
                 int rowsAffected = psDelete.executeUpdate();
-                return rowsAffected > 0; // Trả về true nếu xóa thành công
+                return rowsAffected > 0;
             }
 
         } catch (SQLException e) {

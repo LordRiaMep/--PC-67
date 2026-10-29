@@ -1,16 +1,9 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Xem chi tiết thông tin đơn hàng, danh sách sản phẩm và trạng thái vận chuyển.
- * ============================================================================
- */
-
 import model.OrderDetail;
-import dao.OrderDao;
 import model.Order;
+import model.User;
+import dao.OrderDao;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -23,7 +16,8 @@ public class OrderDetailServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        if (session.getAttribute("USER_LOGIN") == null) {
+        User user = (User) session.getAttribute("USER_LOGIN");
+        if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -35,6 +29,12 @@ public class OrderDetailServlet extends HttpServlet {
             OrderDao dao = new OrderDao();
 
             Order order = dao.getOrderById(orderId);
+
+            if (order == null || (order.getUserId() != user.getId() && !user.isAdmin())) {
+                response.sendRedirect(request.getContextPath() + "/orders");
+                return;
+            }
+
             List<OrderDetail> details = dao.getOrderDetails(orderId);
 
             request.setAttribute("order", order);
@@ -42,7 +42,7 @@ public class OrderDetailServlet extends HttpServlet {
 
             request.getRequestDispatcher("/view/order_detail.jsp").forward(request, response);
         } catch (Exception e) {
-            response.sendRedirect("my-orders");
+            response.sendRedirect(request.getContextPath() + "/orders");
         }
     }
 }

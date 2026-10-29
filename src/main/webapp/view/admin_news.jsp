@@ -15,12 +15,24 @@
     <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
     <style>
+.tbl thead th {
+            white-space: nowrap;
+            vertical-align: middle;
+            font-size: 12.5px;
+            letter-spacing: 0.3px;
+        }
+        .btn-xs {
+            padding: 2px 7px;
+            font-size: 11px;
+            line-height: 1.4;
+            border-radius: 6px;
+        }
         .badge-home-big {
             background: linear-gradient(135deg, #b71c1c, #ff5252);
             color: #fff;
             font-size: 11px;
             font-weight: 700;
-            padding: 4px 8px;
+            padding: 3px 7px;
             border-radius: 6px;
             display: inline-flex;
             align-items: center;
@@ -31,7 +43,7 @@
             color: #fff;
             font-size: 11px;
             font-weight: 600;
-            padding: 3px 8px;
+            padding: 3px 7px;
             border-radius: 6px;
             display: inline-flex;
             align-items: center;
@@ -43,7 +55,7 @@
             border: 1px solid #ced4da;
             font-size: 11px;
             font-weight: 500;
-            padding: 3px 8px;
+            padding: 2px 7px;
             border-radius: 6px;
         }
         .quick-block-btn {
@@ -89,7 +101,6 @@
             box-shadow: 0 1px 4px rgba(0,0,0,.04);
         }
 
-        /* Quill Rich Text Editor Styles */
         .editor-container {
             border: 1px solid #ced4da;
             border-radius: 8px;
@@ -133,7 +144,6 @@
             background-color: #e9ecef;
         }
 
-        /* Tùy biến hiển thị tiếng Việt tinh tế cho dropdown Tiêu đề */
         .ql-snow .ql-picker.ql-header {
             width: 140px !important;
         }
@@ -154,7 +164,6 @@
             content: 'Tiêu đề nhỏ (H4)' !important;
         }
 
-        /* Thanh chú giải động tinh tế ngay dưới toolbar */
         .toolbar-hint-bar {
             background: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
@@ -190,7 +199,6 @@
             font-size: 13.5px;
         }
 
-        /* Hộp Callout / Lưu ý nổi bật trong bài viết */
         .news-callout {
             border-left: 4px solid var(--brand);
             background: #fff5f5;
@@ -199,7 +207,6 @@
             border-radius: 0 6px 6px 0;
         }
 
-        /* Đồng bộ kiểu hiển thị với trang xem chi tiết */
         .news-content {
             font-size: 15px;
             line-height: 1.75;
@@ -227,7 +234,6 @@
             border-radius: 0 6px 6px 0;
         }
 
-        /* Chế độ Toàn màn hình (Fullscreen) */
         .editor-wrapper.fullscreen-mode {
             position: fixed;
             top: 0;
@@ -258,7 +264,7 @@
             max-height: none !important;
             height: 100% !important;
         }
-    </style>
+</style>
 </head>
 <body>
 
@@ -283,26 +289,33 @@
         </div>
     </header>
 
-    <!-- Hộp thông tin cơ chế hiển thị Trang chủ -->
     <div class="info-callout d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div class="d-flex align-items-start gap-3">
-            <div class="fs-3 text-danger"><i class="fa-solid fa-circle-info"></i></div>
+            <div class="fs-3 text-danger"><i class="fa-solid fa-sliders"></i></div>
             <div>
-                <strong class="text-dark d-block mb-1">Cơ chế hiển thị trên Trang chủ (Mục "Tin tức và Kết nối"):</strong>
+                <strong class="text-dark d-block mb-1">
+                    Cấu hình Vị trí hiển thị trên Trang chủ:
+                </strong>
                 <span class="text-secondary small" style="line-height: 1.5;">
-                    Trang chủ tự động chọn <strong>5 bài viết mới nhất có trạng thái "HIỂN THỊ" (ACTIVE)</strong>:
-                    <span class="badge-home-big mx-1"><i class="fa-solid fa-crown"></i> 1 bài to bên trái</span> (bài ACTIVE mới nhất) và
-                    <span class="badge-home-sub mx-1"><i class="fa-solid fa-layer-group"></i> 4 bài nhỏ bên phải</span>.
-                    Các bài có trạng thái <strong>"ẨN" (HIDDEN)</strong> sẽ không xuất hiện trên trang chủ.
+                    Trang chủ hiển thị <strong>5 bài viết</strong> (<span class="badge-home-big mx-1"><i class="fa-solid fa-crown"></i> 1 bài chính to</span> và <span class="badge-home-sub mx-1"><i class="fa-solid fa-thumbtack"></i> 4 bài phụ nhỏ</span>).
+                    Trang tin tức tự động hiển thị bài mới nhất theo thứ tự thời gian.
                 </span>
             </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="${url}" class="btn btn-sm btn-ghost"><i class="fa-solid fa-arrows-rotate me-1"></i> Tải lại danh sách</a>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <button type="button" class="btn btn-sm btn-danger px-3 shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#homeConfigModal">
+                <i class="fa-solid fa-table-columns me-1"></i> Bố cục 5 bài Trang chủ
+            </button>
+            <a href="${ctx}/Home#newsSection" target="_blank" class="btn btn-sm btn-outline-danger" title="Xem mục Tin tức trên Trang chủ">
+                <i class="fa-solid fa-house me-1"></i> Trang chủ
+            </a>
+            <a href="${ctx}/news" target="_blank" class="btn btn-sm btn-outline-secondary" title="Xem chuyên trang Tin tức">
+                <i class="fa-solid fa-newspaper me-1"></i> Trang tin tức
+            </a>
+            <a href="${url}" class="btn btn-sm btn-ghost" title="Tải lại danh sách"><i class="fa-solid fa-arrows-rotate"></i></a>
         </div>
     </div>
 
-    <!-- Thông báo kết quả thao tác -->
     <c:if test="${not empty successMessage}">
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
             <i class="fa-solid fa-circle-check fs-5 me-2"></i>
@@ -319,7 +332,6 @@
         </div>
     </c:if>
 
-    <!-- 4 Thẻ thống kê số liệu -->
     <div class="row g-3 mb-4">
         <div class="col-md-3">
             <div class="stat-card py-3">
@@ -359,10 +371,9 @@
         </div>
     </div>
 
-    <!-- Bố cục 2 cột: Cột trái (Form nhập liệu) - Cột phải (Danh sách bài viết) -->
     <div class="row g-4">
-        <!-- FORM THÊM / SỬA BÀI VIẾT -->
-        <div class="col-xl-5 col-lg-5">
+
+        <div class="col-xl-4 col-lg-5">
             <form action="${url}" method="post" class="panel sticky-panel" id="newsForm">
                 <div class="panel-head">
                     <h5>
@@ -381,8 +392,9 @@
                     <input type="hidden" name="keyword" value="${keyword}">
                     <input type="hidden" name="statusFilter" value="${status}">
                     <input type="hidden" name="featuredFilter" value="${featured}">
+                    <input type="hidden" name="homeFilter" value="${homeFilter}">
+                    <input type="hidden" name="sort" value="${sort}">
 
-                    <!-- Tiêu đề bài viết -->
                     <div class="mb-3">
                         <label class="field-label">Tiêu đề bài viết <span class="text-danger">*</span></label>
                         <input type="text" name="title" class="form-control field shadow-none"
@@ -390,7 +402,6 @@
                                placeholder="Ví dụ: Top 5 cấu hình máy tính chơi game siêu mượt 2026" required>
                     </div>
 
-                    <!-- Ảnh bìa bài viết & Preview -->
                     <div class="mb-3">
                         <label class="field-label">Ảnh đại diện (URL hoặc đường dẫn)</label>
                         <input type="text" id="newsImageUrl" name="image" class="form-control field shadow-none mb-2"
@@ -411,7 +422,6 @@
                         </div>
                     </div>
 
-                    <!-- Tác giả -->
                     <div class="mb-3">
                         <label class="field-label">Tác giả</label>
                         <input type="text" name="author" class="form-control field shadow-none"
@@ -419,7 +429,6 @@
                                placeholder="Độ PC 67">
                     </div>
 
-                    <!-- Tóm tắt ngắn -->
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="field-label m-0">Tóm tắt ngắn (1-2 câu trích dẫn)</label>
@@ -429,7 +438,6 @@
                                   placeholder="Mô tả ngắn gọn nội dung bài viết, hiển thị ở thẻ tin tức và đầu bài chi tiết..."><c:out value='${news.summary}'/></textarea>
                     </div>
 
-                    <!-- Nội dung bài viết chi tiết (WYSIWYG Editor) -->
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
                             <div>
@@ -451,7 +459,6 @@
                             </div>
                         </div>
 
-                        <!-- Thanh công cụ chèn khối nhanh cho người mới -->
                         <div class="d-flex flex-wrap gap-1 mb-2 align-items-center">
                             <span class="text-muted small me-1" style="font-size: 11px;"><i class="fa-solid fa-wand-magic-sparkles text-danger me-1"></i>Mẫu nhanh:</span>
                             <button type="button" class="quick-block-btn" onclick="insertCustomBlock('heading')" title="Chèn tiêu đề mục mới">
@@ -474,26 +481,22 @@
                             </button>
                         </div>
 
-                        <!-- Khung soạn thảo chính -->
                         <div id="editorWrapper" class="editor-wrapper">
                             <div class="editor-container" id="editorContainer">
-                                <!-- Khung soạn thảo trực quan Quill -->
+
                                 <div id="quillEditor"></div>
 
-                                <!-- Thanh chú giải động tinh tế ngay dưới toolbar -->
                                 <div id="toolbarHintBar" class="toolbar-hint-bar">
                                     <span id="toolbarHintText">
                                         <i class="fa-regular fa-lightbulb text-warning me-1"></i>Rê chuột vào biểu tượng bất kỳ trên thanh công cụ để xem tên & hướng dẫn
                                     </span>
                                 </div>
 
-                                <!-- Khung xem/sửa mã nguồn HTML -->
-                                <textarea id="htmlSourceEditor" class="form-control font-monospace border-0 shadow-none" 
-                                          style="display: none; min-height: 250px; font-size: 13px; line-height: 1.5; resize: vertical;" 
+                                <textarea id="htmlSourceEditor" class="form-control font-monospace border-0 shadow-none"
+                                          style="display: none; min-height: 250px; font-size: 13px; line-height: 1.5; resize: vertical;"
                                           placeholder="Xem hoặc chỉnh sửa trực tiếp mã HTML tại đây..."></textarea>
                             </div>
 
-                            <!-- Thống kê số từ & liên kết xem bảng giải thích biểu tượng -->
                             <div class="d-flex justify-content-between align-items-center mt-1 px-1">
                                 <small class="text-muted" id="contentStatsCounter" style="font-size: 11.5px;">
                                     <i class="fa-solid fa-pen-nib me-1"></i>0 từ &bull; 0 ký tự
@@ -503,7 +506,6 @@
                                 </a>
                             </div>
 
-                            <!-- Bảng giải nghĩa các ký tự trên thanh công cụ (Mở ra khi bấm) -->
                             <div class="collapse mt-2" id="toolbarLegendCard">
                                 <div class="card card-body bg-light border p-3 small shadow-sm" style="font-size: 11.5px; border-radius: 8px;">
                                     <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
@@ -534,13 +536,11 @@
                             </div>
                         </div>
 
-                        <!-- Input ẩn để gửi dữ liệu bài viết sang Servlet doPost -->
                         <textarea name="content" id="contentInput" style="display: none;"><c:out value='${news.content}'/></textarea>
                     </div>
 
-                    <!-- Tùy chọn trạng thái & Nổi bật -->
                     <div class="p-3 bg-light rounded border mb-4">
-                        <div class="row g-2 align-items-center">
+                        <div class="row g-2 align-items-center mb-3">
                             <div class="col-7">
                                 <label class="field-label mb-1">Trạng thái hiển thị</label>
                                 <select name="status" class="form-select field shadow-none">
@@ -555,14 +555,27 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="pt-2 border-top">
+                            <label class="field-label mb-1 fw-bold text-dark">
+                                <i class="fa-solid fa-house text-danger me-1"></i>Vị trí hiển thị trên Trang chủ:
+                            </label>
+                            <select name="homeRole" class="form-select field shadow-none mb-1" id="homeRoleSelect">
+                                <option value="NONE" ${news.homeRole == 'NONE' || news.homeRole == null ? 'selected' : ''}>Không ghim Trang chủ (Mặc định)</option>
+                                <option value="MAIN" ${news.homeRole == 'MAIN' ? 'selected' : ''}>⭐ Bài chính Trang chủ (Bài to bên trái - Tối đa 1)</option>
+                                <option value="SUB" ${news.homeRole == 'SUB' ? 'selected' : ''}>📌 Bài phụ Trang chủ (Bài nhỏ bên phải - Tối đa 4)</option>
+                            </select>
+                            <small class="text-muted d-block" style="font-size: 11px;">
+                                Hệ thống tự động giới hạn 1 bài chính và 4 bài phụ (tự xoay vòng thông minh, không lo trùng lặp).
+                            </small>
+                        </div>
                     </div>
 
-                    <!-- Nút thao tác -->
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-neon px-4 flex-grow-1">
                             <i class="fa-solid fa-floppy-disk me-1"></i> ${not empty news ? 'Cập nhật bài viết' : 'Lưu bài viết'}
                         </button>
-                        <a href="${url}?page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}" class="btn btn-ghost px-3" title="Xóa trắng form để thêm mới">
+                        <a href="${url}?page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}" class="btn btn-ghost px-3" title="Xóa trắng form để thêm mới">
                             Làm mới
                         </a>
                     </div>
@@ -570,173 +583,215 @@
             </form>
         </div>
 
-        <!-- DANH SÁCH BÀI VIẾT -->
-        <div class="col-xl-7 col-lg-7">
+        <div class="col-xl-8 col-lg-7">
             <div class="panel overflow-hidden mb-4">
                 <div class="panel-head flex-wrap gap-2">
                     <h5 class="m-0"><i class="fa-solid fa-list me-2"></i>Danh sách bài viết (${totalNews})</h5>
 
-                    <!-- Bộ lọc & Tìm kiếm -->
                     <form action="${url}" method="get" class="d-flex flex-wrap gap-2 align-items-center">
-                        <div class="search-box" style="max-width: 220px;">
+                        <div class="search-box" style="max-width: 180px;">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" name="keyword" value="<c:out value='${keyword}'/>" class="form-control field shadow-none" placeholder="Tìm theo tiêu đề, tác giả...">
+                            <input type="text" name="keyword" value="<c:out value='${keyword}'/>" class="form-control field shadow-none" placeholder="Tìm tiêu đề, tác giả...">
                         </div>
 
                         <select name="status" class="form-select form-select-sm field shadow-none" style="width: auto;">
-                            <option value="ALL" ${status == 'ALL' ? 'selected' : ''}>-- Tất cả trạng thái --</option>
-                            <option value="ACTIVE" ${status == 'ACTIVE' ? 'selected' : ''}>Đang hiển thị (ACTIVE)</option>
+                            <option value="ALL" ${status == 'ALL' ? 'selected' : ''}>-- Trạng thái --</option>
+                            <option value="ACTIVE" ${status == 'ACTIVE' ? 'selected' : ''}>Hiển thị (ACTIVE)</option>
                             <option value="HIDDEN" ${status == 'HIDDEN' ? 'selected' : ''}>Đang ẩn (HIDDEN)</option>
                         </select>
 
                         <select name="featured" class="form-select form-select-sm field shadow-none" style="width: auto;">
-                            <option value="ALL" ${featured == 'ALL' ? 'selected' : ''}>-- Mọi bài viết --</option>
+                            <option value="ALL" ${featured == 'ALL' ? 'selected' : ''}>-- Nổi bật --</option>
                             <option value="FEATURED" ${featured == 'FEATURED' ? 'selected' : ''}>Chỉ bài nổi bật</option>
                             <option value="NOT_FEATURED" ${featured == 'NOT_FEATURED' ? 'selected' : ''}>Bài thường</option>
                         </select>
 
+                        <select name="homeFilter" class="form-select form-select-sm field shadow-none" style="width: auto;">
+                            <option value="ALL" ${homeFilter == 'ALL' ? 'selected' : ''}>-- Vị trí Trang chủ --</option>
+                            <option value="MAIN" ${homeFilter == 'MAIN' ? 'selected' : ''}>⭐ Bài chính Trang chủ</option>
+                            <option value="SUB" ${homeFilter == 'SUB' ? 'selected' : ''}>📌 Bài phụ Trang chủ</option>
+                            <option value="HOME_ONLY" ${homeFilter == 'HOME_ONLY' ? 'selected' : ''}>Tất cả bài Trang chủ</option>
+                        </select>
+
+                        <select name="sort" class="form-select form-select-sm field shadow-none" style="width: auto;">
+                            <option value="DEFAULT" ${sort == 'DEFAULT' ? 'selected' : ''}>Mới nhất trước</option>
+                            <option value="HOME" ${sort == 'HOME' ? 'selected' : ''}>Ưu tiên Trang chủ</option>
+                            <option value="VIEW" ${sort == 'VIEW' ? 'selected' : ''}>Xem nhiều nhất</option>
+                        </select>
+
                         <button type="submit" class="btn btn-sm btn-neon px-3 shadow-none"><i class="fa-solid fa-filter me-1"></i> Lọc</button>
-                        <c:if test="${not empty keyword || (status != 'ALL' && not empty status) || (featured != 'ALL' && not empty featured)}">
+                        <c:if test="${not empty keyword || (status != 'ALL' && not empty status) || (featured != 'ALL' && not empty featured) || (homeFilter != 'ALL' && not empty homeFilter) || (sort != 'DEFAULT' && not empty sort)}">
                             <a href="${url}" class="btn btn-sm btn-ghost" title="Xóa bộ lọc"><i class="fa-solid fa-xmark"></i></a>
                         </c:if>
                     </form>
                 </div>
 
-                <!-- Bảng danh sách bài viết -->
                 <div class="table-responsive">
                     <table class="table tbl align-middle">
                         <thead>
                         <tr>
-                            <th style="width: 85px;">Ảnh bìa</th>
-                            <th>Tiêu đề bài viết & Vị trí hiển thị</th>
-                            <th style="width: 140px;">Tác giả & Ngày đăng</th>
-                            <th style="width: 90px;" class="text-center">Lượt xem</th>
-                            <th style="width: 110px;" class="text-center">Trạng thái</th>
-                            <th style="width: 130px;" class="text-end">Thao tác</th>
+                            <th style="width: 65px;" class="text-center">Ảnh</th>
+                            <th>Bài viết</th>
+                            <th style="width: 175px;" class="text-center">Vị trí Trang chủ</th>
+                            <th style="width: 130px;">Thông tin</th>
+                            <th style="width: 110px;" class="text-end">Thao tác</th>
                         </tr>
                         </thead>
                         <tbody>
                         <c:forEach items="${listNews}" var="n">
-                            <c:set var="isHomeBig" value="${top5HomeIds != null && top5HomeIds.size() > 0 && top5HomeIds[0] == n.id}" />
-                            <c:set var="isHomeSub" value="${top5HomeIds != null && top5HomeIds.size() > 1 && top5HomeIds.contains(n.id) && !isHomeBig}" />
+                            <c:set var="isHomeBig" value="${n.homeRole == 'MAIN' || (empty n.homeRole && top5HomeIds != null && top5HomeIds.size() > 0 && top5HomeIds[0] == n.id)}" />
+                            <c:set var="isHomeSub" value="${n.homeRole == 'SUB' || (empty n.homeRole && top5HomeIds != null && top5HomeIds.contains(n.id) && !isHomeBig)}" />
 
                             <tr class="${news != null && news.id == n.id ? 'row-edit' : ''}">
-                                <!-- Ảnh bìa -->
-                                <td>
-                                    <div class="position-relative">
-                                        <img src="${n.image}" alt="" class="news-thumb" onerror="this.onerror=null; this.src='https://placehold.co/120x90/e9ecef/6c757d?text=No+Img';">
-                                        <div class="position-absolute bottom-0 start-0 bg-dark bg-opacity-75 text-white px-1 rounded-end" style="font-size: 10px;">
+
+                                <td class="text-center">
+                                    <div class="position-relative d-inline-block">
+                                        <img src="${n.image}" alt="" class="news-thumb" style="width: 60px; height: 44px; object-fit: cover;" onerror="this.onerror=null; this.src='https://placehold.co/120x90/e9ecef/6c757d?text=No+Img';">
+                                        <div class="position-absolute bottom-0 start-0 bg-dark bg-opacity-75 text-white px-1 rounded-end" style="font-size: 9.5px;">
                                             #${n.id}
                                         </div>
                                     </div>
                                 </td>
 
-                                <!-- Tiêu đề & Huy hiệu vị trí -->
                                 <td>
                                     <div class="prod-name mb-1">
-                                        <a href="${ctx}/news/detail?id=${n.id}" target="_blank" class="text-decoration-none text-dark hover-danger fw-bold" title="Bấm để xem bài viết trên website">
+                                        <a href="${ctx}/news/detail?id=${n.id}" target="_blank" class="text-decoration-none text-dark hover-danger fw-bold" style="font-size: 13.5px; line-height: 1.4;" title="Bấm để xem bài viết trên website">
                                             <c:out value="${n.title}"/>
                                         </a>
                                     </div>
 
                                     <c:if test="${not empty n.summary}">
-                                        <div class="summary-clamp-2 mb-2"><c:out value="${n.summary}"/></div>
+                                        <div class="text-muted small text-truncate mb-1" style="max-width: 420px; font-size: 12px;"><c:out value="${n.summary}"/></div>
                                     </c:if>
 
-                                    <!-- Các huy hiệu vị trí & đặc tính -->
                                     <div class="d-flex flex-wrap gap-1 align-items-center mt-1">
-                                        <!-- Vị trí Trang chủ -->
-                                        <c:choose>
-                                            <c:when test="${isHomeBig}">
-                                                <span class="badge-home-big" title="Đang là bài to chính ở mục Tin tức và Kết nối trên trang chủ">
-                                                    <i class="fa-solid fa-crown"></i> Trang chủ: Bài chính
-                                                </span>
-                                            </c:when>
-                                            <c:when test="${isHomeSub}">
-                                                <span class="badge-home-sub" title="Đang là 1 trong 4 bài nhỏ hiển thị trên trang chủ">
-                                                    <i class="fa-solid fa-house"></i> Trang chủ: Bài phụ
-                                                </span>
-                                            </c:when>
-                                            <c:when test="${n.status == 'ACTIVE'}">
-                                                <span class="badge-news-only" title="Hiển thị tại chuyên trang Tin tức">
-                                                    <i class="fa-regular fa-newspaper me-1"></i>Trang tin tức
-                                                </span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="badge bg-secondary" title="Đang ẩn, không xuất hiện ở bất cứ trang nào">
-                                                    <i class="fa-solid fa-eye-slash me-1"></i>Đang ẩn
-                                                </span>
-                                            </c:otherwise>
-                                        </c:choose>
-
-                                        <!-- Huy hiệu nổi bật -->
                                         <c:if test="${n.featured}">
-                                            <span class="badge bg-warning text-dark" title="Đánh dấu tin nổi bật">
+                                            <span class="badge bg-warning text-dark" style="font-size: 11px;" title="Đánh dấu tin nổi bật">
                                                 <i class="fa-solid fa-fire me-1 text-danger"></i>Nổi bật
                                             </span>
                                         </c:if>
                                     </div>
                                 </td>
 
-                                <!-- Tác giả & Ngày đăng -->
-                                <td>
-                                    <div class="fw-semibold text-dark small"><i class="fa-regular fa-user me-1 text-muted"></i><c:out value="${n.author}"/></div>
-                                    <div class="muted small mt-1">
-                                        <i class="fa-regular fa-clock me-1"></i><fmt:formatDate value="${n.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
-                                    </div>
-                                </td>
-
-                                <!-- Lượt xem -->
-                                <td class="text-center">
-                                    <span class="badge bg-light text-dark border px-2 py-1">
-                                        <i class="fa-regular fa-eye me-1 text-muted"></i>${n.viewCount}
-                                    </span>
-                                </td>
-
-                                <!-- Trạng thái & Nút đổi nhanh -->
                                 <td class="text-center">
                                     <c:choose>
-                                        <c:when test="${n.status == 'ACTIVE'}">
-                                            <a href="${url}?action=toggle_status&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}"
-                                               class="btn btn-sm btn-outline-success border-0 px-2 py-1 shadow-none"
-                                               title="Bấm để ẩn bài viết khỏi trang chủ và website"
-                                               onclick="return confirm('Chuyển bài viết #${n.id} sang trạng thái ẨN?');">
-                                                <i class="fa-solid fa-circle-check text-success me-1"></i> Hiển thị
+                                        <c:when test="${n.status == 'HIDDEN'}">
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1" style="font-size: 11px;">
+                                                <i class="fa-solid fa-eye-slash me-1"></i>Đang ẩn
+                                            </span>
+                                        </c:when>
+                                        <c:when test="${n.homeRole == 'MAIN'}">
+                                            <div class="mb-1">
+                                                <span class="badge-home-big" title="Bài chính hiển thị ở khung to bên trái Trang chủ">
+                                                    <i class="fa-solid fa-crown"></i> Bài chính
+                                                </span>
+                                            </div>
+                                            <a href="${url}?action=set_home_role&id=${n.id}&role=NONE&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}"
+                                               class="btn btn-outline-secondary btn-xs text-decoration-none" style="font-size: 11px; padding: 1px 8px; border-radius: 10px;"
+                                               title="Bỏ ghim bài này khỏi Trang chủ">
+                                                <i class="fa-solid fa-xmark me-1"></i>Bỏ ghim
+                                            </a>
+                                        </c:when>
+                                        <c:when test="${n.homeRole == 'SUB'}">
+                                            <div class="mb-1">
+                                                <span class="badge-home-sub" title="Bài phụ hiển thị ở 4 khung nhỏ bên phải Trang chủ">
+                                                    <i class="fa-solid fa-thumbtack"></i> Bài phụ
+                                                </span>
+                                            </div>
+                                            <a href="${url}?action=set_home_role&id=${n.id}&role=NONE&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}"
+                                               class="btn btn-outline-secondary btn-xs text-decoration-none" style="font-size: 11px; padding: 1px 8px; border-radius: 10px;"
+                                               title="Bỏ ghim bài này khỏi Trang chủ">
+                                                <i class="fa-solid fa-xmark me-1"></i>Bỏ ghim
                                             </a>
                                         </c:when>
                                         <c:otherwise>
-                                            <a href="${url}?action=toggle_status&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}"
-                                               class="btn btn-sm btn-outline-secondary border-0 px-2 py-1 shadow-none text-muted"
-                                               title="Bấm để hiển thị lại bài viết trên website"
-                                               onclick="return confirm('Chuyển bài viết #${n.id} sang trạng thái HIỂN THỊ?');">
-                                                <i class="fa-solid fa-circle-xmark text-secondary me-1"></i> Đang ẩn
-                                            </a>
+                                            <c:choose>
+                                                <c:when test="${isHomeBig}">
+                                                    <div class="mb-1">
+                                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1" style="font-size: 10.5px;" title="Tự động là bài chính do mới nhất">
+                                                            <i class="fa-solid fa-crown me-1"></i>Chính (Tự động)
+                                                        </span>
+                                                    </div>
+                                                </c:when>
+                                                <c:when test="${isHomeSub}">
+                                                    <div class="mb-1">
+                                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 10.5px;" title="Tự động là bài phụ do mới nhất">
+                                                            <i class="fa-solid fa-house me-1"></i>Phụ (Tự động)
+                                                        </span>
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="mb-1">
+                                                        <span class="badge-news-only" style="font-size: 10.5px;">
+                                                            <i class="fa-regular fa-newspaper me-1"></i>Tin thường
+                                                        </span>
+                                                    </div>
+                                                </c:otherwise>
+                                            </c:choose>
+                                            <div class="d-flex justify-content-center gap-1 mt-1">
+                                                <a href="${url}?action=set_home_role&id=${n.id}&role=MAIN&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}"
+                                                   class="btn btn-outline-danger btn-xs py-0 px-2 shadow-none" style="font-size: 11px; border-radius: 6px;"
+                                                   title="Ghim làm Bài chính Trang chủ">
+                                                    <i class="fa-solid fa-crown me-1"></i>Chính
+                                                </a>
+                                                <a href="${url}?action=set_home_role&id=${n.id}&role=SUB&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}"
+                                                   class="btn btn-outline-primary btn-xs py-0 px-2 shadow-none" style="font-size: 11px; border-radius: 6px;"
+                                                   title="Ghim làm Bài phụ Trang chủ (Tối đa 4 bài, tự xoay vòng nếu đã đủ 4)">
+                                                    <i class="fa-solid fa-thumbtack me-1"></i>Phụ
+                                                </a>
+                                            </div>
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
 
-                                <!-- Thao tác -->
+                                <td>
+                                    <div class="fw-semibold text-dark small text-truncate" style="max-width: 125px;">
+                                        <i class="fa-regular fa-user me-1 text-muted"></i><c:out value="${n.author}"/>
+                                    </div>
+                                    <div class="muted small mt-1" style="font-size: 11px;">
+                                        <fmt:formatDate value="${n.createdAt}" pattern="dd/MM/yyyy"/>
+                                        &bull; <i class="fa-regular fa-eye ms-1 text-muted"></i>${n.viewCount}
+                                    </div>
+                                    <div class="mt-1">
+                                        <c:choose>
+                                            <c:when test="${n.status == 'ACTIVE'}">
+                                                <a href="${url}?action=toggle_status&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}"
+                                                   class="badge bg-success-subtle text-success border border-success-subtle text-decoration-none px-2 py-1 shadow-none"
+                                                   title="Bấm để chuyển sang ẨN"
+                                                   onclick="return confirm('Chuyển bài viết #${n.id} sang trạng thái ẨN?');">
+                                                    <i class="fa-solid fa-circle-check me-1"></i>Hiển thị
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="${url}?action=toggle_status&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}"
+                                                   class="badge bg-secondary-subtle text-secondary border border-secondary-subtle text-decoration-none px-2 py-1 shadow-none"
+                                                   title="Bấm để chuyển sang HIỂN THỊ"
+                                                   onclick="return confirm('Chuyển bài viết #${n.id} sang trạng thái HIỂN THỊ?');">
+                                                    <i class="fa-solid fa-circle-xmark me-1"></i>Đang ẩn
+                                                </a>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                </td>
+
                                 <td class="text-end text-nowrap">
-                                    <!-- Xem bài ngoài web -->
-                                    <a href="${ctx}/news/detail?id=${n.id}" target="_blank" class="btn btn-sm btn-ghost act me-1" title="Xem trên web">
+
+                                    <a href="${ctx}/news/detail?id=${n.id}" target="_blank" class="btn btn-sm btn-ghost act" title="Xem trên web">
                                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                     </a>
 
-                                    <!-- Nút toggle nhanh nổi bật -->
-                                    <a href="${url}?action=toggle_featured&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}"
-                                       class="btn btn-sm ${n.featured ? 'btn-warning text-dark' : 'btn-ghost'} act me-1"
+                                    <a href="${url}?action=toggle_featured&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}"
+                                       class="btn btn-sm ${n.featured ? 'btn-warning text-dark' : 'btn-ghost'} act"
                                        title="${n.featured ? 'Bỏ đánh dấu nổi bật' : 'Đánh dấu nổi bật'}">
                                         <i class="fa-solid fa-star"></i>
                                     </a>
 
-                                    <!-- Nút Sửa -->
-                                    <a href="${url}?action=edit&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}"
-                                       class="btn btn-sm btn-ghost act me-1" title="Chỉnh sửa bài viết">
+                                    <a href="${url}?action=edit&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}"
+                                       class="btn btn-sm btn-ghost act" title="Chỉnh sửa bài viết">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
 
-                                    <!-- Nút Xóa -->
-                                    <a href="${url}?action=delete&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}"
+                                    <a href="${url}?action=delete&id=${n.id}&page=${currentPage}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}"
                                        onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết \"${n.title}\"? Thao tác này không thể hoàn tác!');"
                                        class="btn btn-sm btn-outline-danger act" title="Xóa bài viết">
                                         <i class="fa-solid fa-trash"></i>
@@ -747,10 +802,10 @@
 
                         <c:if test="${empty listNews}">
                             <tr>
-                                <td colspan="6" class="text-center muted py-5">
+                                <td colspan="5" class="text-center muted py-5">
                                     <i class="fa-regular fa-newspaper fs-1 d-block mb-2 text-secondary"></i>
                                     <h6 class="text-secondary">Không tìm thấy bài viết nào phù hợp.</h6>
-                                    <c:if test="${not empty keyword || status != 'ALL' || featured != 'ALL'}">
+                                    <c:if test="${not empty keyword || status != 'ALL' || featured != 'ALL' || homeFilter != 'ALL' || sort != 'DEFAULT'}">
                                         <a href="${url}" class="btn btn-sm btn-outline-danger mt-2">Xóa bộ lọc</a>
                                     </c:if>
                                 </td>
@@ -761,20 +816,19 @@
                 </div>
             </div>
 
-            <!-- Phân trang -->
             <c:if test="${totalPages > 1}">
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-end mb-4">
                         <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                            <a class="page-link shadow-none" href="${url}?page=${currentPage - 1}&keyword=${keyword}&status=${status}&featured=${featured}">Trước</a>
+                            <a class="page-link shadow-none" href="${url}?page=${currentPage - 1}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}">Trước</a>
                         </li>
                         <c:forEach begin="1" end="${totalPages}" var="i">
                             <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                <a class="page-link shadow-none" href="${url}?page=${i}&keyword=${keyword}&status=${status}&featured=${featured}">${i}</a>
+                                <a class="page-link shadow-none" href="${url}?page=${i}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}">${i}</a>
                             </li>
                         </c:forEach>
                         <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                            <a class="page-link shadow-none" href="${url}?page=${currentPage + 1}&keyword=${keyword}&status=${status}&featured=${featured}">Sau</a>
+                            <a class="page-link shadow-none" href="${url}?page=${currentPage + 1}&keyword=${keyword}&status=${status}&featured=${featured}&homeFilter=${homeFilter}&sort=${sort}">Sau</a>
                         </li>
                     </ul>
                 </nav>
@@ -783,7 +837,152 @@
     </div>
 </main>
 
-<!-- Modal xem trước nội dung HTML bài viết -->
+<div class="modal fade" id="homeConfigModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-danger text-white py-3">
+                <h5 class="modal-title fw-bold">
+                    <i class="fa-solid fa-table-columns me-2"></i>Cấu hình Vị trí Trang chủ (1 Bài chính & 4 Bài phụ)
+                </h5>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="${url}" method="post" id="homeLayoutForm" onsubmit="return validateHomeLayoutModal();">
+                <input type="hidden" name="action" value="save_home_layout">
+                <input type="hidden" name="page" value="${currentPage}">
+                <input type="hidden" name="keyword" value="${keyword}">
+                <input type="hidden" name="statusFilter" value="${status}">
+                <input type="hidden" name="featuredFilter" value="${featured}">
+                <input type="hidden" name="homeFilter" value="${homeFilter}">
+                <input type="hidden" name="sort" value="${sort}">
+
+                <div class="modal-body p-4 bg-light">
+                    <div class="alert alert-info py-2 px-3 small mb-3">
+                        <i class="fa-solid fa-circle-info me-1"></i>
+                        Trang chủ hiển thị mục "Tin tức và Kết nối" gồm: <strong>1 Bài chính (To lớn bên trái)</strong> và <strong>4 Bài phụ (Nhỏ bên phải)</strong>.
+                        Chọn bài viết cụ thể cho từng vị trí bên dưới rồi nhấn <strong>"Lưu bố cục Trang chủ"</strong>. Hệ thống tự động ngăn chặn trùng lặp.
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-lg-6">
+                            <div class="card h-100 border-2 border-danger shadow-sm">
+                                <div class="card-header bg-danger bg-opacity-10 text-danger fw-bold d-flex justify-content-between align-items-center py-2">
+                                    <span><i class="fa-solid fa-crown me-1"></i> BÀI CHÍNH TRANG CHỦ (To bên trái)</span>
+                                    <span class="badge bg-danger">Vị trí to nhất</span>
+                                </div>
+                                <div class="card-body">
+                                    <label class="form-label small fw-semibold text-dark mb-1">Chọn bài viết làm Bài chính:</label>
+                                    <select name="mainId" class="form-select field shadow-none mb-3" id="modalMainSelect" onchange="updateModalHomePreview()">
+                                        <option value="0" data-img="" data-title="">-- Tự động chọn bài mới nhất --</option>
+                                        <c:forEach items="${allActiveNews}" var="item">
+                                            <c:set var="isCurMain" value="${not empty currentHomeNews && currentHomeNews.size() > 0 && currentHomeNews[0].id == item.id}" />
+                                            <option value="${item.id}" data-img="${item.image}" data-title="${item.title}" ${isCurMain ? 'selected' : ''}>
+                                                #${item.id} - ${item.title}
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+
+                                    <div class="border rounded p-3 bg-white text-center shadow-sm">
+                                        <img id="modalMainPreviewImg" src="${not empty currentHomeNews ? currentHomeNews[0].image : '/assets/images/banner.png'}"
+                                             alt="Preview" class="img-fluid rounded mb-2 w-100" style="height: 180px; object-fit: cover;">
+                                        <div id="modalMainPreviewTitle" class="fw-bold text-dark text-start news-clamp-2" style="font-size: 14px;">
+                                            <c:out value="${not empty currentHomeNews ? currentHomeNews[0].title : 'Bài viết mới nhất'}" />
+                                        </div>
+                                        <small class="text-danger d-block text-start mt-1 fw-semibold">
+                                            <i class="fa-solid fa-crown me-1"></i>Hiển thị ở khung lớn nổi bật nhất Trang chủ
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="card h-100 border shadow-sm">
+                                <div class="card-header bg-primary bg-opacity-10 text-primary fw-bold d-flex justify-content-between align-items-center py-2">
+                                    <span><i class="fa-solid fa-layer-group me-1"></i> 4 BÀI PHỤ TRANG CHỦ (Nhỏ bên phải)</span>
+                                    <span class="badge bg-primary">4 vị trí phụ</span>
+                                </div>
+                                <div class="card-body">
+
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold text-dark mb-1">
+                                            <span class="badge bg-primary me-1">1</span> Bài phụ 1 (Trên cùng bên phải):
+                                        </label>
+                                        <select name="subId1" class="form-select form-select-sm field shadow-none">
+                                            <option value="0">-- Tự động chọn bài mới nhất --</option>
+                                            <c:forEach items="${allActiveNews}" var="item">
+                                                <c:set var="isSub1" value="${not empty currentHomeNews && currentHomeNews.size() > 1 && currentHomeNews[1].id == item.id}" />
+                                                <option value="${item.id}" ${isSub1 ? 'selected' : ''}>
+                                                    #${item.id} - ${item.title}
+                                                </option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold text-dark mb-1">
+                                            <span class="badge bg-primary me-1">2</span> Bài phụ 2:
+                                        </label>
+                                        <select name="subId2" class="form-select form-select-sm field shadow-none">
+                                            <option value="0">-- Tự động chọn bài mới nhất --</option>
+                                            <c:forEach items="${allActiveNews}" var="item">
+                                                <c:set var="isSub2" value="${not empty currentHomeNews && currentHomeNews.size() > 2 && currentHomeNews[2].id == item.id}" />
+                                                <option value="${item.id}" ${isSub2 ? 'selected' : ''}>
+                                                    #${item.id} - ${item.title}
+                                                </option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold text-dark mb-1">
+                                            <span class="badge bg-primary me-1">3</span> Bài phụ 3:
+                                        </label>
+                                        <select name="subId3" class="form-select form-select-sm field shadow-none">
+                                            <option value="0">-- Tự động chọn bài mới nhất --</option>
+                                            <c:forEach items="${allActiveNews}" var="item">
+                                                <c:set var="isSub3" value="${not empty currentHomeNews && currentHomeNews.size() > 3 && currentHomeNews[3].id == item.id}" />
+                                                <option value="${item.id}" ${isSub3 ? 'selected' : ''}>
+                                                    #${item.id} - ${item.title}
+                                                </option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label small fw-semibold text-dark mb-1">
+                                            <span class="badge bg-primary me-1">4</span> Bài phụ 4 (Dưới cùng bên phải):
+                                        </label>
+                                        <select name="subId4" class="form-select form-select-sm field shadow-none">
+                                            <option value="0">-- Tự động chọn bài mới nhất --</option>
+                                            <c:forEach items="${allActiveNews}" var="item">
+                                                <c:set var="isSub4" value="${not empty currentHomeNews && currentHomeNews.size() > 4 && currentHomeNews[4].id == item.id}" />
+                                                <option value="${item.id}" ${isSub4 ? 'selected' : ''}>
+                                                    #${item.id} - ${item.title}
+                                                </option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-white">
+                    <a href="${ctx}/Home#newsSection" target="_blank" class="btn btn-outline-secondary btn-sm me-auto">
+                        <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Xem Trang chủ thực tế
+                    </a>
+                    <button type="button" class="btn btn-ghost btn-sm" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-neon btn-sm px-4">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Lưu bố cục Trang chủ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="contentPreviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
@@ -804,7 +1003,6 @@
     </div>
 </div>
 
-<!-- Modal chèn hình ảnh thông minh cho người mới -->
 <div class="modal fade" id="insertImageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -817,7 +1015,7 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Cách 1: Nhập link ảnh (URL)</label>
-                    <input type="text" id="modalImgUrlInput" class="form-control field shadow-none" 
+                    <input type="text" id="modalImgUrlInput" class="form-control field shadow-none"
                            placeholder="https://... hoặc ${ctx}/assets/images/...">
                     <small class="text-muted" style="font-size: 11px;">Khuyên dùng: Link ảnh trực tuyến hoặc ảnh trong thư mục website.</small>
                 </div>
@@ -837,7 +1035,6 @@
                     <input type="text" id="modalImgAltInput" class="form-control field shadow-none" placeholder="Ví dụ: Trải nghiệm gaming thực tế">
                 </div>
 
-                <!-- Khung xem trước ảnh -->
                 <div id="modalImgPreviewContainer" class="border rounded p-2 text-center bg-light" style="display: none;">
                     <small class="d-block text-muted mb-1">Xem trước ảnh:</small>
                     <img id="modalImgPreviewEl" src="" alt="Preview" style="max-height: 180px; max-width: 100%; object-fit: contain; border-radius: 4px;">
@@ -853,11 +1050,14 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js">
+
+</script>
 <script>
-    // 1. Xem trước ảnh đại diện tự động khi nhập / dán URL
-    const imgUrlInput = document.getElementById('newsImageUrl');
+const imgUrlInput = document.getElementById('newsImageUrl');
     const imgPreviewBox = document.getElementById('newsImgPreview');
     if (imgUrlInput && imgPreviewBox) {
         imgUrlInput.addEventListener('input', function() {
@@ -870,7 +1070,6 @@
         });
     }
 
-    // 2. Đếm ký tự cho phần tóm tắt ngắn
     const summaryInput = document.getElementById('summaryInput');
     const summaryCount = document.getElementById('summaryCharCount');
     if (summaryInput && summaryCount) {
@@ -881,7 +1080,6 @@
         updateSummaryCount();
     }
 
-    // 3. Khởi tạo Trình soạn thảo trực quan WYSIWYG (Quill)
     let isCodeView = false;
     let isFullscreen = false;
 
@@ -907,7 +1105,6 @@
         }
     });
 
-    // 4. Dữ liệu giải nghĩa chi tiết & Tooltip cho từng ký tự trên thanh công cụ
     const toolbarDescriptions = {
         'ql-header': {
             name: 'Kiểu tiêu đề (Heading)',
@@ -996,12 +1193,10 @@
         const hintText = document.getElementById('toolbarHintText');
         if (!toolbar || !hintBar || !hintText) return;
 
-        // Đưa thanh hintBar vào ngay sau thanh toolbar
         toolbar.insertAdjacentElement('afterend', hintBar);
 
         const defaultHintHtml = '<i class="fa-regular fa-lightbulb text-warning me-1"></i>Rê chuột vào biểu tượng bất kỳ trên thanh công cụ để xem tên & hướng dẫn';
 
-        // Gắn sự kiện và Tooltip cho từng nút
         const items = toolbar.querySelectorAll('button, .ql-picker');
         items.forEach(el => {
             let key = '';
@@ -1023,10 +1218,9 @@
 
             const info = toolbarDescriptions[key];
             if (info) {
-                // Thuộc tính title tooltip trình duyệt
+
                 el.setAttribute('title', info.name + (info.hotkey ? ' (' + info.hotkey + ')' : ''));
 
-                // Hiển thị dynamic trên hintBar khi rê chuột
                 el.addEventListener('mouseenter', () => {
                     let html = '<i class="' + info.icon + ' me-2"></i><strong>' + info.name + '</strong>: ' + info.desc;
                     if (info.hotkey) {
@@ -1044,17 +1238,14 @@
         });
     }
 
-    // Khởi chạy gắn tooltip và thanh chú giải
     setupToolbarHints();
 
-    // Nạp nội dung cũ khi Sửa bài viết
     const contentHidden = document.getElementById('contentInput');
     if (contentHidden && contentHidden.value.trim().length > 0) {
         quill.clipboard.dangerouslyPasteHTML(contentHidden.value);
         document.getElementById('htmlSourceEditor').value = contentHidden.value;
     }
 
-    // Cập nhật thống kê từ & ký tự thời gian thực
     function updateContentStats() {
         let text = '';
         if (isCodeView) {
@@ -1073,7 +1264,6 @@
     document.getElementById('htmlSourceEditor').addEventListener('input', updateContentStats);
     updateContentStats();
 
-    // Viền sáng khi đang soạn thảo
     const editorBox = document.getElementById('editorContainer');
     quill.on('selection-change', function(range) {
         if (range) {
@@ -1083,7 +1273,6 @@
         }
     });
 
-    // 4. Chuyển đổi giữa chế độ Trực quan (WYSIWYG) và Mã nguồn HTML
     function toggleCodeView() {
         const qEditor = document.getElementById('quillEditor');
         const qToolbar = document.querySelector('.ql-toolbar');
@@ -1093,7 +1282,7 @@
         const toggleBtn = document.getElementById('toggleCodeBtn');
 
         if (!isCodeView) {
-            // Chuyển sang xem mã HTML
+
             htmlEditor.value = quill.root.innerHTML;
             qEditor.style.display = 'none';
             if (qToolbar) qToolbar.style.display = 'none';
@@ -1106,7 +1295,7 @@
             isCodeView = true;
             htmlEditor.focus();
         } else {
-            // Chuyển lại soạn thảo trực quan
+
             quill.root.innerHTML = htmlEditor.value;
             htmlEditor.style.display = 'none';
             qEditor.style.display = 'block';
@@ -1122,7 +1311,6 @@
         updateContentStats();
     }
 
-    // 5. Chế độ Toàn màn hình
     function toggleFullscreenEditor() {
         const wrapper = document.getElementById('editorWrapper');
         const icon = document.getElementById('fullscreenIcon');
@@ -1142,7 +1330,6 @@
         }
     }
 
-    // 6. Chèn các khối mẫu nhanh cho người mới
     function insertCustomBlock(type) {
         if (isCodeView) {
             const textarea = document.getElementById('htmlSourceEditor');
@@ -1176,7 +1363,6 @@
         updateContentStats();
     }
 
-    // 7. Xóa sạch nội dung soạn thảo
     function clearEditorContent() {
         if (confirm('Bạn có chắc chắn muốn xóa toàn bộ nội dung trong khung soạn thảo không?')) {
             quill.setText('');
@@ -1185,7 +1371,6 @@
         }
     }
 
-    // 8. Quản lý Modal Chèn Ảnh
     let imageModalInstance = null;
     function openInsertImageModal() {
         document.getElementById('modalImgUrlInput').value = '';
@@ -1193,14 +1378,13 @@
         document.getElementById('modalImgAltInput').value = '';
         document.getElementById('modalImgPreviewContainer').style.display = 'none';
         document.getElementById('modalImgPreviewEl').src = '';
-        
+
         if (!imageModalInstance) {
             imageModalInstance = new bootstrap.Modal(document.getElementById('insertImageModal'));
         }
         imageModalInstance.show();
     }
 
-    // Xem trước ảnh trong Modal khi nhập URL
     document.getElementById('modalImgUrlInput').addEventListener('input', function() {
         const url = this.value.trim();
         const previewContainer = document.getElementById('modalImgPreviewContainer');
@@ -1213,7 +1397,6 @@
         }
     });
 
-    // Xem trước ảnh khi chọn file từ máy tính
     document.getElementById('modalImgFileInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -1221,13 +1404,12 @@
             reader.onload = function(evt) {
                 document.getElementById('modalImgPreviewEl').src = evt.target.result;
                 document.getElementById('modalImgPreviewContainer').style.display = 'block';
-                document.getElementById('modalImgUrlInput').value = ''; // ưu tiên file
+                document.getElementById('modalImgUrlInput').value = '';
             };
             reader.readAsDataURL(file);
         }
     });
 
-    // Xác nhận chèn ảnh vào Editor
     function confirmInsertImage() {
         const urlInput = document.getElementById('modalImgUrlInput').value.trim();
         const fileInput = document.getElementById('modalImgFileInput');
@@ -1236,7 +1418,7 @@
 
         let finalSrc = urlInput;
         if (fileInput.files && fileInput.files[0]) {
-            finalSrc = previewEl.src; // base64 DataURL
+            finalSrc = previewEl.src;
         }
 
         if (!finalSrc) {
@@ -1260,14 +1442,13 @@
         if (imageModalInstance) imageModalInstance.hide();
     }
 
-    // 9. Đồng bộ nội dung trước khi Submit Form lên Servlet
     document.getElementById('newsForm').addEventListener('submit', function() {
         const hiddenInput = document.getElementById('contentInput');
         let finalHtml = '';
         if (isCodeView) {
             finalHtml = document.getElementById('htmlSourceEditor').value.trim();
         } else {
-            // Nếu editor trống chỉ có thẻ rỗng <p><br></p> thì gán rỗng
+
             if (quill.getText().trim().length === 0 && !quill.root.querySelector('img')) {
                 finalHtml = '';
             } else {
@@ -1277,7 +1458,6 @@
         hiddenInput.value = finalHtml;
     });
 
-    // 10. Xem trước bài viết trong Modal
     function previewContentModal() {
         const title = document.querySelector('input[name="title"]').value || '(Chưa có tiêu đề)';
         const author = document.querySelector('input[name="author"]').value || 'Độ PC 67';
@@ -1297,6 +1477,58 @@
 
         const modal = new bootstrap.Modal(document.getElementById('contentPreviewModal'));
         modal.show();
+    }
+
+    function validateHomeLayoutModal() {
+        const mainSel = document.getElementById('modalMainSelect');
+        const s1 = document.querySelector('select[name="subId1"]');
+        const s2 = document.querySelector('select[name="subId2"]');
+        const s3 = document.querySelector('select[name="subId3"]');
+        const s4 = document.querySelector('select[name="subId4"]');
+        const selects = [
+            { el: mainSel, name: 'Bài chính Trang chủ' },
+            { el: s1, name: 'Bài phụ 1' },
+            { el: s2, name: 'Bài phụ 2' },
+            { el: s3, name: 'Bài phụ 3' },
+            { el: s4, name: 'Bài phụ 4' }
+        ];
+        const chosen = {};
+        for (let i = 0; i < selects.length; i++) {
+            const item = selects[i];
+            if (item.el) {
+                const val = item.el.value;
+                if (val && val !== '0') {
+                    if (chosen[val]) {
+                        alert('Lỗi trùng lặp: Bài viết #' + val + ' đang được chọn ở cả [' + chosen[val] + '] và [' + item.name + ']!\nMỗi vị trí trên Trang chủ phải là một bài viết riêng biệt.');
+                        item.el.focus();
+                        return false;
+                    }
+                    chosen[val] = item.name;
+                }
+            }
+        }
+        return true;
+    }
+
+    function updateModalHomePreview() {
+        const sel = document.getElementById('modalMainSelect');
+        const imgEl = document.getElementById('modalMainPreviewImg');
+        const titleEl = document.getElementById('modalMainPreviewTitle');
+        if (sel && imgEl && titleEl) {
+            const opt = sel.options[sel.selectedIndex];
+            const img = opt.getAttribute('data-img');
+            const title = opt.getAttribute('data-title');
+            if (img && img.trim() !== '') {
+                imgEl.src = img;
+            } else {
+                imgEl.src = '${ctx}/assets/images/banner.png';
+            }
+            if (title && title.trim() !== '') {
+                titleEl.innerText = title;
+            } else {
+                titleEl.innerText = 'Bài viết mới nhất (Tự động)';
+            }
+        }
     }
 </script>
 </body>

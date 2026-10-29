@@ -1,13 +1,5 @@
 package filter;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Bộ lọc nạp danh mục sản phẩm tự động cho mọi trang web.
- * ============================================================================
- */
-
 import dao.CategoryDao;
 import model.Category;
 import jakarta.servlet.*;

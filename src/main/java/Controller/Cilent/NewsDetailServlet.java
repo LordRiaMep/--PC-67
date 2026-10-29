@@ -1,14 +1,7 @@
-package Controller.Cilent; // <-- đổi cho đúng package của bạn (giống SearchServlet)
+package Controller.Cilent;
 
 import dao.NewsDao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: Xem chi tiết một bài viết tin tức công nghệ.
- * ============================================================================
- */
 import model.News;
 
 import jakarta.servlet.ServletException;
@@ -20,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-// Trang chi tiết 1 bài viết: /news/detail?id=...
 @WebServlet(name = "NewsDetailServlet", urlPatterns = {"/news/detail"})
 public class NewsDetailServlet extends HttpServlet {
 
@@ -42,14 +34,13 @@ public class NewsDetailServlet extends HttpServlet {
         NewsDao dao = new NewsDao();
         News news = dao.getNewsById(id);
 
-        // 22.5: Bài viết bị xóa khỏi DB hoặc không tồn tại -> Trả về mã lỗi 404
         if (news == null || !"ACTIVE".equals(news.getStatus())) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Bài viết không tồn tại hoặc đã bị xóa!");
             return;
         }
 
         dao.increaseView(id);
-        news.setViewCount(news.getViewCount() + 1); // hiển thị luôn số mới
+        news.setViewCount(news.getViewCount() + 1);
 
         List<News> relatedNews = dao.getRelatedNews(id, 4);
 

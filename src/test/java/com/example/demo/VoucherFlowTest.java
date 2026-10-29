@@ -13,7 +13,6 @@ public class VoucherFlowTest {
     public static void main(String[] args) {
         System.out.println("=== BẮT ĐẦU TEST TOÀN DIỆN HỆ THỐNG VOUCHER ===");
 
-        // 1. Kiểm tra tính toán giảm giá
         System.out.println("\n[1] Kiểm tra logic tính toán Voucher...");
         Voucher vPercent = new Voucher();
         vPercent.setCode("TEST10");
@@ -28,17 +27,13 @@ public class VoucherFlowTest {
         vPercent.setEndDate(new Timestamp(System.currentTimeMillis() + 100000000));
         vPercent.setStatus("ACTIVE");
 
-        // Đơn 500k -> không đủ điều kiện tối thiểu 1tr -> giảm 0đ
         assertEqual(0.0, vPercent.calculateDiscount(500000.0), "Đơn 500k chưa đạt min 1tr");
 
-        // Đơn 2 triệu -> giảm 10% = 200k
         assertEqual(200000.0, vPercent.calculateDiscount(2000000.0), "Đơn 2tr giảm 10% = 200k");
 
-        // Voucher % có chặn mức giảm tối đa 150k
         vPercent.setMaxDiscountAmount(150000.0);
         assertEqual(150000.0, vPercent.calculateDiscount(2000000.0), "Đơn 2tr giảm 10% nhưng bị chặn tối đa 150k");
 
-        // Voucher số tiền cố định (FIXED) 100k
         Voucher vFixed = new Voucher();
         vFixed.setCode("TESTFIXED");
         vFixed.setName("Giảm 100k");
@@ -54,7 +49,6 @@ public class VoucherFlowTest {
 
         System.out.println("-> Logic tính toán giảm giá: ĐẠT!");
 
-        // 2. Kiểm tra thao tác CSDL VoucherDao
         System.out.println("\n[2] Kiểm tra thao tác CSDL VoucherDao (CRUD)...");
         VoucherDao dao = new VoucherDao();
 
@@ -86,7 +80,6 @@ public class VoucherFlowTest {
         }
         System.out.println("-> Tìm voucher theo ID thành công: " + fetched.getName());
 
-        // Test tăng lượt dùng nguyên tử
         try (Connection conn = ConnectDB.getConnect()) {
             dao.incrementUsedCount(testCode, conn);
         } catch (Exception e) {
@@ -97,7 +90,6 @@ public class VoucherFlowTest {
         assertEqual(1.0, (double) updated.getUsedCount(), "Lượt dùng phải tăng lên 1");
         System.out.println("-> Tăng lượt dùng voucher thành công: " + updated.getUsedCount() + "/" + updated.getUsageLimit());
 
-        // Test xóa voucher
         boolean deleted = dao.delete(id);
         if (!deleted) throw new RuntimeException("Lỗi: Không thể xóa voucher test!");
         System.out.println("-> Xóa voucher kiểm thử an toàn thành công!");

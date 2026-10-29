@@ -5,7 +5,7 @@
 <jsp:include page="header.jsp" />
 
 <style>
-  .auth-box-card {
+.auth-box-card {
     background: #ffffff;
     max-width: 520px;
     width: 100%;
@@ -133,7 +133,7 @@
 
       <h2>XÁC NHẬN TẠO TÀI KHOẢN</h2>
       <p class="text-muted small mb-1">Chúng tôi đã gửi email xác thực kích hoạt tài khoản đến:</p>
-      
+
       <div class="email-highlight">
         <i class="bi bi-envelope me-1"></i><c:out value="${registeredEmail != null ? registeredEmail : 'email của bạn'}" />
       </div>
@@ -158,8 +158,6 @@
           <div>Hệ thống sẽ tự động kích hoạt tài khoản và chuyển bạn về lại trang đăng nhập để bắt đầu mua sắm!</div>
         </div>
       </div>
-
-
 
       <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
         <a href="${ctx}/resend-verification?email=${registeredEmail}" class="text-decoration-none small text-danger fw-semibold">

@@ -1,13 +1,5 @@
 package Controller.Auth;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Xử lý đăng ký tài khoản mới và gửi mã OTP xác nhận.
- * ============================================================================
- */
-
 import dao.UserDao;
 import dao.UserTokenDao;
 import model.User;
@@ -98,33 +90,30 @@ public class RegisterServlet extends HttpServlet {
                 request.getRequestDispatcher("/view/register.jsp").forward(request, response);
                 return;
             } else if (existingUser.isPending()) {
-                // Người dùng đã từng đăng ký nhưng chưa kích hoạt email -> cập nhật lại thông tin mới
+
                 userToRegister.setId(existingUser.getId());
                 isRegisteredOrUpdated = userDao.updatePendingUser(userToRegister);
             }
         } else {
-            // Đăng ký mới với trạng thái PENDING (chờ kích hoạt email)
+
             isRegisteredOrUpdated = userDao.register(userToRegister);
         }
 
         if (isRegisteredOrUpdated) {
-            // Lấy id người dùng nếu có
+
             User savedUser = userDao.findByEmail(cleanEmail);
             Integer userId = savedUser != null ? savedUser.getId() : null;
 
-            // Tạo token kích hoạt tài khoản có hạn 24 giờ (1440 phút)
             UserToken token = userTokenDao.createToken(userId, cleanEmail, "REGISTER_VERIFY", 1440);
 
             if (token != null) {
-                // Xây dựng đường dẫn xác nhận
+
                 String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
                 String verifyLink = baseUrl + "/verify-account?token=" + token.getToken();
 
-                // Gửi email xác nhận
                 EmailService.sendVerificationEmail(cleanEmail, userToRegister.getFullName(), verifyLink, token.getOtpCode());
             }
 
-            // Chuyển sang trang thông báo chờ xác nhận email
             response.sendRedirect(request.getContextPath() + "/register-success?email=" + URLEncoder.encode(cleanEmail, StandardCharsets.UTF_8.name()));
         } else {
             request.setAttribute("error", "Không thể tạo tài khoản. Vui lòng kiểm tra lại thông tin hoặc thử lại sau!");

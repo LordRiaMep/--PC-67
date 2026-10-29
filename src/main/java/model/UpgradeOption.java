@@ -1,13 +1,5 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Model biểu diễn tùy chọn nâng cấp linh kiện và giá chênh lệch.
- * ============================================================================
- */
-
 public class UpgradeOption {
     private int id;
     private int productId;
@@ -55,7 +47,6 @@ public class UpgradeOption {
     public double getPriceDelta() { return priceDelta; }
     public void setPriceDelta(double priceDelta) { this.priceDelta = priceDelta; }
 
-    // JSP EL: ${opt.defaultOption}
     public boolean isDefaultOption() { return defaultOption; }
     public void setDefaultOption(boolean defaultOption) { this.defaultOption = defaultOption; }
 

@@ -1,13 +1,5 @@
 package dao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Thao tác CSDL: Đọc và cập nhật cấu hình kho xuất hàng GHN.
- * ============================================================================
- */
-
 import model.WarehouseConfig;
 
 import java.sql.Connection;
@@ -38,7 +30,6 @@ public class WarehouseDao {
             e.printStackTrace();
         }
 
-        // Mặc định dự phòng nếu chưa có trong DB
         WarehouseConfig defaultCfg = new WarehouseConfig();
         defaultCfg.setId(1);
         defaultCfg.setProvinceId(224);

@@ -29,7 +29,6 @@
         </div>
     </header>
 
-    <!-- Thông báo kết quả -->
     <c:if test="${not empty sessionScope.successMsg}">
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
             <i class="fa-solid fa-circle-check fs-5 me-2"></i>
@@ -49,9 +48,9 @@
     </c:if>
 
     <div class="row g-4">
-        <!-- Cột trái: Form thiết lập kho -->
+
         <div class="col-lg-7">
-            <!-- Địa chỉ hiện tại -->
+
             <div class="panel mb-4">
                 <div class="panel-head">
                     <h5><i class="fa-solid fa-location-dot me-2"></i>Kho hàng đang áp dụng</h5>
@@ -77,7 +76,6 @@
                 </div>
             </div>
 
-            <!-- Form cập nhật kho -->
             <div class="panel">
                 <div class="panel-head">
                     <h5><i class="fa-solid fa-pen-to-square me-2"></i>Thay đổi địa chỉ kho hàng</h5>
@@ -112,7 +110,6 @@
                                    value="${warehouse.detailAddress}" placeholder="Ví dụ: Số 15/2/437 Đà Nẵng" required>
                         </div>
 
-                        <!-- Hidden fields -->
                         <input type="hidden" name="provinceId" id="whProvinceId" value="${warehouse.provinceId}">
                         <input type="hidden" name="provinceName" id="whProvinceName" value="${warehouse.provinceName}">
                         <input type="hidden" name="districtId" id="whDistrictId" value="${warehouse.districtId}">
@@ -128,9 +125,8 @@
             </div>
         </div>
 
-        <!-- Cột phải: Công cụ test tính phí & Thông tin GHN -->
         <div class="col-lg-5">
-            <!-- Test tính phí -->
+
             <div class="panel mb-4">
                 <div class="panel-head">
                     <h5><i class="fa-solid fa-calculator me-2"></i>Thử nghiệm tính cước phí</h5>
@@ -168,7 +164,6 @@
                 </div>
             </div>
 
-            <!-- Thông tin GHN -->
             <div class="panel">
                 <div class="panel-head">
                     <h5><i class="fa-solid fa-truck-fast me-2"></i>Trạng thái kết nối GHN</h5>
@@ -184,9 +179,11 @@
     </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+
+</script>
 <script>
-    const ctx = '${ctx}';
+const ctx = '${ctx}';
     const currentProvId = ${warehouse.provinceId};
     const currentDistId = ${warehouse.districtId};
     const currentWardCode = '${warehouse.wardCode}';
@@ -196,7 +193,6 @@
         loadTestProvinces();
     });
 
-    // ==================== QUẢN LÝ KHO HÀNG ====================
     function loadWarehouseProvinces() {
         const provSelect = document.getElementById('whProvinceSelect');
         fetch(ctx + '/shipping-api?action=provinces')
@@ -211,7 +207,6 @@
                     });
                     provSelect.innerHTML = html;
 
-                    // Nếu có tỉnh sẵn thì tự động tải quận/huyện
                     if (currentProvId) {
                         loadWarehouseDistricts(currentProvId, currentDistId);
                     }
@@ -298,7 +293,6 @@
         document.getElementById('whWardName').value = opt ? opt.getAttribute('data-name') : '';
     });
 
-    // ==================== CÔNG CỤ TEST PHÍ SHIP ====================
     function loadTestProvinces() {
         const provSelect = document.getElementById('testProvinceSelect');
         fetch(ctx + '/shipping-api?action=provinces')

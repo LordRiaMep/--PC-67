@@ -1,13 +1,5 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Model biểu diễn sản phẩm PC Gaming.
- * ============================================================================
- */
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +13,8 @@ public class Product {
     private int quantity;
     private String status;
     private String categoryName;
-    private String specDetail; // mô tả chi tiết, các dòng ngăn cách bằng dấu |
+    private String specDetail;
+    private List<String> images = new ArrayList<>();
 
     public Product() {
     }
@@ -59,7 +52,22 @@ public class Product {
     public String getSpecDetail() { return specDetail; }
     public void setSpecDetail(String specDetail) { this.specDetail = specDetail; }
 
-    /** Danh sách từng dòng thông số, dùng cho trang chi tiết: ${product.specList} */
+    public List<String> getImages() {
+        if (images == null) images = new ArrayList<>();
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public int getImageCount() {
+        if (images != null && !images.isEmpty()) {
+            return images.size();
+        }
+        return (image != null && !image.trim().isEmpty()) ? 1 : 0;
+    }
+
     public List<String> getSpecList() {
         List<String> list = new ArrayList<>();
         if (specDetail != null && !specDetail.trim().isEmpty()) {
@@ -76,7 +84,6 @@ public class Product {
         return list;
     }
 
-    /** Mỗi dòng một thông số, dùng để đổ vào textarea trong trang admin: ${product.specText} */
     public String getSpecText() {
         return String.join("\n", getSpecList());
     }

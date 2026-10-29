@@ -1,20 +1,13 @@
-/**
- * =============================================================================
- * ĐỘ-PC 67 - REAL-TIME BIDIRECTIONAL SYNCHRONIZATION ENGINE
- * Đồng bộ thời gian thực 2 chiều giữa Khách hàng và Admin (0 độ trễ)
- * =============================================================================
- */
-
 (function (window, document) {
     'use strict';
 
     var RealtimeSync = {
         config: {
-            role: 'client',      // 'admin' hoặc 'client'
+            role: 'client',
             userId: 0,
             ctx: '',
             wsUrl: '',
-            pollInterval: 1500,  // fallback polling mỗi 1.5s
+            pollInterval: 1500,
             soundEnabled: true
         },
         state: {
@@ -36,7 +29,6 @@
             this.initToaster();
             this.connectWebSocket();
 
-            // Lắng nghe sự kiện để kích hoạt AudioContext khi người dùng chạm/click lần đầu
             var unlockAudio = function () {
                 if (RealtimeSync.state.audioCtx && RealtimeSync.state.audioCtx.state === 'suspended') {
                     RealtimeSync.state.audioCtx.resume();
@@ -50,9 +42,6 @@
             console.log('[RealtimeSync] Khởi tạo thành công với vai trò: ' + this.config.role + ' (UserId: ' + this.config.userId + ')');
         },
 
-        // =========================================================================
-        // 1. KẾT NỐI WEBSOCKET CHÍNH (ĐỘ TRỄ < 5ms)
-        // =========================================================================
         connectWebSocket: function () {
             var self = this;
             var loc = window.location;
@@ -68,10 +57,8 @@
                     self.stopPolling();
                     console.log('[RealtimeSync] WebSocket ĐÃ KẾT NỐI THÀNH CÔNG tới ' + wsUrl);
 
-                    // Hiển thị chỉ báo kết nối nhỏ góc giao diện (nếu là trang Admin)
                     self.updateConnectionIndicator(true);
 
-                    // Gửi ping định kỳ 20s giữ kết nối
                     if (self._heartbeat) clearInterval(self._heartbeat);
                     self._heartbeat = setInterval(function () {
                         if (ws.readyState === WebSocket.OPEN) {
@@ -103,7 +90,6 @@
                     self.updateConnectionIndicator(false);
                     if (self._heartbeat) clearInterval(self._heartbeat);
 
-                    // Tự động kết nối lại sau 2.5s
                     console.warn('[RealtimeSync] WebSocket bị ngắt, thử kết nối lại sau 2.5s...');
                     self.startPolling();
                     setTimeout(function () {
@@ -118,9 +104,6 @@
             }
         },
 
-        // =========================================================================
-        // 2. FALLBACK POLLING (DỰ PHÒNG KHI RỚT MẠNG HOẶC WS BỊ CHẶN)
-        // =========================================================================
         startPolling: function () {
             var self = this;
             if (self.state.pollTimer) return;
@@ -152,9 +135,6 @@
             }
         },
 
-        // =========================================================================
-        // 3. BROADCAST CHANNEL (ĐỒNG BỘ SIÊU TỐC GIỮA CÁC TAB CÙNG TRÌNH DUYỆT)
-        // =========================================================================
         initBroadcastChannel: function () {
             var self = this;
             if (typeof BroadcastChannel !== 'undefined') {
@@ -169,20 +149,15 @@
             }
         },
 
-        // =========================================================================
-        // 4. BỘ ĐIỀU PHỐI VÀ XỬ LÝ SỰ KIỆN (EVENT DISPATCHER)
-        // =========================================================================
         dispatchIncomingEvent: function (ev, source) {
             if (!ev || !ev.id) return;
 
-            // Chống trùng lặp xử lý nếu nhận từ cả WS, Poll và BroadcastChannel
             if (this.state.handledEvents.has(ev.id)) return;
             this.state.handledEvents.add(ev.id);
             if (ev.id > this.state.lastEventId) {
                 this.state.lastEventId = ev.id;
             }
 
-            // Đồng bộ sang tab khác qua BroadcastChannel nếu nhận từ server
             if (source !== 'broadcast_channel' && this.state.channel) {
                 try {
                     this.state.channel.postMessage(ev);
@@ -191,18 +166,14 @@
 
             console.log('[RealtimeSync] NHẬN SỰ KIỆN [' + ev.type + ']:', ev);
 
-            // 1. Phát âm thanh
             if (this.config.soundEnabled) {
                 this.playAudioChime(ev.soundType || 'info');
             }
 
-            // 2. Hiển thị Toast nổi
             this.showToast(ev);
 
-            // 3. Cập nhật DOM theo từng ngữ cảnh trang cụ thể
             this.applyDomUpdates(ev);
 
-            // 4. Kích hoạt cập nhật biểu đồ lãi kinh doanh nếu có trên trang
             if (typeof window.updateProfitChart === 'function') {
                 try {
                     window.updateProfitChart(ev);
@@ -212,19 +183,13 @@
             }
         },
 
-        // =========================================================================
-        // 5. CẬP NHẬT TRỰC TIẾP GIAO DIỆN (DOM REALTIME UPDATES - KHÔNG CẦN F5)
-        // =========================================================================
         applyDomUpdates: function (ev) {
             var type = ev.type;
             var data = ev.data || {};
             var self = this;
 
-            // ---------------------------------------------------------------------
-            // A. KHI KHÁCH ĐẶT HÀNG MỚI (ORDER_CREATED)
-            // ---------------------------------------------------------------------
             if (type === 'ORDER_CREATED') {
-                // 1. Nếu đang ở trang Quản lý đơn hàng của Admin (admin_orders.jsp)
+
                 var ordersTable = document.querySelector('.table.tbl tbody') || document.querySelector('#ordersTable tbody');
                 if (ordersTable && self.config.role === 'admin') {
                     var orderId = data.orderId;
@@ -256,12 +221,10 @@
 
                     ordersTable.insertBefore(newRow, ordersTable.firstChild);
 
-                    // Xóa dòng thông báo "Chưa có đơn hàng nào" nếu có
                     var emptyRow = ordersTable.querySelector('td.muted');
                     if (emptyRow) emptyRow.closest('tr').remove();
                 }
 
-                // 2. Nếu đang ở trang Tổng quan Dashboard (dashboard.jsp)
                 var totalOrdersElem = document.querySelector('#kpi-total-orders') || document.querySelector('.stat-card:nth-child(2) .fs-4');
                 if (totalOrdersElem && self.config.role === 'admin') {
                     var currentOrders = parseInt(totalOrdersElem.textContent.replace(/\D/g, '')) || 0;
@@ -271,12 +234,9 @@
                 }
             }
 
-            // ---------------------------------------------------------------------
-            // B. KHI KHÁCH HÀNG HỦY ĐƠN (ORDER_CANCELLED)
-            // ---------------------------------------------------------------------
             if (type === 'ORDER_CANCELLED') {
                 var orderId = data.orderId;
-                // Cập nhật dòng đơn hàng trên admin_orders.jsp
+
                 var row = document.getElementById('order-row-' + orderId) || document.querySelector('[data-order-id="' + orderId + '"]');
                 if (row) {
                     var statusCell = row.cells && row.cells[4] ? row.cells[4] : row.querySelector('.badge');
@@ -288,37 +248,30 @@
                 }
             }
 
-            // ---------------------------------------------------------------------
-            // C. KHI ADMIN CẬP NHẬT TIẾN TRÌNH ĐƠN HÀNG (ORDER_STATUS_CHANGED)
-            // ---------------------------------------------------------------------
             if (type === 'ORDER_STATUS_CHANGED') {
                 var orderId = data.orderId;
                 var newStatus = data.newStatus;
                 var newStatusName = data.statusDisplayName || newStatus;
 
-                // 1. Cập nhật trang Chi tiết đơn hàng của Khách (order_detail.jsp)
                 var currentUrl = window.location.href;
                 if (currentUrl.indexOf('order-detail') !== -1 && currentUrl.indexOf('id=' + orderId) !== -1) {
-                    // Cập nhật Badge trên đầu trang
+
                     var badgeContainer = document.querySelector('#order-detail-status-badge') || document.querySelector('.od-wrap .d-flex .badge');
                     if (badgeContainer) {
                         badgeContainer.textContent = newStatusName;
                         badgeContainer.className = 'badge fs-6 px-3 py-2 text-white ' + self.getStatusBadgeClass(newStatus);
                     }
 
-                    // Ẩn nút hủy đơn nếu đơn đã được xác nhận (CONFIRMED) trở đi
                     var cancelBtn = document.querySelector('form[action*="order-action"] button[type="submit"]');
                     if (cancelBtn && newStatus !== 'PENDING') {
                         cancelBtn.closest('form').style.display = 'none';
                     }
 
-                    // Tự động tải lại phần tiến trình một cách mượt mà sau 1 giây để cập nhật đầy đủ step
                     setTimeout(function () {
                         window.location.reload();
                     }, 1200);
                 }
 
-                // 2. Cập nhật trang Đơn hàng của tôi (my_orders.jsp)
                 var clientRow = document.querySelector('#client-order-row-' + orderId) || document.querySelector('[data-order-id="' + orderId + '"]');
                 if (clientRow) {
                     var statusTd = clientRow.cells && clientRow.cells[5] ? clientRow.cells[5] : clientRow.querySelector('.badge');
@@ -326,7 +279,7 @@
                         statusTd.innerHTML = '<span class="badge fw-bold px-3 py-2 text-white ' + self.getStatusBadgeClass(newStatus) + '">'
                             + self.escapeHtml(newStatusName) + '</span>';
                     }
-                    // Ẩn nút hủy nếu trạng thái khác PENDING
+
                     if (newStatus !== 'PENDING') {
                         var cancelForm = clientRow.querySelector('form[action*="order-action"]');
                         if (cancelForm) cancelForm.remove();
@@ -335,7 +288,6 @@
                     setTimeout(function () { clientRow.classList.remove('realtime-pulse-green'); }, 2500);
                 }
 
-                // 3. Cập nhật trang Admin Orders nếu admin mở nhiều tab
                 var adminRow = document.getElementById('order-row-' + orderId);
                 if (adminRow) {
                     var adminStatusCell = adminRow.cells && adminRow.cells[4] ? adminRow.cells[4] : null;
@@ -345,12 +297,9 @@
                 }
             }
 
-            // ---------------------------------------------------------------------
-            // D. KHI KHÁCH HÀNG GỬI LIÊN HỆ / KHIẾU NẠI (CONTACT_CREATED)
-            // ---------------------------------------------------------------------
             if (type === 'CONTACT_CREATED') {
                 if (self.config.role === 'admin') {
-                    // Cập nhật số đếm Chưa xử lý
+
                     var pendingBadges = document.querySelectorAll('.stat-card .fs-4, .badge-pending');
                     pendingBadges.forEach(function (el) {
                         var num = parseInt(el.textContent.replace(/\D/g, ''));
@@ -360,7 +309,6 @@
                         }
                     });
 
-                    // Nếu đang ở trang Quản lý liên hệ (admin_contacts.jsp)
                     var contactTable = document.querySelector('table.table tbody');
                     if (contactTable && window.location.href.indexOf('admin/contacts') !== -1) {
                         var contactId = data.contactId;
@@ -385,14 +333,10 @@
                 }
             }
 
-            // ---------------------------------------------------------------------
-            // E. KHI ADMIN THAY ĐỔI SẢN PHẨM (PRODUCT_CHANGED)
-            // ---------------------------------------------------------------------
             if (type === 'PRODUCT_CHANGED') {
                 var pid = data.productId;
                 var currentUrl = window.location.href;
 
-                // 1. Khách đang xem chi tiết đúng sản phẩm đó (detail.jsp?id=...)
                 if (currentUrl.indexOf('product/detail') !== -1 && currentUrl.indexOf('id=' + pid) !== -1) {
                     if (data.action === 'delete') {
                         alert('Quản trị viên vừa ngừng kinh doanh sản phẩm này!');
@@ -400,7 +344,6 @@
                         return;
                     }
 
-                    // Cập nhật giá
                     if (data.price) {
                         var priceDisplay = document.getElementById('priceDisplay');
                         if (priceDisplay) {
@@ -411,10 +354,9 @@
                         }
                     }
 
-                    // Cập nhật tồn kho / hết hàng
                     if (typeof data.stock !== 'undefined') {
                         if (data.stock <= 0) {
-                            // Vô hiệu hóa nút mua
+
                             var buyBtn = document.querySelector('#btnBuyNow') || document.querySelector('.btn-action-primary');
                             var addCartBtn = document.querySelector('#btnAddToCart') || document.querySelector('.btn-action-outline');
                             if (buyBtn) { buyBtn.disabled = true; buyBtn.textContent = 'HẾT HÀNG'; }
@@ -423,7 +365,6 @@
                     }
                 }
 
-                // 2. Khách đang ở trang chủ (home.jsp)
                 var prodCard = document.querySelector('#prod-card-' + pid) || document.querySelector('a[href*="detail?id=' + pid + '"]');
                 if (prodCard) {
                     var cardContainer = prodCard.closest('.card') || prodCard.closest('.col-md-3');
@@ -442,9 +383,6 @@
                 }
             }
 
-            // ---------------------------------------------------------------------
-            // F. KHI TÀI KHOẢN BỊ KHÓA BỞI ADMIN (USER_STATUS_CHANGED)
-            // ---------------------------------------------------------------------
             if (type === 'USER_STATUS_CHANGED') {
                 if (data.userId == self.config.userId) {
                     if (data.status === 'LOCKED' || data.status === 'INACTIVE') {
@@ -455,9 +393,6 @@
             }
         },
 
-        // =========================================================================
-        // 6. ÂM THANH THÔNG BÁO TỔNG HỢP (WEB AUDIO API - ZERO EXTERNAL ASSETS)
-        // =========================================================================
         initAudioContext: function () {
             try {
                 var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -482,12 +417,12 @@
                 var now = ctx.currentTime;
 
                 if (type === 'order_new' || type === 'success') {
-                    // Chuông Ding-Dong ngân vang, phấn khởi
+
                     var osc1 = ctx.createOscillator();
                     var gain1 = ctx.createGain();
                     osc1.type = 'sine';
-                    osc1.frequency.setValueAtTime(587.33, now); // D5
-                    osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
+                    osc1.frequency.setValueAtTime(587.33, now);
+                    osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
                     gain1.gain.setValueAtTime(0.3, now);
                     gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
                     osc1.connect(gain1);
@@ -498,7 +433,7 @@
                     var osc2 = ctx.createOscillator();
                     var gain2 = ctx.createGain();
                     osc2.type = 'sine';
-                    osc2.frequency.setValueAtTime(1174.66, now + 0.15); // D6
+                    osc2.frequency.setValueAtTime(1174.66, now + 0.15);
                     gain2.gain.setValueAtTime(0.35, now + 0.15);
                     gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
                     osc2.connect(gain2);
@@ -506,12 +441,12 @@
                     osc2.start(now + 0.15);
                     osc2.stop(now + 0.65);
                 } else if (type === 'cancel' || type === 'warning') {
-                    // Âm báo cảnh báo
+
                     var osc = ctx.createOscillator();
                     var gain = ctx.createGain();
                     osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(329.63, now); // E4
-                    osc.frequency.setValueAtTime(261.63, now + 0.12); // C4
+                    osc.frequency.setValueAtTime(329.63, now);
+                    osc.frequency.setValueAtTime(261.63, now + 0.12);
                     gain.gain.setValueAtTime(0.2, now);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
                     osc.connect(gain);
@@ -519,11 +454,11 @@
                     osc.start(now);
                     osc.stop(now + 0.4);
                 } else {
-                    // Âm pop nhẹ nhàng
+
                     var osc3 = ctx.createOscillator();
                     var gain3 = ctx.createGain();
                     osc3.type = 'sine';
-                    osc3.frequency.setValueAtTime(659.25, now); // E5
+                    osc3.frequency.setValueAtTime(659.25, now);
                     gain3.gain.setValueAtTime(0.15, now);
                     gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
                     osc3.connect(gain3);
@@ -534,9 +469,6 @@
             } catch (e) {}
         },
 
-        // =========================================================================
-        // 7. TOAST NOTIFICATION CONTAINER (GIAO DIỆN THÔNG BÁO NỔI CHUYÊN NGHIỆP)
-        // =========================================================================
         initToaster: function () {
             if (document.getElementById('dopc-realtime-toaster')) return;
 
@@ -642,7 +574,6 @@
                 + '<button class="dopc-toast-close" title="Đóng">&times;</button>'
                 + '<div class="dopc-toast-bar"></div>';
 
-            // Sự kiện click để chuyển hướng nhanh tới trang chi tiết
             if (ev.linkUrl) {
                 var targetUrl = this.config.ctx + ev.linkUrl;
                 toast.onclick = function (e) {
@@ -659,7 +590,6 @@
 
             toaster.appendChild(toast);
 
-            // Tự động đóng sau 5.5s
             setTimeout(function () {
                 if (toast && toast.parentNode) {
                     toast.style.animation = 'dopcToastSlideOut 0.3s forwards';

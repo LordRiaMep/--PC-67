@@ -1,13 +1,5 @@
 package Controller.Admin;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Admin CRUD mã giảm giá (voucher %, tiền mặt, mức giảm tối đa, hạn dùng).
- * ============================================================================
- */
-
 import dao.VoucherDao;
 import model.Voucher;
 import jakarta.servlet.ServletException;
@@ -80,7 +72,6 @@ public class AdminVoucherServlet extends HttpServlet {
             } catch (Exception ignored) {}
         }
 
-        // Danh sách phân trang và tìm kiếm
         int totalItems = dao.getTotalCount(keyword);
         int totalPages = (int) Math.ceil((double) totalItems / pageSize);
         if (totalPages > 0 && page > totalPages) {
@@ -90,7 +81,6 @@ public class AdminVoucherServlet extends HttpServlet {
 
         List<Voucher> listVouchers = dao.getByPage(page, pageSize, keyword);
 
-        // Thống kê nhanh cho Dashboard Card
         List<Voucher> allVouchers = dao.getAll();
         int countActive = 0;
         int countExpiredOrFull = 0;
@@ -108,7 +98,6 @@ public class AdminVoucherServlet extends HttpServlet {
         req.setAttribute("countActive", countActive);
         req.setAttribute("countExpiredOrFull", countExpiredOrFull);
 
-        // Flash message
         String msg = req.getParameter("msg");
         String err = req.getParameter("error");
         if ("insert_success".equals(msg)) req.setAttribute("successMessage", "Thêm voucher thành công!");
@@ -156,7 +145,6 @@ public class AdminVoucherServlet extends HttpServlet {
 
             code = code.trim().toUpperCase().replaceAll("\\s+", "");
 
-            // Kiểm tra trùng mã code
             if (dao.isCodeExists(code, id)) {
                 resp.sendRedirect(req.getContextPath() + "/admin/vouchers?error=code_exists" + redirectPage);
                 return;
@@ -188,7 +176,7 @@ public class AdminVoucherServlet extends HttpServlet {
                     } catch (NumberFormatException ignored) {}
                 }
             } else {
-                // FIXED không dùng mức giảm tối đa
+
                 maxDiscountAmount = null;
             }
 
@@ -200,7 +188,6 @@ public class AdminVoucherServlet extends HttpServlet {
                 } catch (NumberFormatException ignored) {}
             }
 
-            // Hợp lý hóa: Với loại FIXED, nếu có đặt đơn tối thiểu mà nhỏ hơn mức giảm thì nâng lên bằng mức giảm
             if ("FIXED".equalsIgnoreCase(discountType) && minOrderAmount > 0 && minOrderAmount < discountValue) {
                 minOrderAmount = discountValue;
             }
@@ -218,7 +205,6 @@ public class AdminVoucherServlet extends HttpServlet {
                 return;
             }
 
-            // Xử lý ngày tháng: Ngày kết thúc phải sau ngày bắt đầu
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Timestamp startTs = null;
             Timestamp endTs = null;
@@ -234,14 +220,14 @@ public class AdminVoucherServlet extends HttpServlet {
                 Date d = sdf.parse(endDateStr.trim());
                 endTs = new Timestamp(d.getTime() + (24 * 60 * 60 * 1000L - 1000L));
             } else {
-                // Mặc định kết thúc sau 30 ngày
+
                 endTs = new Timestamp(System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000L));
             }
 
             if (startDateStr != null && !startDateStr.trim().isEmpty() && endDateStr != null && !endDateStr.trim().isEmpty()) {
                 Date dStart = sdf.parse(startDateStr.trim());
                 Date dEnd = sdf.parse(endDateStr.trim());
-                if (!dEnd.after(dStart)) { // Ngày kết thúc trước hoặc bằng ngày bắt đầu -> từ chối
+                if (!dEnd.after(dStart)) {
                     resp.sendRedirect(req.getContextPath() + "/admin/vouchers?error=invalid_dates" + redirectPage);
                     return;
                 }

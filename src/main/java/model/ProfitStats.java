@@ -2,27 +2,22 @@ package model;
 
 import java.io.Serializable;
 
-/**
- * ============================================================================
- * Model thống kê lãi kinh doanh, cơ cấu doanh thu & lợi nhuận (Products vs Services)
- * ============================================================================
- */
 public class ProfitStats implements Serializable {
-    private double totalRevenue;        // Tổng doanh thu đơn hợp lệ
-    private double productRevenue;     // Doanh thu từ Sản phẩm phần cứng
-    private double serviceRevenue;     // Doanh thu từ Dịch vụ (nâng cấp + vận chuyển)
-    private double totalProfit;         // Tổng lãi kinh doanh ước tính (đã trừ Voucher theo Phương án B)
-    private double productProfit;      // Lãi từ Sản phẩm (Hardware margin ~18%)
-    private double serviceProfit;      // Lãi từ Dịch vụ (Upgrades & Services margin ~65%)
-    private double voucherDiscount;    // Tổng tiền Voucher giảm giá đã trừ vào Tổng lãi
-    private double productPercent;     // % Lãi Sản phẩm trong tổng lãi
-    private double servicePercent;     // % Lãi Dịch vụ trong tổng lãi
-    private double productRevPercent;  // % Doanh thu Sản phẩm trong tổng doanh thu
-    private double serviceRevPercent;  // % Doanh thu Dịch vụ trong tổng doanh thu
-    private int activeOrdersCount;     // Số đơn hàng hợp lệ
-    private int cancelledOrdersCount;  // Số đơn đã hủy
-    private double cancelledAmount;    // Tổng tiền các đơn đã hủy
-    private double profitMargin;       // Tỷ suất sinh lời bình quân (%)
+    private double totalRevenue;
+    private double productRevenue;
+    private double serviceRevenue;
+    private double totalProfit;
+    private double productProfit;
+    private double serviceProfit;
+    private double voucherDiscount;
+    private double productPercent;
+    private double servicePercent;
+    private double productRevPercent;
+    private double serviceRevPercent;
+    private int activeOrdersCount;
+    private int cancelledOrdersCount;
+    private double cancelledAmount;
+    private double profitMargin;
 
     public ProfitStats() {
     }

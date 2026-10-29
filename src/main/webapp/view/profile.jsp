@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
-<%-- header.jsp đã mở <html><head><body> và có Bootstrap + Bootstrap Icons --%>
 <jsp:include page="header.jsp" />
 
 <div class="container my-4" style="max-width: 1140px;">
@@ -27,7 +26,6 @@
         <c:remove var="profileError" scope="session"/>
     </c:if>
 
-    <!-- THỐNG KÊ: 3 ô nằm ngang -->
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <div class="pf-card p-3 d-flex align-items-center gap-3 h-100">
@@ -64,7 +62,6 @@
         </div>
     </div>
 
-    <!-- FORM THÔNG TIN: các ô nằm ngang -->
     <div class="pf-card p-4 mb-4">
         <div class="pf-card-title mb-4"><i class="bi bi-person-lines-fill"></i>Thông tin cá nhân</div>
         <form method="post" action="${ctx}/profile" accept-charset="UTF-8">
@@ -96,7 +93,6 @@
         </form>
     </div>
 
-    <!-- ĐƠN HÀNG GẦN ĐÂY -->
     <div class="pf-card mb-4 overflow-hidden">
         <div class="d-flex justify-content-between align-items-center p-4 pb-3">
             <div class="pf-card-title"><i class="bi bi-receipt"></i>Đơn hàng gần đây</div>

@@ -1,13 +1,5 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Model lưu trữ mã OTP và token xác thực.
- * ============================================================================
- */
-
 import java.sql.Timestamp;
 
 public class UserToken {
@@ -16,7 +8,7 @@ public class UserToken {
     private String email;
     private String token;
     private String otpCode;
-    private String type; // REGISTER_VERIFY, RESET_PASSWORD, CHANGE_PASSWORD_OTP
+    private String type;
     private Timestamp createdAt;
     private Timestamp expiresAt;
     private boolean isUsed;

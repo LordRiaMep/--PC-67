@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Tìm kiếm sản phẩm theo từ khóa, lọc theo tầm giá và danh mục.
- * ============================================================================
- */
-
 import dao.ProductDao;
 import model.Product;
 
@@ -28,7 +20,6 @@ public class SearchServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Bắt buộc để đọc đúng tiếng Việt có dấu
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 

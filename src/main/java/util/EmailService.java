@@ -1,13 +1,5 @@
 package util;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Gửi email OTP xác nhận tài khoản và đặt lại mật khẩu qua SMTP JavaMail.
- * ============================================================================
- */
-
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
@@ -22,7 +14,6 @@ public class EmailService {
 
     private static final ExecutorService executor = Executors.newFixedThreadPool(3);
 
-    // Lưu trữ liên kết & mã OTP mới nhất
     private static final Map<String, String> latestDevLinks = new ConcurrentHashMap<>();
     private static final Map<String, String> latestDevOtps = new ConcurrentHashMap<>();
 
@@ -36,9 +27,6 @@ public class EmailService {
         return latestDevOtps.get(email.trim().toLowerCase());
     }
 
-    /**
-     * Gửi email xác nhận đăng ký tài khoản
-     */
     public static void sendVerificationEmail(String recipientEmail, String recipientName, String verifyLink, String otpCode) {
         if (recipientEmail == null || recipientEmail.trim().isEmpty()) return;
         String cleanEmail = recipientEmail.trim().toLowerCase();
@@ -46,10 +34,8 @@ public class EmailService {
         latestDevLinks.put(cleanEmail, verifyLink);
         if (otpCode != null) latestDevOtps.put(cleanEmail, otpCode);
 
-        // Ghi log ra Console máy chủ
         printConsoleNotification("XÁC NHẬN TẠO TÀI KHOẢN", cleanEmail, recipientName, verifyLink, otpCode);
 
-        // Chạy gửi email thật ở luồng nền (không làm chậm request người dùng)
         executor.submit(() -> {
             String subject = "Xác nhận tạo tài khoản thành công - Độ-PC 67";
             String content = buildVerificationEmailHtml(recipientName, verifyLink, otpCode);
@@ -57,9 +43,6 @@ public class EmailService {
         });
     }
 
-    /**
-     * Gửi email đặt lại mật khẩu (Quên mật khẩu)
-     */
     public static void sendResetPasswordEmail(String recipientEmail, String recipientName, String resetLink, String otpCode) {
         if (recipientEmail == null || recipientEmail.trim().isEmpty()) return;
         String cleanEmail = recipientEmail.trim().toLowerCase();
@@ -67,10 +50,8 @@ public class EmailService {
         latestDevLinks.put(cleanEmail, resetLink);
         if (otpCode != null) latestDevOtps.put(cleanEmail, otpCode);
 
-        // Ghi log ra Console máy chủ
         printConsoleNotification("YÊU CẦU ĐẶT LẠI MẬT KHẨU", cleanEmail, recipientName, resetLink, otpCode);
 
-        // Chạy gửi email thật ở luồng nền
         executor.submit(() -> {
             String subject = "Yêu cầu đặt lại mật khẩu tài khoản - Độ-PC 67";
             String content = buildResetPasswordEmailHtml(recipientName, resetLink, otpCode);
@@ -78,19 +59,14 @@ public class EmailService {
         });
     }
 
-    /**
-     * Gửi mã OTP xác thực khi đổi mật khẩu từ trang cá nhân
-     */
     public static void sendOtpChangePasswordEmail(String recipientEmail, String recipientName, String otpCode) {
         if (recipientEmail == null || recipientEmail.trim().isEmpty()) return;
         String cleanEmail = recipientEmail.trim().toLowerCase();
 
         if (otpCode != null) latestDevOtps.put(cleanEmail, otpCode);
 
-        // Ghi log ra Console máy chủ
         printConsoleNotification("MÃ OTP XÁC THỰC ĐỔI MẬT KHẨU", cleanEmail, recipientName, null, otpCode);
 
-        // Chạy gửi email thật ở luồng nền
         executor.submit(() -> {
             String subject = "Mã OTP xác thực đổi mật khẩu - Độ-PC 67";
             String content = buildOtpChangePasswordEmailHtml(recipientName, otpCode);
@@ -98,9 +74,6 @@ public class EmailService {
         });
     }
 
-    /**
-     * Thực hiện gửi Email thật qua Brevo SMTP Relay (SSL Cổng 465)
-     */
     public static boolean sendSmtpEmail(String toEmail, String toName, String subject, String htmlContent) {
         if (EmailConfig.SMTP_PASSWORD == null || EmailConfig.SMTP_PASSWORD.trim().isEmpty()) {
             System.err.println("[EmailService] Chưa cấu hình SMTP_PASSWORD!");
@@ -108,7 +81,7 @@ public class EmailService {
         }
 
         try (SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(EmailConfig.SMTP_HOST, EmailConfig.SMTP_PORT)) {
-            socket.setSoTimeout(15000); // 15s timeout
+            socket.setSoTimeout(15000);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
@@ -148,7 +121,11 @@ public class EmailService {
             sendSmtpLine(writer, Base64.getEncoder().encodeToString(cleanPw.getBytes(StandardCharsets.UTF_8)));
             code = readSmtpResponse(reader);
             if (code != 235) {
-                System.err.println("[Brevo SMTP Error] Xác thực Password thất bại, code: " + code);
+                if (code == 525) {
+                    System.err.println("[Brevo SMTP Error] IP chưa được cấp quyền (Unauthorized IP), code: 525. Cần thêm IP vào Brevo -> Authorized IPs!");
+                } else {
+                    System.err.println("[Brevo SMTP Error] Xác thực Password thất bại, code: " + code);
+                }
                 return false;
             }
 
@@ -247,8 +224,6 @@ public class EmailService {
         }
         System.out.println("================================================================================");
     }
-
-    // ======================== HTML TEMPLATES ========================
 
     private static String buildVerificationEmailHtml(String name, String verifyLink, String otpCode) {
         String displayName = (name != null && !name.trim().isEmpty()) ? name : "Quý khách";

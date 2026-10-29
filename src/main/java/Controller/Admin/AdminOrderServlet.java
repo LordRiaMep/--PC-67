@@ -1,13 +1,5 @@
 package Controller.Admin;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Quản trị danh sách đơn hàng Admin, chuyển trạng thái và hoàn kho khi hủy đơn.
- * ============================================================================
- */
-
 import dao.OrderDao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

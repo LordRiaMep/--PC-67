@@ -1,20 +1,8 @@
 package util;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Đọc và quản lý API Key, cấu hình model Google Gemini.
- * ============================================================================
- */
-
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Cấu hình cho Chatbot Tư Vấn PC Độ-PC 67
- * Hỗ trợ nạp Gemini API Key từ chatbot.properties hoặc biến môi trường GEMINI_API_KEY
- */
 public class ChatbotConfig {
 
     public static final String SHOP_NAME = "Độ-PC 67";
@@ -31,7 +19,7 @@ public class ChatbotConfig {
     }
 
     private static void loadConfig() {
-        // 1. Kiểm tra file cấu hình chatbot.properties trong classpath
+
         try (InputStream is = ChatbotConfig.class.getClassLoader().getResourceAsStream("chatbot.properties")) {
             if (is != null) {
                 Properties props = new Properties();
@@ -48,7 +36,6 @@ public class ChatbotConfig {
         } catch (Exception ignored) {
         }
 
-        // 2. Nếu chưa có, kiểm tra biến môi trường hoặc System Property
         if (geminiApiKey == null || geminiApiKey.isEmpty()) {
             String envKey = System.getenv("GEMINI_API_KEY");
             if (envKey != null && !envKey.trim().isEmpty()) {

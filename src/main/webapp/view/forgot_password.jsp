@@ -5,7 +5,7 @@
 <jsp:include page="header.jsp" />
 
 <style>
-  .auth-box-card {
+.auth-box-card {
     background: #ffffff;
     max-width: 460px;
     width: 100%;
@@ -125,17 +125,16 @@
           <span class="text-muted small">Vui lòng kiểm tra hộp thư trong vòng 30 phút để thiết lập mật khẩu mới.</span>
         </div>
 
-
       </c:if>
 
       <form action="${ctx}/forgot-password" method="POST">
 
         <div class="mb-3">
           <label>Địa chỉ Email tài khoản <span class="text-danger">*</span></label>
-          <input type="email" 
-                 name="email" 
-                 class="form-control custom-auth-input" 
-                 required 
+          <input type="email"
+                 name="email"
+                 class="form-control custom-auth-input"
+                 required
                  placeholder="Nhập email tài khoản của bạn..."
                  value="<c:out value='${enteredEmail != null ? enteredEmail : param.email}'/>">
         </div>

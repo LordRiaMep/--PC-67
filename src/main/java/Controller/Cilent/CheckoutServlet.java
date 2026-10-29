@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Màn hình thanh toán: Tính toán phí GHN, áp dụng mã voucher và chuẩn bị đặt hàng.
- * ============================================================================
- */
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -35,7 +27,6 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        // Kiểm tra tồn kho thời gian thực cho từng sản phẩm trong giỏ hàng
         dao.ProductDao productDao = new dao.ProductDao();
         java.util.Map<Integer, Integer> productQtyMap = new java.util.HashMap<>();
         for (model.CartItem item : cart.getItems()) {
@@ -64,7 +55,6 @@ public class CheckoutServlet extends HttpServlet {
             }
         }
 
-        // Lấy danh sách Voucher khả dụng cho trang thanh toán
         dao.VoucherDao voucherDao = new dao.VoucherDao();
         request.setAttribute("voucherList", voucherDao.getAvailableVouchersForDisplay());
 

@@ -21,7 +21,7 @@ public class ProductUpgradeFlowTest {
 
         int testProductId = -1;
         try {
-            // 1. Tạo sản phẩm mới
+
             System.out.println("[TEST 1] Tạo sản phẩm mới trong cơ sở dữ liệu...");
             Product p = new Product(0, 1, "PC Test Nâng Cấp & Màu Sắc " + System.currentTimeMillis(),
                     "Mô tả sản phẩm test", 20000000.0, "/assets/images/logo.png", 10, "ACTIVE", "PC Gaming");
@@ -33,14 +33,13 @@ public class ProductUpgradeFlowTest {
             }
             System.out.println(" -> Đã tạo sản phẩm test ID: " + testProductId);
 
-            // 2. Thiết lập tùy chọn Nâng cấp linh kiện & Đổi màu sắc cho sản phẩm này
             System.out.println("\n[TEST 2] Thiết lập các tùy chọn (Màu sắc & RAM) cho sản phẩm mới...");
             List<UpgradeOption> options = new ArrayList<>();
-            // Nhóm 1: Màu sắc
+
             options.add(new UpgradeOption(testProductId, "Màu sắc", "Màu Đen (Black)", 0.0, true));
             options.add(new UpgradeOption(testProductId, "Màu sắc", "Màu Trắng (White)", 0.0, false));
             options.add(new UpgradeOption(testProductId, "Màu sắc", "Màu Hồng (Pink)", 150000.0, false));
-            // Nhóm 2: RAM
+
             options.add(new UpgradeOption(testProductId, "RAM", "16GB DDR5 5600MHz", 0.0, true));
             options.add(new UpgradeOption(testProductId, "RAM", "32GB (2x16GB) DDR5 5600MHz", 1200000.0, false));
 
@@ -50,7 +49,6 @@ public class ProductUpgradeFlowTest {
             }
             System.out.println(" -> Đã lưu thành công " + options.size() + " tùy chọn cho sản phẩm ID " + testProductId);
 
-            // 3. Kiểm tra đọc lại dữ liệu theo nhóm (getGroupsByProduct)
             System.out.println("\n[TEST 3] Kiểm tra gom nhóm (getGroupsByProduct)...");
             Map<String, List<UpgradeOption>> groups = upgradeDao.getGroupsByProduct(testProductId);
             if (groups.size() != 2) {
@@ -67,7 +65,6 @@ public class ProductUpgradeFlowTest {
                 }
             }
 
-            // 4. Kiểm tra đếm số lượng tùy chọn (getOptionCountByProductIds)
             System.out.println("\n[TEST 4] Kiểm tra đếm số lượng tùy chọn (getOptionCountByProductIds)...");
             Map<Integer, Integer> countMap = upgradeDao.getOptionCountByProductIds(Collections.singletonList(testProductId));
             int cnt = countMap.getOrDefault(testProductId, 0);
@@ -76,7 +73,6 @@ public class ProductUpgradeFlowTest {
             }
             System.out.println(" -> Đếm chính xác: " + cnt + " tùy chọn cho sản phẩm ID " + testProductId);
 
-            // 5. Mô phỏng khách hàng chọn Màu Trắng (+0đ) và RAM 32GB (+1.200.000đ)
             System.out.println("\n[TEST 5] Mô phỏng logic tính tiền & hiển thị khi khách chọn Màu Trắng & RAM 32GB...");
             UpgradeOption chosenColor = null;
             UpgradeOption chosenRam = null;
@@ -101,7 +97,6 @@ public class ProductUpgradeFlowTest {
                 throw new RuntimeException("LỖI: Sai lệch tiền!");
             }
 
-            // 6. Cập nhật tùy chọn (sửa đổi hoặc thêm nhóm mới)
             System.out.println("\n[TEST 6] Cập nhật tùy chọn: Thêm nhóm 'Ổ cứng SSD'...");
             options.add(new UpgradeOption(testProductId, "Ổ cứng SSD", "SSD 1TB NVMe Gen 4", 800000.0, false));
             boolean updateOk = upgradeDao.saveProductOptions(testProductId, options);
@@ -114,7 +109,6 @@ public class ProductUpgradeFlowTest {
                 throw new RuntimeException("LỖI: Số lượng tùy chọn không đúng sau cập nhật!");
             }
 
-            // 7. Xóa sản phẩm và dọn dẹp sạch sẽ
             System.out.println("\n[TEST 7] Xóa sản phẩm và kiểm tra ràng buộc khóa ngoại...");
             boolean delOk = productDao.delete(testProductId);
             if (!delOk) {
@@ -122,7 +116,6 @@ public class ProductUpgradeFlowTest {
             }
             System.out.println(" -> Xóa sản phẩm thành công!");
 
-            // Kiểm tra xem nang_cap đã được dọn sạch chưa
             List<UpgradeOption> remainOptions = upgradeDao.getOptionsByProductId(testProductId);
             if (!remainOptions.isEmpty()) {
                 throw new RuntimeException("LỖI: Vẫn còn tùy chọn rác trong nang_cap!");
@@ -136,7 +129,7 @@ public class ProductUpgradeFlowTest {
         } catch (Exception e) {
             System.err.println("\n>>> TEST THẤT BẠI: " + e.getMessage());
             e.printStackTrace();
-            // Cố gắng dọn dẹp nếu có lỗi
+
             if (testProductId > 0) {
                 try { productDao.delete(testProductId); } catch (Exception ignored) {}
             }

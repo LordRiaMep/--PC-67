@@ -1,13 +1,5 @@
 package dao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Thao tác CSDL: Đăng ký, đăng nhập, khóa/mở tài khoản, cập nhật mật khẩu.
- * ============================================================================
- */
-
 import model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,9 +25,6 @@ public class UserDao {
         return u;
     }
 
-    /**
-     * Xác thực người dùng bằng email và mật khẩu (trả về User kể cả ACTIVE hay LOCKED)
-     */
     public User authenticate(String email, String password) {
         String sql = "SELECT * FROM users WHERE email=? AND password_hash=?";
         try (Connection conn = ConnectDB.getConnect();
@@ -118,9 +107,6 @@ public class UserDao {
         return searchUsers(null, null, null);
     }
 
-    /**
-     * Tìm kiếm và lọc danh sách tài khoản
-     */
     public List<User> searchUsers(String keyword, String status, String role) {
         List<User> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM users WHERE 1=1 ");
@@ -159,9 +145,6 @@ public class UserDao {
         return list;
     }
 
-    /**
-     * Đếm số lượng tài khoản theo trạng thái (Tổng, Đang hoạt động, Đã khóa, Admin)
-     */
     public java.util.Map<String, Integer> getUserCounts() {
         java.util.Map<String, Integer> counts = new java.util.HashMap<>();
         counts.put("total", 0);
@@ -191,8 +174,6 @@ public class UserDao {
         } catch (Exception e) { e.printStackTrace(); }
         return counts;
     }
-
-    // ===================== DÙNG CHO TRANG CÁ NHÂN & CHI TIẾT =====================
 
     public User getById(int id) {
         String sql = "SELECT * FROM users WHERE id=?";
@@ -252,9 +233,6 @@ public class UserDao {
         return false;
     }
 
-    /**
-     * Khóa tài khoản khách hàng kèm lý do và ghi nhận người khóa
-     */
     public boolean lockUser(int userId, String reason, String lockedBy) {
         String sqlCheck = "SELECT role FROM users WHERE id = ?";
         String sqlUpdate = "UPDATE users SET status = 'LOCKED', lock_reason = ?, locked_at = GETDATE(), locked_by = ? WHERE id = ?";
@@ -262,7 +240,6 @@ public class UserDao {
         try (Connection conn = ConnectDB.getConnect()) {
             if (conn == null) return false;
 
-            // Kiểm tra không được khóa tài khoản ADMIN
             try (PreparedStatement psCheck = conn.prepareStatement(sqlCheck)) {
                 psCheck.setInt(1, userId);
                 try (ResultSet rs = psCheck.executeQuery()) {
@@ -289,9 +266,6 @@ public class UserDao {
         }
     }
 
-    /**
-     * Mở khóa tài khoản khách hàng
-     */
     public boolean unlockUser(int userId) {
         String sqlUpdate = "UPDATE users SET status = 'ACTIVE', lock_reason = NULL, locked_at = NULL, locked_by = NULL WHERE id = ?";
         try (Connection conn = ConnectDB.getConnect();
@@ -304,9 +278,6 @@ public class UserDao {
         }
     }
 
-    /**
-     * Chuyển đổi trạng thái (Tương thích ngược)
-     */
     public boolean toggleUserStatus(int userId) {
         User u = getById(userId);
         if (u == null || u.isAdmin()) return false;

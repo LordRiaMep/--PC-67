@@ -1,13 +1,5 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Model biểu diễn tài khoản người dùng.
- * ============================================================================
- */
-
 import java.sql.Timestamp;
 
 public class User {

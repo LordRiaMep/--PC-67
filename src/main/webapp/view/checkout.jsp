@@ -5,128 +5,145 @@
 
 <jsp:include page="header.jsp" />
 
-<!-- Giao diện thanh toán -->
-<div class="container my-5 bg-white p-4 rounded shadow-sm">
-  <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
-    <h2 class="fw-bold text-dark m-0">Thanh toán</h2>
-    <span class="badge bg-light text-dark border d-flex align-items-center gap-2 px-3 py-2">
-      <i class="fas fa-truck-fast text-danger"></i>
-      <span>Giao hàng toàn quốc qua <strong>Giao Hàng Nhanh (GHN)</strong></span>
-    </span>
+<div class="container my-5">
+  <!-- Breadcrumb & Step Progress -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0" style="font-size: 13.5px;">
+        <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/Home" class="text-decoration-none text-muted">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/cart" class="text-decoration-none text-muted">Giỏ hàng</a></li>
+        <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">Thanh toán</li>
+      </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-2 small">
+      <span class="badge rounded-pill bg-light text-muted border px-3 py-2">1. Giỏ hàng</span>
+      <i class="bi bi-chevron-right text-muted"></i>
+      <span class="badge rounded-pill bg-danger text-white px-3 py-2 fw-semibold">2. Thanh toán</span>
+      <i class="bi bi-chevron-right text-muted"></i>
+      <span class="badge rounded-pill bg-light text-muted border px-3 py-2">3. Hoàn tất</span>
+    </div>
   </div>
 
-  <div class="row g-4">
-    <div class="col-md-7">
-      <form id="checkoutForm" action="place-order" method="post">
-        <!-- Thông tin người nhận -->
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <label class="form-label fw-semibold text-dark">Họ và tên người nhận <span class="text-danger">*</span></label>
-            <input type="text" name="name" value="${sessionScope.USER_LOGIN.fullName}" class="form-control" required placeholder="Nhập tên người nhận">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-semibold text-dark">Số điện thoại <span class="text-danger">*</span></label>
-            <input type="tel" name="phone" value="${sessionScope.USER_LOGIN.phone}" class="form-control" required placeholder="Nhập số điện thoại">
-          </div>
-        </div>
-
-        <!-- Địa chỉ giao hàng chọn qua GHN -->
-        <div class="card border-0 bg-light p-3 mb-3 rounded-3">
-          <div class="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-            <i class="fas fa-location-dot text-danger"></i> Địa chỉ nhận hàng (Tính cước tự động qua GHN)
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label small fw-semibold text-secondary">Tỉnh / Thành phố <span class="text-danger">*</span></label>
-            <select id="provinceSelect" class="form-select" required>
-              <option value="">-- Đang tải danh sách Tỉnh / Thành phố --</option>
-            </select>
-          </div>
-
-          <div class="row g-2 mb-3">
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-secondary">Quận / Huyện <span class="text-danger">*</span></label>
-              <select id="districtSelect" class="form-select" disabled required>
-                <option value="">-- Chọn Quận / Huyện --</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-secondary">Phường / Xã <span class="text-danger">*</span></label>
-              <select id="wardSelect" class="form-select" disabled required>
-                <option value="">-- Chọn Phường / Xã --</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="form-label small fw-semibold text-secondary">Số nhà, tên đường cụ thể <span class="text-danger">*</span></label>
-            <input type="text" name="detailAddress" id="detailAddress" class="form-control"
-                   placeholder="Ví dụ: Số 25 ngõ 102, đường Hoàng Hoa Thám" required>
-          </div>
-        </div>
-
-        <!-- Hidden input gửi sang server -->
-        <input type="hidden" name="provinceId" id="provinceId">
-        <input type="hidden" name="provinceName" id="provinceName">
-        <input type="hidden" name="districtId" id="districtId">
-        <input type="hidden" name="districtName" id="districtName">
-        <input type="hidden" name="wardCode" id="wardCode">
-        <input type="hidden" name="wardName" id="wardName">
-        <input type="hidden" name="shippingFee" id="shippingFeeInput" value="0">
-        <input type="hidden" name="address" id="fullAddressInput" value="">
-        <input type="hidden" name="voucherCode" id="checkoutFormVoucherCode" value="${appliedVoucher != null ? appliedVoucher.code : ''}">
-
-        <div class="mb-4">
-          <label class="form-label fw-semibold text-dark">Ghi chú đơn hàng</label>
-          <textarea name="note" class="form-control" rows="2" placeholder="Ghi chú thêm cho shipper hoặc thời gian nhận hàng..."></textarea>
-        </div>
-
-        <!-- Phương thức thanh toán -->
-        <div class="mb-4">
-          <label class="form-label fw-semibold text-dark">Phương thức thanh toán <span class="text-danger">*</span></label>
-
-          <div class="form-check border rounded p-3 mb-2 bg-white">
-            <input class="form-check-input ms-0 me-2" type="radio" name="paymentMethod" id="pmCOD" value="COD" checked>
-            <label class="form-check-label fw-semibold text-dark" for="pmCOD">
-              <i class="fas fa-truck text-secondary me-1"></i> Thanh toán khi nhận hàng (COD)
-            </label>
-          </div>
-
-          <div class="form-check border rounded p-3 bg-white">
-            <input class="form-check-input ms-0 me-2" type="radio" name="paymentMethod" id="pmQR" value="QR">
-            <label class="form-check-label fw-semibold text-dark" for="pmQR">
-              <i class="fas fa-qrcode text-primary me-1"></i> Thanh toán trực tuyến qua VNPay (QR / thẻ / ngân hàng)
-            </label>
-          </div>
-
-          <!-- Thông báo khi chọn thanh toán online -->
-          <div id="qrBox" class="border rounded p-3 mt-3 text-center bg-light" style="display:none;">
-            <p class="mb-2 text-dark fw-semibold">
-              <i class="fas fa-shield-alt text-success me-1"></i> Thanh toán an toàn qua cổng VNPay
-            </p>
-            <p class="mb-2 text-dark small">
-              Sau khi bấm <strong>Thanh toán qua VNPay</strong>, bạn sẽ được chuyển sang trang VNPay
-              để quét mã QR hoặc thanh toán bằng ngân hàng.
-            </p>
-            <p class="mb-0 text-dark">
-              Số tiền: <strong class="text-danger fs-5" id="qrAmountText"><fmt:formatNumber value="${sessionScope.cart.totalMoney}" pattern="#,##0"/> đ</strong>
-            </p>
-          </div>
-        </div>
-
-        <button type="submit" id="btnSubmit" class="btn btn-danger fw-bold px-4 py-2 w-100 fs-5 shadow-sm">
-          Xác nhận đặt hàng
-        </button>
-      </form>
+  <div class="bg-white p-4 p-lg-5 rounded-4 border shadow-sm">
+    <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3 flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="d-inline-block rounded-pill" style="width: 5px; height: 22px; background: var(--brand-gradient);"></span>
+        <h3 class="fw-bold text-dark m-0" style="font-size: 20px;">Thông tin giao hàng & Thanh toán</h3>
+      </div>
+      <span class="badge bg-light text-dark border d-flex align-items-center gap-2 px-3 py-2 rounded-pill">
+        <i class="fas fa-truck-fast text-danger"></i>
+        <span>Vận chuyển tự động qua <strong>Giao Hàng Nhanh (GHN)</strong></span>
+      </span>
     </div>
 
-    <!-- Cột phải: Chi tiết đơn hàng & tổng tiền -->
-    <div class="col-md-5">
-      <div class="border rounded p-3 bg-light">
-        <h5 class="fw-bold text-dark border-bottom pb-3 mb-3 d-flex justify-content-between align-items-center">
-          <span>Đơn hàng của bạn</span>
-          <span class="badge bg-secondary">${fn:length(sessionScope.cart.items)} món</span>
-        </h5>
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <form id="checkoutForm" action="place-order" method="post">
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold text-dark">Họ và tên người nhận <span class="text-danger">*</span></label>
+              <input type="text" name="name" value="${sessionScope.USER_LOGIN.fullName}" class="form-control" required placeholder="Nhập tên người nhận">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold text-dark">Số điện thoại <span class="text-danger">*</span></label>
+              <input type="tel" name="phone" value="${sessionScope.USER_LOGIN.phone}" class="form-control" required placeholder="Nhập số điện thoại">
+            </div>
+          </div>
+
+          <div class="card border bg-light p-3 mb-3 rounded-3">
+            <div class="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
+              <i class="fas fa-location-dot text-danger"></i> Địa chỉ nhận hàng (Tính cước tự động qua GHN)
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-secondary">Tỉnh / Thành phố <span class="text-danger">*</span></label>
+              <select id="provinceSelect" class="form-select" required>
+                <option value="">-- Đang tải danh sách Tỉnh / Thành phố --</option>
+              </select>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-secondary">Quận / Huyện <span class="text-danger">*</span></label>
+                <select id="districtSelect" class="form-select" disabled required>
+                  <option value="">-- Chọn Quận / Huyện --</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-secondary">Phường / Xã <span class="text-danger">*</span></label>
+                <select id="wardSelect" class="form-select" disabled required>
+                  <option value="">-- Chọn Phường / Xã --</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label small fw-semibold text-secondary">Số nhà, tên đường cụ thể <span class="text-danger">*</span></label>
+              <input type="text" name="detailAddress" id="detailAddress" class="form-control"
+                     placeholder="Ví dụ: Số 25 ngõ 102, đường Hoàng Hoa Thám" required>
+            </div>
+          </div>
+
+          <input type="hidden" name="provinceId" id="provinceId">
+          <input type="hidden" name="provinceName" id="provinceName">
+          <input type="hidden" name="districtId" id="districtId">
+          <input type="hidden" name="districtName" id="districtName">
+          <input type="hidden" name="wardCode" id="wardCode">
+          <input type="hidden" name="wardName" id="wardName">
+          <input type="hidden" name="shippingFee" id="shippingFeeInput" value="0">
+          <input type="hidden" name="address" id="fullAddressInput" value="">
+          <input type="hidden" name="voucherCode" id="checkoutFormVoucherCode" value="${appliedVoucher != null ? appliedVoucher.code : ''}">
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-dark">Ghi chú đơn hàng</label>
+            <textarea name="note" class="form-control" rows="2" placeholder="Ghi chú thêm cho shipper hoặc yêu cầu đặc biệt..."></textarea>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-dark mb-2">Phương thức thanh toán <span class="text-danger">*</span></label>
+
+            <div class="payment-method-card mb-2">
+              <input class="form-check-input ms-0 me-3" type="radio" name="paymentMethod" id="pmCOD" value="COD" checked>
+              <label class="form-check-label fw-bold text-dark w-100" for="pmCOD" style="cursor: pointer;">
+                <i class="fas fa-truck text-secondary me-2"></i> Thanh toán khi nhận hàng (COD)
+                <span class="d-block small text-muted fw-normal mt-1">Nhận hàng, kiểm tra cấu hình máy rồi mới thanh toán tiền mặt cho bưu tá.</span>
+              </label>
+            </div>
+
+            <div class="payment-method-card">
+              <input class="form-check-input ms-0 me-3" type="radio" name="paymentMethod" id="pmQR" value="QR">
+              <label class="form-check-label fw-bold text-dark w-100" for="pmQR" style="cursor: pointer;">
+                <i class="fas fa-qrcode text-danger me-2"></i> Thanh toán trực tuyến qua VNPay (QR / Thẻ ATM / Visa)
+                <span class="d-block small text-muted fw-normal mt-1">Quét mã QR VNPay hoặc thanh toán qua App ngân hàng an toàn 100%.</span>
+              </label>
+            </div>
+
+            <div id="qrBox" class="border rounded-3 p-3 mt-3 text-center bg-light" style="display:none;">
+              <p class="mb-2 text-dark fw-semibold">
+                <i class="fas fa-shield-alt text-success me-1"></i> Thanh toán an toàn qua cổng VNPay
+              </p>
+              <p class="mb-2 text-dark small">
+                Sau khi bấm <strong>Xác nhận đặt hàng</strong>, hệ thống sẽ chuyển hướng bạn đến cổng VNPay để quét mã QR hoặc chọn ngân hàng thanh toán.
+              </p>
+              <p class="mb-0 text-dark">
+                Số tiền giao dịch: <strong class="text-danger fs-5" id="qrAmountText"><fmt:formatNumber value="${sessionScope.cart.totalMoney}" pattern="#,##0"/> đ</strong>
+              </p>
+            </div>
+          </div>
+
+          <button type="submit" id="btnSubmit" class="btn btn-danger fw-bold px-4 py-3 w-100 fs-5 shadow" style="border-radius: var(--radius-md);">
+            Xác Nhận Đặt Hàng <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </form>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="summary-card sticky-top" style="top: 20px;">
+          <h5 class="fw-bold text-dark border-bottom pb-3 mb-3 d-flex justify-content-between align-items-center">
+            <span>Đơn hàng của bạn</span>
+            <span class="badge bg-secondary rounded-pill px-3 py-1">${fn:length(sessionScope.cart.items)} sản phẩm</span>
+          </h5>
 
         <div style="max-height: 320px; overflow-y: auto;" class="pe-1">
           <c:forEach items="${sessionScope.cart.items}" var="item">
@@ -149,7 +166,6 @@
           </c:forEach>
         </div>
 
-        <!-- Khung chọn Voucher trên trang thanh toán -->
         <div class="border rounded p-3 my-3 bg-white shadow-sm">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold text-dark"><i class="fas fa-ticket text-danger me-1"></i> Mã giảm giá Voucher</span>
@@ -191,7 +207,6 @@
           </c:if>
         </div>
 
-        <!-- Bảng tính tiền chi tiết -->
         <div class="pt-2">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="text-secondary">Tiền hàng:</span>
@@ -225,13 +240,13 @@
     </div>
   </div>
 </div>
+</div>
 
 <script>
-  const ctx = '${pageContext.request.contextPath}';
+const ctx = '${pageContext.request.contextPath}';
   const cartTotal = ${sessionScope.cart.totalMoney};
   let currentShippingFee = 0;
 
-  // Toggle phương thức thanh toán
   document.querySelectorAll('input[name="paymentMethod"]').forEach(function (r) {
     r.addEventListener('change', function () {
       const isQR = document.getElementById('pmQR').checked;
@@ -240,7 +255,6 @@
     });
   });
 
-  // Tải danh sách Tỉnh/Thành phố và tính toán Voucher khi vào trang
   document.addEventListener('DOMContentLoaded', function () {
     loadProvinces();
     recalculateTotal();
@@ -252,7 +266,7 @@
       .then(res => res.json())
       .then(json => {
         if (json.data && json.data.length > 0) {
-          // Sắp xếp tỉnh thành theo bảng chữ cái tiếng Việt
+
           const provinces = json.data.sort((a, b) => a.ProvinceName.localeCompare(b.ProvinceName, 'vi'));
           let html = '<option value="">-- Chọn Tỉnh / Thành phố --</option>';
           provinces.forEach(p => {
@@ -269,7 +283,6 @@
       });
   }
 
-  // Khi chọn Tỉnh / Thành phố -> tải Quận / Huyện
   document.getElementById('provinceSelect').addEventListener('change', function () {
     const provId = this.value;
     const provOption = this.options[this.selectedIndex];
@@ -311,7 +324,6 @@
       });
   });
 
-  // Khi chọn Quận / Huyện -> tải Phường / Xã
   document.getElementById('districtSelect').addEventListener('change', function () {
     const distId = this.value;
     const distOption = this.options[this.selectedIndex];
@@ -350,7 +362,6 @@
       });
   });
 
-  // Khi chọn Phường / Xã -> Tính phí vận chuyển qua GHN
   document.getElementById('wardSelect').addEventListener('change', function () {
     const wardCode = this.value;
     const wardOption = this.options[this.selectedIndex];
@@ -473,7 +484,6 @@
     el.style.display = 'block';
   }
 
-  // Sự kiện chọn voucher trong danh sách
   document.querySelectorAll('.btn-pick-checkout-voucher').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -497,7 +507,6 @@
     });
   });
 
-  // Sự kiện nhập voucher thủ công
   document.getElementById('btnApplyCheckoutVoucher').addEventListener('click', function() {
     const code = document.getElementById('checkoutVoucherInput').value.trim().toUpperCase();
     if (!code) {
@@ -542,7 +551,6 @@
     recalculateTotal();
   }
 
-  // Submit form kiểm tra hợp lệ
   document.getElementById('checkoutForm').addEventListener('submit', function (e) {
     const provName = document.getElementById('provinceName').value;
     const distName = document.getElementById('districtName').value;
@@ -555,7 +563,6 @@
       return false;
     }
 
-    // Ghép đầy đủ địa chỉ
     document.getElementById('fullAddressInput').value = detail.trim() + ', ' + wardName + ', ' + distName + ', ' + provName;
   });
 

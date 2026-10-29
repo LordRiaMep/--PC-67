@@ -1,13 +1,5 @@
 package util.realtime;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: Model sự kiện thời gian thực (Real-time Event Payload) truyền tải qua WebSocket.
- * ============================================================================
- */
-
 import com.google.gson.Gson;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -20,13 +12,13 @@ public class RealtimeEvent implements Serializable {
     private static final Gson GSON = new Gson();
 
     private long id;
-    private String type;         // ORDER_CREATED, ORDER_CANCELLED, ORDER_STATUS_CHANGED, CONTACT_CREATED, etc.
-    private String target;       // "ALL", "ADMIN", "CLIENT"
-    private int targetUserId;    // 0 = all users, >0 = specific customer
+    private String type;
+    private String target;
+    private int targetUserId;
     private String title;
     private String message;
     private String linkUrl;
-    private String soundType;    // "order_new", "cancel", "warning", "info"
+    private String soundType;
     private long timestamp;
     private Map<String, Object> data = new HashMap<>();
 
@@ -69,7 +61,6 @@ public class RealtimeEvent implements Serializable {
         return GSON.toJson(this);
     }
 
-    // Getters & Setters
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
 

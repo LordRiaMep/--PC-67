@@ -1,13 +1,5 @@
 package dao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Thao tác CSDL: Tạo đơn hàng, chi tiết đơn, chuyển trạng thái và hoàn tồn kho.
- * ============================================================================
- */
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +10,8 @@ import model.OrderDetail;
 
 public class OrderDao {
 
-    // Đọc thông tin khách đã chuyển khoản VNPay và Voucher vào Order
     private void readTransfer(ResultSet rs, Order order) throws SQLException {
-        order.setTransferAmount(rs.getDouble("transfer_amount"));   // NULL -> 0
+        order.setTransferAmount(rs.getDouble("transfer_amount"));
         order.setVnpayTxnNo(rs.getString("vnpay_txn_no"));
         order.setTransferredAt(rs.getTimestamp("transferred_at"));
         try {
@@ -79,7 +70,6 @@ public class OrderDao {
                     }
                 }
 
-                // Cập nhật lượt dùng voucher nếu có trong cùng transaction
                 if (voucherCode != null && !voucherCode.trim().isEmpty() && discountAmount > 0) {
                     new VoucherDao().incrementUsedCount(voucherCode, conn);
                 }
@@ -174,6 +164,52 @@ public class OrderDao {
                 order.setCreatedAt(rs.getTimestamp("created_at"));
                 readTransfer(rs, order);
                 list.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int getTotalOrdersCountByUserId(int userId) {
+        String sql = "SELECT COUNT(*) FROM hoa_don WHERE user_id = ?";
+        try (Connection conn = ConnectDB.getConnect();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Order> getOrdersByUserIdAndPage(int userId, int offset, int limit) {
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT * FROM hoa_don WHERE user_id = ? ORDER BY id DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (Connection conn = ConnectDB.getConnect();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, offset);
+            ps.setInt(3, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Order order = new Order();
+                    order.setId(rs.getInt("id"));
+                    order.setReceiverName(rs.getString("receiver_name"));
+                    order.setTotalMoney(rs.getDouble("total_amount"));
+                    order.setShippingFee(rs.getDouble("shipping_fee"));
+                    order.setStatus(rs.getString("order_status"));
+                    order.setPaymentMethod(rs.getString("payment_method"));
+                    order.setPaymentStatus(rs.getString("payment_status"));
+                    order.setCreatedAt(rs.getTimestamp("created_at"));
+                    readTransfer(rs, order);
+                    list.add(order);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -298,22 +334,20 @@ public class OrderDao {
         boolean isPaidCancelled = ("CANCELLED".equals(currentStatus) || "CLIENT_CANCELLED".equals(currentStatus))
                 && ("PAID".equals(currentOrder.getPaymentStatus()) || currentOrder.getTransferAmount() > 0);
 
-        // 1. Kiểm tra Terminal states (Khóa vĩnh viễn):
-        if ("RETURNED".equals(currentStatus) 
-                || "EXCHANGED".equals(currentStatus) 
+        if ("RETURNED".equals(currentStatus)
+                || "EXCHANGED".equals(currentStatus)
                 || "REFUNDED".equals(currentStatus)) {
             return StatusUpdateResult.error("Đơn hàng #" + orderId + " đang ở trạng thái kết thúc [" + currentOrder.getStatusDisplayName() + "] nên đã bị khóa cố định, không thể thay đổi!");
         }
 
         if (("CANCELLED".equals(currentStatus) || "CLIENT_CANCELLED".equals(currentStatus))) {
             if (isPaidCancelled && "REFUNDED".equals(newStatus)) {
-                // Cho phép hoàn tiền cho đơn đã hủy nhưng khách đã trả tiền QR
+
             } else {
                 return StatusUpdateResult.error("Đơn hàng #" + orderId + " đang ở trạng thái kết thúc [" + currentOrder.getStatusDisplayName() + "] nên đã bị khóa cố định, không thể thay đổi!");
             }
         }
 
-        // 2. Kiểm tra quy tắc chuyển trạng thái hợp lệ
         boolean isValid = false;
         String allowedTransitionsHint = "";
         if (isPaidCancelled && "REFUNDED".equals(newStatus)) {
@@ -321,35 +355,35 @@ public class OrderDao {
         } else {
         switch (currentStatus) {
             case "PENDING":
-                isValid = "CONFIRMED".equals(newStatus) 
-                       || "CANCELLED".equals(newStatus) 
+                isValid = "CONFIRMED".equals(newStatus)
+                       || "CANCELLED".equals(newStatus)
                        || "CLIENT_CANCELLED".equals(newStatus);
                 allowedTransitionsHint = "Từ 'Chờ xử lý', chỉ có thể chuyển sang 'Xác nhận đơn' hoặc 'Hủy đơn hàng (Hoàn kho)'.";
                 break;
             case "CONFIRMED":
-                isValid = "PREPARING".equals(newStatus) 
+                isValid = "PREPARING".equals(newStatus)
                        || "CANCELLED".equals(newStatus);
                 allowedTransitionsHint = "Từ 'Đã xác nhận', chỉ có thể chuyển sang 'Đang chuẩn bị hàng' hoặc 'Hủy đơn hàng (Hoàn kho)'.";
                 break;
             case "PREPARING":
-                isValid = "READY_TO_PICK".equals(newStatus) 
+                isValid = "READY_TO_PICK".equals(newStatus)
                        || "CANCELLED".equals(newStatus);
                 allowedTransitionsHint = "Từ 'Đang chuẩn bị hàng', chỉ có thể chuyển sang 'Chờ lấy hàng' hoặc 'Hủy đơn hàng (Hoàn kho)'.";
                 break;
             case "READY_TO_PICK":
-                isValid = "SHIPPING".equals(newStatus) 
+                isValid = "SHIPPING".equals(newStatus)
                        || "CANCELLED".equals(newStatus);
                 allowedTransitionsHint = "Từ 'Chờ lấy hàng', chỉ có thể chuyển sang 'Đang giao hàng' hoặc 'Hủy đơn hàng (Hoàn kho)'.";
                 break;
             case "SHIPPING":
-                isValid = "FINISH".equals(newStatus) 
-                       || "COMPLETED".equals(newStatus) 
-                       || "DELIVERY_FAILED".equals(newStatus) 
+                isValid = "FINISH".equals(newStatus)
+                       || "COMPLETED".equals(newStatus)
+                       || "DELIVERY_FAILED".equals(newStatus)
                        || "RETURNING".equals(newStatus);
                 allowedTransitionsHint = "Từ 'Đang giao hàng', chỉ có thể chuyển sang 'Giao thành công', 'Giao hàng thất bại', hoặc 'Đang hoàn hàng'.";
                 break;
             case "DELIVERY_FAILED":
-                isValid = "SHIPPING".equals(newStatus) 
+                isValid = "SHIPPING".equals(newStatus)
                        || "RETURNING".equals(newStatus);
                 allowedTransitionsHint = "Khi 'Giao hàng thất bại', chỉ có thể chọn 'Giao lại' hoặc 'Đang hoàn hàng'.";
                 break;
@@ -363,12 +397,12 @@ public class OrderDao {
                 allowedTransitionsHint = "Đơn hàng đã hoàn thành, chỉ có thể mở 'Yêu cầu đổi trả' nếu khách khiếu nại.";
                 break;
             case "RETURN_REQUESTED":
-                isValid = "RETURN_PROCESSING".equals(newStatus) 
+                isValid = "RETURN_PROCESSING".equals(newStatus)
                        || "FINISH".equals(newStatus);
                 allowedTransitionsHint = "Yêu cầu đổi trả chỉ có thể chuyển sang 'Đang xử lý đổi trả' hoặc 'Từ chối (Khôi phục Hoàn thành)'.";
                 break;
             case "RETURN_PROCESSING":
-                isValid = "EXCHANGED".equals(newStatus) 
+                isValid = "EXCHANGED".equals(newStatus)
                        || "REFUNDED".equals(newStatus);
                 allowedTransitionsHint = "Đang xử lý đổi trả chỉ có thể chuyển sang 'Đã đổi hàng' hoặc 'Đã hoàn tiền'.";
                 break;
@@ -382,22 +416,20 @@ public class OrderDao {
             return StatusUpdateResult.error("Không thể chuyển từ trạng thái [" + currentOrder.getStatusDisplayName() + "] sang trạng thái mới này! " + allowedTransitionsHint);
         }
 
-        // 3. Đơn QR chưa thanh toán: không được xác nhận / chuẩn bị / giao / hoàn thành
         if ("QR".equals(currentOrder.getPaymentMethod()) && !"PAID".equals(currentOrder.getPaymentStatus())) {
-            if ("CONFIRMED".equals(newStatus) 
-                    || "PREPARING".equals(newStatus) 
-                    || "READY_TO_PICK".equals(newStatus) 
-                    || "SHIPPING".equals(newStatus) 
-                    || "FINISH".equals(newStatus) 
+            if ("CONFIRMED".equals(newStatus)
+                    || "PREPARING".equals(newStatus)
+                    || "READY_TO_PICK".equals(newStatus)
+                    || "SHIPPING".equals(newStatus)
+                    || "FINISH".equals(newStatus)
                     || "COMPLETED".equals(newStatus)) {
                 return StatusUpdateResult.error("Đơn hàng #" + orderId + " thanh toán bằng mã QR nhưng CHƯA ĐƯỢC XÁC NHẬN TIỀN VỀ (Chưa thanh toán)! Vui lòng kiểm tra tài khoản và bấm nút 'Xác nhận đã thanh toán' trước khi chuyển bước.");
             }
         }
 
-        // 4. Các trạng thái cần hoàn lại tồn kho (chỉ hoàn 1 lần duy nhất)
-        boolean needsRestoreStock = "CANCELLED".equals(newStatus) 
-                || "CLIENT_CANCELLED".equals(newStatus) 
-                || "RETURNED".equals(newStatus) 
+        boolean needsRestoreStock = "CANCELLED".equals(newStatus)
+                || "CLIENT_CANCELLED".equals(newStatus)
+                || "RETURNED".equals(newStatus)
                 || "REFUNDED".equals(newStatus);
 
         String sqlUpdate = "UPDATE hoa_don SET order_status = ? WHERE id = ?";
@@ -442,8 +474,8 @@ public class OrderDao {
                         if (!itemsToRestore.isEmpty()) {
                             try (PreparedStatement psStock = conn.prepareStatement(sqlRestoreStock)) {
                                 for (int[] item : itemsToRestore) {
-                                    psStock.setInt(1, item[1]); // quantity
-                                    psStock.setInt(2, item[0]); // product_id
+                                    psStock.setInt(1, item[1]);
+                                    psStock.setInt(2, item[0]);
                                     psStock.addBatch();
                                 }
                                 psStock.executeBatch();
@@ -477,7 +509,7 @@ public class OrderDao {
     public boolean clientCancelOrder(int orderId, int userId) {
         Order order = getOrderById(orderId);
         if (order == null || order.getUserId() != userId) return false;
-        if (!"PENDING".equals(order.getStatus())) return false; // Chỉ cho phép hủy khi đang PENDING
+        if (!"PENDING".equals(order.getStatus())) return false;
         return updateStatus(orderId, "CLIENT_CANCELLED");
     }
 
@@ -488,7 +520,6 @@ public class OrderDao {
         return updateStatus(orderId, "RETURN_REQUESTED");
     }
 
-    // Admin xác nhận đã nhận đủ tiền chuyển khoản QR
     public void markPaid(int orderId) {
         String sql = "UPDATE hoa_don SET payment_status = 'PAID' WHERE id = ? AND payment_method = 'QR'";
         try (Connection conn = ConnectDB.getConnect();
@@ -568,7 +599,6 @@ public class OrderDao {
         return list;
     }
 
-    // Thống kê đơn hàng của 1 khách: tổng số đơn, số đơn đang chờ, tổng tiền đã chi (chỉ tính đơn hoàn thành)
     public java.util.Map<String, Number> getUserOrderStats(int userId) {
         java.util.Map<String, Number> stats = new java.util.LinkedHashMap<>();
         stats.put("total", 0);

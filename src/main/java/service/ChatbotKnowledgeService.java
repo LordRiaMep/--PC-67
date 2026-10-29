@@ -1,13 +1,5 @@
 package service;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Trích xuất tri thức sản phẩm từ DB hỗ trợ Chatbot trả lời chính xác cấu hình máy.
- * ============================================================================
- */
-
 import dao.ProductDao;
 import model.Product;
 import util.ChatbotConfig;
@@ -17,13 +9,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Bộ não tri thức AI & Tư vấn bán hàng thông minh (Mini-Gemini Brain & Smart PC Engine)
- * - Xử lý ngôn ngữ tự nhiên tiếng Việt, tách bỏ từ đệm, nhận diện thực thể (Brand: AMD/Intel, GPU, Giá tiền, Nhu cầu)
- * - Khi tìm PC AMD: Tìm chuẩn xác cấu hình AMD, tuyệt đối không trả lời lẫn cấu hình Intel
- * - Khi tìm PC Intel: Tìm chuẩn xác cấu hình Intel
- * - Đa lĩnh vực: Trả lời linh hoạt như một phiên bản Gemini thu nhỏ (kiến thức phần cứng, sửa lỗi, IT, lập trình, toán học, đời sống, giao tiếp tự nhiên).
- */
 public class ChatbotKnowledgeService {
 
     private final ProductDao productDao = new ProductDao();
@@ -45,31 +30,24 @@ public class ChatbotKnowledgeService {
         public List<Product> getProducts() { return products; }
     }
 
-    /**
-     * Lớp lưu trữ kết quả phân tích ngữ nghĩa (Semantic Entities)
-     */
     public static class ParsedIntent {
-        public String brand = null;          // "AMD" hoặc "INTEL" hoặc null
-        public String gpu = null;            // "5060", "4060", "4070", "3050"...
-        public Double targetPrice = null;    // ví dụ 30_000_000
+        public String brand = null;
+        public String gpu = null;
+        public Double targetPrice = null;
         public Double minPrice = null;
         public Double maxPrice = null;
-        public String purpose = null;        // "GAMING_ESPORT", "GAMING_AAA", "GRAPHICS", "OFFICE", "WORKSTATION"
-        public boolean isGaming = false;     // Khách cần máy chơi game
-        public boolean excludeOffice = false;// Tuyệt đối không gợi ý máy văn phòng
-        public boolean isComponent = false;  // Khách hỏi linh kiện rời
+        public String purpose = null;
+        public boolean isGaming = false;
+        public boolean excludeOffice = false;
+        public boolean isComponent = false;
         public List<String> cleanTokens = new ArrayList<String>();
         public String originalText = "";
     }
 
-    /**
-     * Trích xuất số tiền khách hàng nhập vào (ví dụ: 15tr, 30tr, 30 triệu, 20 củ, 15tr5...)
-     */
     public static Double extractPrice(String text) {
         if (text == null) return null;
         String t = text.toLowerCase().replaceAll(",", ".").trim();
 
-        // 1. Dạng khoảng giá: "10-15tr", "từ 15 đến 20 triệu" -> lấy mức trung bình hoặc chặn
         Pattern pRange = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(?:-|đến|toi)\\s*(\\d+(?:\\.\\d+)?)\\s*(?:tr|triệu|trieu|củ|cu|m)\\b");
         Matcher mRange = pRange.matcher(t);
         if (mRange.find()) {
@@ -80,7 +58,6 @@ public class ChatbotKnowledgeService {
             } catch (Exception ignored) {}
         }
 
-        // 2. Dạng: 30tr, 15tr, 200tr, 30 triệu, 30 củ, 30m
         Pattern p1 = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(?:tr|triệu|trieu|m|củ|cu)\\b");
         Matcher m1 = p1.matcher(t);
         if (m1.find()) {
@@ -90,7 +67,6 @@ public class ChatbotKnowledgeService {
             } catch (Exception ignored) {}
         }
 
-        // 3. Dạng 15tr5, 12tr5 (15 triệu 500k)
         Pattern p2 = Pattern.compile("(\\d+)tr(\\d+)\\b");
         Matcher m2 = p2.matcher(t);
         if (m2.find()) {
@@ -101,7 +77,6 @@ public class ChatbotKnowledgeService {
             } catch (Exception ignored) {}
         }
 
-        // 4. Dạng số nguyên lớn: 30000000, 30.000.000
         Pattern p3 = Pattern.compile("\\b(\\d{7,10})\\b");
         Matcher m3 = p3.matcher(t.replaceAll("\\.", ""));
         if (m3.find()) {
@@ -113,17 +88,11 @@ public class ChatbotKnowledgeService {
         return null;
     }
 
-    /**
-     * Trích xuất các token tìm kiếm (loại bỏ toàn bộ từ nối, đại từ xưng hô tiếng Việt)
-     */
     public static List<String> extractTokens(String text) {
         ParsedIntent pi = parseQuery(text);
         return pi.cleanTokens;
     }
 
-    /**
-     * BỘ PHÂN TÍCH Ý ĐỊNH & THỰC THỂ NGÔN NGỮ TỰ NHIÊN TIẾNG VIỆT
-     */
     public static ParsedIntent parseQuery(String text) {
         ParsedIntent pi = new ParsedIntent();
         if (text == null) return pi;
@@ -134,10 +103,8 @@ public class ChatbotKnowledgeService {
                 .replaceAll("\\s+", " ")
                 .trim();
 
-        // 1. Trích xuất giá tiền
         pi.targetPrice = extractPrice(text);
 
-        // 2. Nhận diện thương hiệu CPU / Nền tảng (Brand)
         if (lower.matches(".*\\b(amd|ryzen|radeon|am4|am5|x3d)\\b.*")) {
             pi.brand = "AMD";
         } else if (lower.matches(".*\\b(intel|core i3|core i5|core i7|core i9|ultra|xeon)\\b.*")
@@ -145,21 +112,18 @@ public class ChatbotKnowledgeService {
             pi.brand = "INTEL";
         }
 
-        // 3. Nhận diện GPU / Card màn hình
         Pattern pGpu = Pattern.compile("\\b(5090|5080|5070|5060|4090|4080|4070|4060|3060|3050|1660|1650|7700)\\b");
         Matcher mGpu = pGpu.matcher(lower);
         if (mGpu.find()) {
             pi.gpu = mGpu.group(1);
         }
 
-        // 4. Nhận diện nhu cầu sử dụng (Purpose) & Gaming
         boolean hasGamingKeywords = containsAny(lower, "gaming", "gmaing", "geming", "game", "chơi game", "chiến game", "game thủ", "esport", "fps", "3a", "aaa", "2k", "4k", "wukong", "cyberpunk", "cs2", "valorant", "pubg", "bắn súng", "đột kích", "lol", "liên minh", "fo4");
         if (hasGamingKeywords) {
             pi.isGaming = true;
             pi.excludeOffice = true;
         }
 
-        // Phát hiện khách hàng phản đối hoặc loại trừ PC văn phòng
         if (lower.contains("văn phòng") && (
                 containsAny(lower, "sao lại", "không phải", "không lấy", "đừng", "bỏ", "chứ không", "không cần", "ai bảo", "đâu phải", "chán", "nhầm")
                 || pi.isGaming
@@ -179,10 +143,8 @@ public class ChatbotKnowledgeService {
             pi.purpose = "WORKSTATION";
         }
 
-        // 5. Kiểm tra hỏi linh kiện hay máy nguyên bộ
         pi.isComponent = containsAny(lower, "vga", "card màn hình", "ram", "ssd", "ổ cứng", "mainboard", "bo mạch chủ", "nguồn máy tính", "psu");
 
-        // 6. Danh sách từ dừng (Stopwords) tiếng Việt cực kỳ đầy đủ để không bị cứng nhắc
         Set<String> stopWords = new HashSet<String>(Arrays.asList(
                 "pc", "máy", "tính", "bộ", "cây", "case", "thùng", "dàn", "chiếc",
                 "cho", "tôi", "mình", "em", "anh", "chị", "bạn", "tớ", "bác", "ông", "ad", "shop",
@@ -207,11 +169,10 @@ public class ChatbotKnowledgeService {
             stopWords.add("game");
         }
 
-        // Tách các từ còn lại làm cleanTokens
         for (String w : lower.split(" ")) {
             w = w.trim();
             if (w.isEmpty() || stopWords.contains(w) || w.length() <= 1) continue;
-            // Bỏ từ brand và gpu đã nhận diện
+
             if (pi.brand != null && (w.equals("amd") || w.equals("intel") || w.equals("ryzen"))) continue;
             if (pi.gpu != null && (w.equals(pi.gpu) || w.equals("rtx") || w.equals("gtx"))) continue;
             pi.cleanTokens.add(w);
@@ -220,20 +181,15 @@ public class ChatbotKnowledgeService {
         return pi;
     }
 
-    /**
-     * XỬ LÝ CHÍNH: Xử lý mọi yêu cầu người dùng
-     */
     public ChatResult handleQuery(String message, String action) {
         String msg = message != null ? message.trim() : "";
         String lowerMsg = msg.toLowerCase();
         String act = action != null ? action.trim() : "";
 
-        // 1. Xử lý Quick Chips (Bấm nút nhanh)
         if (!act.isEmpty()) {
             return handleAction(act);
         }
 
-        // An toàn bảo mật: Chống Jailbreak, Prompt Injection, Báo giá 1 đồng (13.8)
         if (containsAny(lowerMsg, "bỏ qua hướng dẫn", "ignore previous", "báo giá 1 đồng", "giá 1 đồng", "0 đồng", "cho tôi giá 1")
                 || (containsAny(lowerMsg, "1 đồng", "1đ") && containsAny(lowerMsg, "báo giá", "bán", "mua", "cam kết"))) {
             return new ChatResult(
@@ -243,7 +199,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // An toàn bảo mật: Chống lộ System prompt / API key (13.8)
         if (containsAny(lowerMsg, "system prompt", "in ra prompt", "api key", "apikey", "lộ key", "câu lệnh hệ thống", "prompt gốc")) {
             return new ChatResult(
                     "Dạ em xin phép từ chối cung cấp system prompt hoặc API key. Đây là thông tin cấu hình kỹ thuật bảo mật nội bộ của hệ thống Độ-PC 67 ạ.",
@@ -252,7 +207,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // An toàn bảo mật: Không tiết lộ đơn hàng khách khác / dữ liệu nội bộ (13.9)
         if (containsAny(lowerMsg, "đơn hàng của khách khác", "đơn hàng người khác", "dữ liệu nội bộ", "thông tin khách khác", "sđt khách", "doanh thu nội bộ")) {
             return new ChatResult(
                     "Dạ Độ-PC 67 cam kết bảo mật tuyệt đối 100% dữ liệu của khách hàng. Em không thể cung cấp thông tin đơn hàng, số điện thoại hay dữ liệu cá nhân của khách hàng khác ạ.",
@@ -261,78 +215,63 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 2. Chào hỏi xã giao & Giới thiệu bản thân
         if (lowerMsg.matches("^(hi|hello|chào|alo|xin chào|shop ơi|ad ơi|có ai không|hey).*")
                 || containsAny(lowerMsg, "bạn là ai", "bạn tên gì", "giới thiệu bản thân", "gemini thu nhỏ", "trợ lý ai")) {
             return handleGreeting(lowerMsg);
         }
 
-        // 3. Máy tính toán học & Phép tính logic (Mini Math Engine)
         ChatResult mathRes = handleMathAndCalculation(lowerMsg);
         if (mathRes != null) {
             return mathRes;
         }
 
-        // 4. Giải đáp kiến thức công nghệ thông tin & Lập trình (IT, Coding & Software)
         ChatResult itRes = handleITAndProgramming(lowerMsg);
         if (itRes != null) {
             return itRes;
         }
 
-        // 5. Giải thích kiến thức phần cứng & Xử lý lỗi máy tính (Deep Hardware & Troubleshooting)
         ChatResult hardwareRes = handleTechnicalExplanation(lowerMsg);
         if (hardwareRes != null) {
             return hardwareRes;
         }
 
-        // 6. Lời khuyên công nghệ & Đời sống (Tech Advice, Ergonomics, Jokes, Chit-Chat)
         ChatResult lifestyleRes = handleLifestyleAndAdvice(lowerMsg);
         if (lifestyleRes != null) {
             return lifestyleRes;
         }
 
-        // 7. Chính sách cửa hàng (Bảo hành, Ship COD, Trả góp, Vệ sinh, Thu cũ đổi mới, Địa chỉ)
         ChatResult policyRes = handleStorePolicies(lowerMsg);
         if (policyRes != null) {
             return policyRes;
         }
 
-        // 8. TƯ VẤN CẤU HÌNH PC THÔNG MINH (SMART PC CONSULTATION ENGINE)
         ParsedIntent intent = parseQuery(msg);
         ChatResult pcRes = handlePCConsultation(intent, lowerMsg);
         if (pcRes != null) {
             return pcRes;
         }
 
-        // 9. BỘ NÃO SUY LUẬN LINH HOẠT ĐA LĨNH VỰC (Mini-Gemini Open-Ended Inference Fallback)
         return handleOpenEndedMiniGemini(msg, lowerMsg);
     }
 
-    /**
-     * TƯ VẤN CẤU HÌNH PC THÔNG MINH DỰA TRÊN THỰC THỂ ĐÃ TRÍCH XUẤT
-     */
     private ChatResult handlePCConsultation(ParsedIntent intent, String lowerMsg) {
-        // A. Khách hàng hỏi theo THƯƠNG HIỆU (AMD hoặc INTEL) kèm hoặc không kèm mức giá
+
         if (intent.brand != null) {
             return handleBrandSpecificPC(intent);
         }
 
-        // B. Khách hàng hỏi theo MÃ CARD ĐỒ HỌA (RTX 5060, RTX 4060, RTX 5070...)
         if (intent.gpu != null) {
             return handleGPUSpecificPC(intent);
         }
 
-        // C. Khách hàng hỏi theo MỨC GIÁ CỤ THỂ (15tr, 20tr, 30tr, 200tr...)
         if (intent.targetPrice != null) {
             return handlePriceSpecificPC(intent);
         }
 
-        // D. Khách hàng hỏi theo MỤC ĐÍCH SỬ DỤNG CỤ THỂ
         if (intent.purpose != null) {
             return handlePurposeSpecificPC(intent);
         }
 
-        // E. Nếu còn từ khóa linh kiện cụ thể (ram, ssd, main...)
         if (intent.isComponent || !intent.cleanTokens.isEmpty()) {
             List<Product> list = productDao.searchAdvancedForChatbot(null, null, intent.cleanTokens, null, null, null, !intent.isComponent, 4);
             if (!list.isEmpty()) {
@@ -350,15 +289,10 @@ public class ChatbotKnowledgeService {
         return null;
     }
 
-    /**
-     * TƯ VẤN CHUYÊN BIỆT CHO NỀN TẢNG THƯƠNG HIỆU (AMD hoặc INTEL)
-     * Đảm bảo: Hỏi AMD tuyệt đối chỉ trả lời và hiển thị máy AMD!
-     */
     private ChatResult handleBrandSpecificPC(ParsedIntent intent) {
-        String brand = intent.brand; // "AMD" hoặc "INTEL"
+        String brand = intent.brand;
         Double targetPrice = intent.targetPrice;
 
-        // Tìm sản phẩm đúng thương hiệu từ DB (tôn trọng yêu cầu Gaming & loại trừ Văn phòng)
         List<Product> products = productDao.searchAdvancedForChatbot(
                 brand,
                 intent.gpu,
@@ -372,7 +306,6 @@ public class ChatbotKnowledgeService {
                 4
         );
 
-        // Nếu khoảng hẹp không có, mở rộng tìm sản phẩm gần mức giá nhất của đúng brand đó
         if (products.isEmpty() && targetPrice != null) {
             products = productDao.searchAdvancedForChatbot(
                     brand,
@@ -388,7 +321,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // Nếu không có giá chỉ định, lấy top bán chạy của brand đó
         if (products.isEmpty()) {
             products = productDao.searchAdvancedForChatbot(brand, null, null, null, null, null, true, intent.isGaming, intent.excludeOffice, 4);
         }
@@ -427,7 +359,7 @@ public class ChatbotKnowledgeService {
                     products
             );
         } else {
-            // INTEL
+
             StringBuilder sb = new StringBuilder();
             if (targetPrice != null) {
                 sb.append("Dạ với tầm giá khoảng **").append(df.format(targetPrice)).append("** ")
@@ -449,9 +381,6 @@ public class ChatbotKnowledgeService {
         }
     }
 
-    /**
-     * TƯ VẤN THEO MÃ CARD ĐỒ HỌA (GPU)
-     */
     private ChatResult handleGPUSpecificPC(ParsedIntent intent) {
         String gpu = intent.gpu;
         Double targetPrice = intent.targetPrice;
@@ -478,7 +407,6 @@ public class ChatbotKnowledgeService {
                   .append("• Tối ưu vượt trội cho các tác vụ AI tạo sinh, Render 3D và dựng video chất lượng cao.\n\n");
             }
 
-            // Nếu khách tìm mức giá thấp hơn nhiều so với giá thực tế của card đó
             Product cheapest = products.get(0);
             if (targetPrice != null && targetPrice < (cheapest.getPrice() * 0.85)) {
                 sb.append("💡 *Lưu ý nhỏ về mức giá:* Cấu hình trang bị RTX ").append(gpu)
@@ -493,7 +421,7 @@ public class ChatbotKnowledgeService {
                     products
             );
         } else {
-            // Không có cấu hình card này
+
             return new ChatResult(
                     "Dạ hiện tại shop **chưa có sẵn** cấu hình PC sẵn hàng trang bị mã card **RTX " + gpu + "** trong kho sẵn.\n\n" +
                     "• Cửa hàng hiện đang sẵn các dòng PC Gaming trang bị card thế hệ mới: **RTX 3050, RTX 4060, RTX 4060 Ti, RTX 4070, RTX 5060, RTX 5070, RTX 5080, RTX 5090**.\n" +
@@ -505,15 +433,11 @@ public class ChatbotKnowledgeService {
         }
     }
 
-    /**
-     * TƯ VẤN THEO MỨC NGÂN SÁCH (15tr, 30tr, 200tr...)
-     */
     private ChatResult handlePriceSpecificPC(ParsedIntent intent) {
         Double targetPrice = intent.targetPrice;
         Product maxPC = productDao.getMostExpensivePC();
         Product minPC = productDao.getCheapestPC();
 
-        // 1. Quá ngân sách tối đa của shop (ví dụ tìm 200tr)
         if (maxPC != null && targetPrice > (maxPC.getPrice() * 1.15)) {
             List<Product> topList = new ArrayList<Product>();
             topList.add(maxPC);
@@ -531,7 +455,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 2. Thấp hơn ngân sách tối thiểu (ví dụ tìm 2 triệu, 3 triệu)
         if (minPC != null && targetPrice < (minPC.getPrice() * 0.8)) {
             List<Product> minList = new ArrayList<Product>();
             minList.add(minPC);
@@ -544,7 +467,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 3. Tìm sản phẩm trong tầm giá phù hợp
         List<Product> list = productDao.searchAdvancedForChatbot(
                 null,
                 null,
@@ -594,9 +516,6 @@ public class ChatbotKnowledgeService {
         }
     }
 
-    /**
-     * TƯ VẤN THEO MỤC ĐÍCH SỬ DỤNG
-     */
     private ChatResult handlePurposeSpecificPC(ParsedIntent intent) {
         String p = intent.purpose;
         if ("GAMING_ESPORT".equals(p)) {
@@ -671,11 +590,8 @@ public class ChatbotKnowledgeService {
         return null;
     }
 
-    /**
-     * MÁY TÍNH TOÁN HỌC & ĐỔI ĐƠN VỊ (Mini Math & Logic Engine)
-     */
     private ChatResult handleMathAndCalculation(String msg) {
-        // 1. Tính toán trả góp: ví dụ "15 triệu trả góp 6 tháng", "30tr góp 12 tháng"
+
         Pattern pGop = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(?:tr|triệu|trieu|củ|m)?\\s*(?:trả góp|góp|vay)\\s*(\\d+)\\s*(?:tháng|t)\\b");
         Matcher mGop = pGop.matcher(msg);
         if (mGop.find()) {
@@ -700,7 +616,6 @@ public class ChatbotKnowledgeService {
             } catch (Exception ignored) {}
         }
 
-        // 2. Phép tính số học cơ bản: ví dụ "tính 25 * 4", "15000000 / 12", "15 + 35"
         Pattern pMath = Pattern.compile("(?:tính|bằng bao nhiêu|kq)?\\s*(\\d+(?:\\.\\d+)?)\\s*([+\\-*/xX:])\\s*(\\d+(?:\\.\\d+)?)\\s*(?:=|bằng|la)?");
         Matcher mMath = pMath.matcher(msg);
         if (mMath.find()) {
@@ -732,7 +647,6 @@ public class ChatbotKnowledgeService {
             } catch (Exception ignored) {}
         }
 
-        // 3. Quy đổi đơn vị: ví dụ "1tb bằng bao nhiêu gb", "1gb bằng bao nhiêu mb", "1 inch bằng bao nhiêu cm"
         if (containsAny(msg, "1tb bằng bao nhiêu", "1tb là bao nhiêu", "1 tb bằng bao nhiêu")) {
             return new ChatResult(
                     "💡 **QUY ĐỔI DUNG LƯỢNG Ổ CỨNG & BỘ NHỚ:**\n\n" +
@@ -772,11 +686,8 @@ public class ChatbotKnowledgeService {
         return null;
     }
 
-    /**
-     * GIẢI ĐÁP KIẾN THỨC CÔNG NGHỆ THÔNG TIN & LẬP TRÌNH (IT, Coding & Software)
-     */
     private ChatResult handleITAndProgramming(String msg) {
-        // 1. AI là gì? LLM / Gemini hoạt động thế nào?
+
         if (containsAny(msg, "ai là gì", "trí tuệ nhân tạo là gì", "gemini hoạt động thế nào", "chatgpt hoạt động", "llm là gì")) {
             return new ChatResult(
                     "🤖 **GIẢI THÍCH: TRÍ TUỆ NHÂN TẠO (AI) & CÁCH HOẠT ĐỘNG CỦA MÔ HÌNH NGÔN NGỮ LỚN (LLM):**\n\n" +
@@ -791,7 +702,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 2. Học lập trình nên bắt đầu từ ngôn ngữ nào?
         if (containsAny(msg, "học lập trình nên học gì", "mới học lập trình", "học ngôn ngữ nào", "python hay java", "nên học python")) {
             return new ChatResult(
                     "💻 **LỘ TRÌNH DÀNH CHO NGƯỜI MỚI BẮT ĐẦU HỌC LẬP TRÌNH (CODING):**\n\n" +
@@ -811,7 +721,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 3. Lập trình Web nên học gì? Frontend vs Backend
         if (containsAny(msg, "lập trình web", "frontend là gì", "backend là gì", "fullstack là gì")) {
             return new ChatResult(
                     "🌐 **TỔNG QUAN: PHÂN BIỆT FRONTEND, BACKEND & FULLSTACK TRONG LẬP TRÌNH WEB:**\n\n" +
@@ -828,7 +737,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 4. Git & GitHub là gì?
         if (containsAny(msg, "github là gì", "git là gì", "tác dụng của github")) {
             return new ChatResult(
                     "💡 **GIT VÀ GITHUB LÀ GÌ? TẠI SAO DÂN IT BẮT BUỘC PHẢI DÙNG?**\n\n" +
@@ -843,7 +751,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 5. Cấu hình PC cho dân IT / Lập trình viên
         if (containsAny(msg, "pc cho dân it", "pc cho lập trình", "học cntt mua máy gì", "laptop hay pc học it", "cấu hình cho lập trình")) {
             return new ChatResult(
                     "💻 **TƯ VẤN CẤU HÌNH MÁY TÍNH CHUẨN DÀNH CHO DÂN IT & LẬP TRÌNH VIÊN:**\n\n" +
@@ -861,11 +768,8 @@ public class ChatbotKnowledgeService {
         return null;
     }
 
-    /**
-     * GIẢI THÍCH KIẾN THỨC PHẦN CỨNG & XỬ LÝ SỰ CỐ (Deep Hardware & Troubleshooting)
-     */
     private ChatResult handleTechnicalExplanation(String msg) {
-        // 1. So sánh Intel và AMD Ryzen
+
         if ((containsAny(msg, "intel", "core") && containsAny(msg, "amd", "ryzen") && containsAny(msg, "so sánh", "và", "hay", "hơn", "khác", "chọn", "nào"))
                 || containsAny(msg, "so sánh intel", "so sánh amd", "so sánh chip", "intel hay amd", "amd hay intel", "nên chọn intel hay amd", "chip nào tốt hơn", "ryzen hay core", "core hay ryzen")) {
             return new ChatResult(
@@ -883,7 +787,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 1.1 So sánh RTX 5060 và RTX 4060
         if (containsAny(msg, "5060") && containsAny(msg, "4060") && containsAny(msg, "so sánh", "khác", "hơn", "nâng cấp", "chọn")) {
             return new ChatResult(
                     "💡 **SO SÁNH: NVIDIA GEFORCE RTX 5060 vs RTX 4060:**\n\n" +
@@ -897,7 +800,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 2. Nghẽn cổ chai (Bottleneck)
         if (containsAny(msg, "nghẽn", "bottleneck", "nghen", "thắt cổ chai")) {
             return new ChatResult(
                     "💡 **GIẢI THÍCH: NGHẼN CỔ CHAI (BOTTLENECK) LÀ GÌ?**\n\n" +
@@ -909,7 +811,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 3. RAM (Dual Channel, Bus RAM, DDR4 vs DDR5, Dung lượng bao nhiêu là đủ)
         if (containsAny(msg, "dual channel", "bus ram", "ddr4 khác ddr5", "ddr4 hay ddr5", "cần bao nhiêu ram", "8gb hay 16gb", "16gb hay 32gb", "ram máy tính")) {
             return new ChatResult(
                     "💡 **TẤT TẦN TẬT KIẾN THỨC VỀ BỘ NHỚ RAM MÁY TÍNH:**\n\n" +
@@ -927,7 +828,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 4. Ổ cứng SSD NVMe vs SATA vs HDD
         if (containsAny(msg, "nvme", "sata", "hdd", "ổ cứng nào", "ssd nào tốt")) {
             return new ChatResult(
                     "💡 **PHÂN BIỆT Ổ CỨNG: SSD NVMe vs SSD SATA vs HDD:**\n\n" +
@@ -945,7 +845,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 5. Tản nhiệt nước AIO vs Tản nhiệt khí
         if (containsAny(msg, "tản nước", "tản khí", "tản aio", "làm mát cpu", "tản nhiệt nước")) {
             return new ChatResult(
                     "💡 **NÊN DÙNG TẢN NHIỆT KHÍ HAY TẢN NHIỆT NƯỚC AIO?**\n\n" +
@@ -961,7 +860,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 6. Nguồn máy tính (PSU) và Chuẩn 80 Plus
         if (containsAny(msg, "nguồn bao nhiêu watt", "80 plus là gì", "nguồn công suất thực", "chọn nguồn")) {
             return new ChatResult(
                     "💡 **HƯỚNG DẪN CHỌN NGUỒN MÁY TÍNH (PSU) CHUẨN CÔNG SUẤT:**\n\n" +
@@ -977,7 +875,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 7. Màn hình tần số quét (Hz)
         if (containsAny(msg, "màn hình bao nhiêu hz", "tần số quét là gì", "60hz khác 144hz", "144hz khác 240hz", "tần số quét")) {
             return new ChatResult(
                     "💡 **TẦN SỐ QUÉT MÀN HÌNH (Hz) LÀ GÌ? KHÁC NHAU THẾ NÀO?**\n\n" +
@@ -991,7 +888,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 8. Khắc phục lỗi: Bật máy quạt quay nhưng không lên màn hình
         if (containsAny(msg, "không lên màn hình", "màn hình đen", "không nhận tín hiệu", "quạt quay màn không lên", "máy bật không lên", "màn hình không lên")) {
             return new ChatResult(
                     "🛠️ **HƯỚNG DẪN XỬ LÝ: MÁY TÍNH BẬT QUẠT QUAY NHƯNG KHÔNG LÊN MÀN HÌNH**\n\n" +
@@ -1006,7 +902,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 9. Vệ sinh máy & Tra keo tản nhiệt bao lâu 1 lần?
         if (containsAny(msg, "bao lâu tra keo", "khi nào tra keo", "vệ sinh máy", "nhiệt độ cpu", "máy bị nóng", "nóng cpu")) {
             return new ChatResult(
                     "💡 **BAO LÂU THÌ NÊN VỆ SINH MÁY VÀ TRA KEO TẢN NHIỆT?**\n\n" +
@@ -1019,7 +914,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 10. Giải thích ký hiệu card VGA (Ti, Super, OC)
         if (containsAny(msg, "ti là gì", "super là gì", "card oc", "vram là gì", "ý nghĩa ti")) {
             return new ChatResult(
                     "💡 **Ý NGHĨA CÁC KÝ HIỆU TRÊN CARD MÀN HÌNH (VGA):**\n\n" +
@@ -1032,7 +926,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 11. Nên dùng Windows 10 hay Windows 11?
         if (containsAny(msg, "win 10 hay win 11", "nên cài win nào", "win nào chơi game tốt hơn", "windows 10 hay 11", "chơi game cài win nào")) {
             return new ChatResult(
                     "💡 **NÊN DÙNG WINDOWS 10 HAY WINDOWS 11 CHO MÁY TÍNH?**\n\n" +
@@ -1047,7 +940,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 12. DLSS và FSR là gì?
         if (containsAny(msg, "dlss là gì", "fsr là gì", "khác biệt dlss và fsr", "dlss khác fsr")) {
             return new ChatResult(
                     "💡 **DLSS VÀ FSR LÀ GÌ? CÔNG NGHỆ NÀO VƯỢT TRỘI HƠN?**\n\n" +
@@ -1063,7 +955,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 13. Màn hình xanh chết chóc (BSOD)
         if (containsAny(msg, "màn hình xanh", "bsod", "dump xanh", "lỗi dump")) {
             return new ChatResult(
                     "🛠️ **HƯỚNG DẪN XỬ LÝ LỖI MÀN HÌNH XANH (BLUE SCREEN OF DEATH - BSOD):**\n\n" +
@@ -1077,7 +968,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 14. Cách làm máy tính chạy nhanh hơn
         if (containsAny(msg, "làm máy tính nhanh hơn", "tối ưu máy tính", "máy tính bị chậm", "tăng tốc pc", "dọn dẹp máy tính")) {
             return new ChatResult(
                     "⚡ **5 BƯỚC ĐƠN GIẢN GIÚP MÁY TÍNH CHẠY NHANH NHƯ MỚI:**\n\n" +
@@ -1095,11 +985,8 @@ public class ChatbotKnowledgeService {
         return null;
     }
 
-    /**
-     * LỜI KHUYÊN CÔNG NGHỆ, ĐỜI SỐNG, CHIT-CHAT (Tech Advice, Ergonomics, Jokes)
-     */
     private ChatResult handleLifestyleAndAdvice(String msg) {
-        // 1. Nên mua laptop hay PC?
+
         if (containsAny(msg, "nên mua laptop hay pc", "laptop hay pc", "chọn pc hay laptop", "mua máy bàn hay laptop")) {
             return new ChatResult(
                     "💡 **NÊN MUA LAPTOP HAY PC ĐỂ BÀN?**\n\n" +
@@ -1116,7 +1003,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 2. Có nên mua card màn hình cũ / trâu cày không?
         if (containsAny(msg, "card trâu cày", "mua vga cũ", "có nên mua đồ cũ", "linh kiện cũ")) {
             return new ChatResult(
                     "⚠️ **CẢNH BÁO: CÓ NÊN MUA CARD MÀN HÌNH TRÂU CÀY / LINH KIỆN CŨ?**\n\n" +
@@ -1128,7 +1014,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 3. Tư vấn PC cho sinh viên
         if (containsAny(msg, "sinh viên nên mua máy gì", "pc cho sinh viên", "máy cho sinh viên")) {
             return new ChatResult(
                     "🎓 **TƯ VẤN PC TIẾT KIỆM & BỀN BỈ CHO SINH VIÊN:**\n\n" +
@@ -1141,7 +1026,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 4. Kể chuyện cười về IT / Gamer
         if (containsAny(msg, "kể chuyện cười", "kể chuyện vui", "hài hước", "chuyện cười it")) {
             return new ChatResult(
                     "😄 **CHUYỆN CƯỜI DÂN IT DÀNH TẶNG BẠN:**\n\n" +
@@ -1157,7 +1041,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 5. Hỏi về thời tiết
         if (containsAny(msg, "thời tiết hôm nay", "hôm nay trời", "thời tiết thế nào", "mưa hay nắng")) {
             return new ChatResult(
                     "🌤️ **Dạ về thời tiết hôm nay:**\n\n" +
@@ -1169,7 +1052,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // 6. Bảo vệ mắt khi dùng máy tính
         if (containsAny(msg, "bảo vệ mắt", "mỏi mắt", "ngồi máy tính lâu", "mỏi lưng", "tư thế ngồi")) {
             return new ChatResult(
                     "👁️ **MẸO BẢO VỆ MẮT VÀ CỘT SỐNG CHO NGƯỜI DÙNG MÁY TÍNH NHIỀU:**\n\n" +
@@ -1186,9 +1068,6 @@ public class ChatbotKnowledgeService {
         return null;
     }
 
-    /**
-     * CHÀO HỎI & GIỚI THIỆU DANH TÍNH
-     */
     private ChatResult handleGreeting(String msg) {
         return new ChatResult(
                 "Dạ em chào bạn ạ! 🌟 Em là **Trợ lý AI Độ-PC 67** — được trang bị trí tuệ tự nhiên linh hoạt như một phiên bản **Gemini thu nhỏ** chuyên biệt cho công nghệ và phần cứng máy tính.\n\n" +
@@ -1204,11 +1083,8 @@ public class ChatbotKnowledgeService {
         );
     }
 
-    /**
-     * BỘ NÃO SUY LUẬN LINH HOẠT ĐA LĨNH VỰC (Mini-Gemini Open-Ended Fallback)
-     */
     private ChatResult handleOpenEndedMiniGemini(String rawMessage, String lower) {
-        // Phân tích loại câu hỏi mở
+
         if (lower.contains("là gì") || lower.contains("nghĩa là gì") || lower.contains("thế nào là")) {
             return new ChatResult(
                     "💡 **GIẢI THÍCH TỔNG QUAN VỀ: \"" + rawMessage.toUpperCase() + "\":**\n\n" +
@@ -1234,7 +1110,6 @@ public class ChatbotKnowledgeService {
             );
         }
 
-        // Mặc định phản hồi tự nhiên, duyên dáng như Gemini thu nhỏ
         return new ChatResult(
                 "Dạ em cảm ơn câu hỏi rất thú vị của bạn! 🌟\n\n" +
                 "Em là **Trợ lý AI Độ-PC 67** (được tối ưu như một phiên bản Gemini thu nhỏ chuyên sâu về công nghệ và máy tính). " +
@@ -1249,9 +1124,6 @@ public class ChatbotKnowledgeService {
         );
     }
 
-    /**
-     * CHÍNH SÁCH CỬA HÀNG (Bảo hành, Ship, Trả góp...)
-     */
     private ChatResult handleStorePolicies(String msg) {
         if (containsAny(msg, "bảo hành", "đổi trả", "lỗi", "1 đổi 1", "bảo hành bao lâu")) {
             return handleAction("faq_warranty");
@@ -1274,9 +1146,6 @@ public class ChatbotKnowledgeService {
         return null;
     }
 
-    /**
-     * XỬ LÝ ACTIONS (QUICK CHIPS)
-     */
     public ChatResult handleAction(String action) {
         switch (action) {
             case "budget_under_10": {

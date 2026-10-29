@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Khởi tạo đơn hàng mới, kiểm tra tồn kho, trừ voucher và điều hướng thanh toán.
- * ============================================================================
- */
-
 import dao.OrderDao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -44,9 +36,8 @@ public class PlaceOrderServlet extends HttpServlet {
             String phone = request.getParameter("phone");
             String note = request.getParameter("note");
             String paymentMethod = request.getParameter("paymentMethod");
-            if (!"QR".equals(paymentMethod)) paymentMethod = "COD";   // chặn giá trị lạ
+            if (!"QR".equals(paymentMethod)) paymentMethod = "COD";
 
-            // Đọc thông tin địa chỉ GHN
             String provinceName = request.getParameter("provinceName");
             String districtName = request.getParameter("districtName");
             String wardName = request.getParameter("wardName");
@@ -58,7 +49,6 @@ public class PlaceOrderServlet extends HttpServlet {
             } catch (Exception ignored) {}
             String wardCode = request.getParameter("wardCode");
 
-            // Ghép địa chỉ đầy đủ
             String fullAddress;
             if (detailAddress != null && !detailAddress.trim().isEmpty()
                     && provinceName != null && !provinceName.trim().isEmpty()) {
@@ -74,7 +64,6 @@ public class PlaceOrderServlet extends HttpServlet {
                 fullAddress = "Chưa cung cấp địa chỉ";
             }
 
-            // Tính và kiểm tra phí vận chuyển GHN phía backend (chống sửa giá client-side)
             double shippingFee = 0.0;
             if (districtId > 0 && wardCode != null && !wardCode.trim().isEmpty()) {
                 shippingFee = GhnService.calculateShippingFee(districtId, wardCode, 1000);
@@ -82,11 +71,10 @@ public class PlaceOrderServlet extends HttpServlet {
                 try {
                     shippingFee = Double.parseDouble(request.getParameter("shippingFee"));
                 } catch (Exception ignored) {
-                    shippingFee = 30000.0; // Phí dự phòng
+                    shippingFee = 30000.0;
                 }
             }
 
-            // Đọc và xác thực Voucher giảm giá chặt chẽ từ Database backend (chống sửa giá từ client)
             String voucherCode = request.getParameter("voucherCode");
             if (voucherCode == null || voucherCode.trim().isEmpty()) {
                 voucherCode = (String) session.getAttribute("APPLIED_VOUCHER");
@@ -103,7 +91,6 @@ public class PlaceOrderServlet extends HttpServlet {
                 }
             }
 
-            // Kiểm tra tồn kho thời gian thực cho từng sản phẩm trong giỏ hàng
             dao.ProductDao productDao = new dao.ProductDao();
             java.util.Map<Integer, Integer> productQtyMap = new java.util.HashMap<>();
             for (model.CartItem item : cart.getItems()) {
@@ -141,7 +128,7 @@ public class PlaceOrderServlet extends HttpServlet {
                 new dao.CartDao().clearCart(user.getId());
 
                 if ("QR".equals(paymentMethod)) {
-                    // Thanh toán online: chuyển sang VNPay (đơn đang ở trạng thái UNPAID)
+
                     response.sendRedirect(request.getContextPath() + "/vnpay-pay?id=" + orderId);
                 } else {
                     response.sendRedirect(request.getContextPath() + "/order-detail?id=" + orderId);

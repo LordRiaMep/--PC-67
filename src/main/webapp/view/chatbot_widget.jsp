@@ -2,12 +2,8 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
-<!-- ======================================================== -->
-<!-- WIDGET CHATBOT TƯ VẤN PC ĐỘ-PC 67                      -->
-<!-- ======================================================== -->
 <style>
-    /* Nút kích hoạt Chatbot nổi (Floating Action Button) */
-    .dopc-chat-fab {
+.dopc-chat-fab {
         position: fixed;
         bottom: 24px;
         right: 24px;
@@ -71,7 +67,6 @@
         50% { box-shadow: 0 4px 22px rgba(220,38,38,0.5); }
     }
 
-    /* Cửa sổ Chat (Chat Window) */
     .dopc-chat-window {
         position: fixed;
         bottom: 24px;
@@ -103,7 +98,6 @@
         }
     }
 
-    /* Header */
     .dopc-chat-header {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         color: #ffffff;
@@ -178,7 +172,6 @@
         color: #ffffff;
     }
 
-    /* Body Messages */
     .dopc-chat-body {
         flex: 1;
         padding: 16px;
@@ -254,7 +247,6 @@
         color: rgba(255,255,255,0.8);
     }
 
-    /* Product Cards bên trong tin nhắn */
     .dopc-products-wrap {
         display: flex;
         flex-direction: column;
@@ -326,7 +318,6 @@
         border: none;
     }
 
-    /* Quick Suggestions Pills */
     .dopc-quick-bar {
         padding: 8px 14px;
         background: #ffffff;
@@ -362,7 +353,6 @@
         border-color: #dc2626;
     }
 
-    /* Typing animation indicator */
     .dopc-typing {
         display: inline-flex;
         align-items: center;
@@ -391,7 +381,6 @@
         40% { transform: translateY(-6px); }
     }
 
-    /* Input Footer */
     .dopc-chat-footer {
         padding: 10px 14px;
         background: #ffffff;
@@ -458,7 +447,6 @@
     }
 </style>
 
-<!-- Floating Launcher Button -->
 <div class="dopc-chat-fab" id="dopcChatFab" onclick="dopcToggleChat()">
     <div class="dopc-chat-fab-badge d-none d-sm-flex">
         <span>🤖 Tư vấn PC 24/7</span>
@@ -469,9 +457,8 @@
     </div>
 </div>
 
-<!-- Main Chat Window -->
 <div class="dopc-chat-window" id="dopcChatWindow">
-    <!-- Header -->
+
     <div class="dopc-chat-header">
         <div class="dopc-chat-avatar">
             <i class="bi bi-robot"></i>
@@ -497,12 +484,10 @@
         </div>
     </div>
 
-    <!-- Message Body -->
     <div class="dopc-chat-body" id="dopcChatBody">
-        <!-- Messages rendered by JavaScript -->
+
     </div>
 
-    <!-- Quick Suggestions Bar -->
     <div class="dopc-quick-bar" id="dopcQuickBar">
         <span class="dopc-chip" onclick="dopcSendMessageCustom('Gợi ý PC AMD 30tr')">🔥 PC AMD 30tr</span>
         <span class="dopc-chip" onclick="dopcSendMessageCustom('PC RTX 5060')">🚀 PC RTX 5060</span>
@@ -520,7 +505,6 @@
         <span class="dopc-chip" onclick="dopcSendAction('faq_contact')">📞 Hotline shop</span>
     </div>
 
-    <!-- Footer Input Bar -->
     <div class="dopc-chat-footer">
         <input type="text"
                class="dopc-chat-input"
@@ -534,7 +518,6 @@
     </div>
 </div>
 
-<!-- Chatbot JavaScript Controller -->
 <script>
 (function() {
     const CTX_PATH = '${ctx}';
@@ -544,7 +527,6 @@
 
     let isSending = false;
 
-    // Tin nhắn mặc định chào mừng (Mini-Gemini Assistant)
     const DEFAULT_WELCOME = {
         role: 'bot',
         text: 'Xin chào bạn! 👋 Em là **Trợ lý AI Độ-PC 67** (được tối ưu như một phiên bản Gemini thu nhỏ chuyên sâu về công nghệ và phần cứng máy tính).\n\nEm có thể hỗ trợ bạn:\n• 🖥️ **Tư vấn cấu hình PC:** Ví dụ *\"Gợi ý PC AMD 30tr\"*, *\"PC Intel 20tr\"*, *\"PC chạy RTX 5060\"*...\n• 💡 **Giải đáp kiến thức công nghệ:** So sánh Intel vs AMD, giải thích nghẽn cổ chai, RAM, SSD, màn hình Hz...\n• 💻 **Kiến thức IT & Lập trình:** Học code cần máy gì, giải thích AI, Web, xử lý lỗi máy tính...\n• 🛡️ **Chính sách shop:** Bảo hành 1 đổi 1 trong 30 ngày, trả góp 0%, ship COD toàn quốc.\n\nBạn đang quan tâm đến bộ máy tầm bao nhiêu tiền hoặc cần hỏi đáp gì cứ nhắn cho em nhé!',
@@ -552,7 +534,6 @@
         products: []
     };
 
-    // Khởi tạo Widget
     window.addEventListener('DOMContentLoaded', function() {
         renderStoredMessages();
         const isOpen = sessionStorage.getItem(OPEN_STATE_KEY) === 'true';
@@ -561,7 +542,6 @@
         }
     });
 
-    // Mở / Đóng Chatbot
     window.dopcToggleChat = function() {
         const win = document.getElementById('dopcChatWindow');
         const fab = document.getElementById('dopcChatFab');
@@ -591,7 +571,6 @@
         }
     }
 
-    // Xử lý gửi tin nhắn từ input
     window.dopcSendMessage = function() {
         const input = document.getElementById('dopcChatInput');
         const text = input ? input.value.trim() : '';
@@ -602,7 +581,6 @@
         callChatApi({ message: text });
     };
 
-    // Xử lý gửi qua nút bấm nhanh (Action)
     window.dopcSendAction = function(actionCode, label) {
         if (isSending) return;
         const actionLabels = {
@@ -622,7 +600,6 @@
         callChatApi({ action: actionCode });
     };
 
-    // Xử lý phím Enter
     window.dopcHandleKeyDown = function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -630,7 +607,6 @@
         }
     };
 
-    // Xóa lịch sử trò chuyện
     window.dopcClearChat = function() {
         if (confirm('Bạn có muốn làm mới cuộc trò chuyện?')) {
             sessionStorage.removeItem(STORAGE_KEY);
@@ -638,7 +614,6 @@
         }
     };
 
-    // Gọi API Backend
     function callChatApi(payload) {
         isSending = true;
         showTypingIndicator();
@@ -658,7 +633,6 @@
             if (data && data.status === 'success') {
                 appendMessage('bot', data.reply, data.products);
 
-                // Cập nhật lại các nút gợi ý nhanh nếu có
                 if (data.suggestions && data.suggestions.length > 0) {
                     renderQuickSuggestions(data.suggestions);
                 }
@@ -674,7 +648,6 @@
         });
     }
 
-    // Thêm tin nhắn và lưu vào Storage
     function appendMessage(role, text, products) {
         const history = getStoredMessages();
         const msg = {
@@ -689,7 +662,6 @@
         scrollToBottom();
     }
 
-    // Lấy tin nhắn từ Storage
     function getStoredMessages() {
         try {
             const raw = sessionStorage.getItem(STORAGE_KEY);
@@ -698,7 +670,6 @@
         return [DEFAULT_WELCOME];
     }
 
-    // Vẽ lại toàn bộ tin nhắn
     function renderStoredMessages() {
         const body = document.getElementById('dopcChatBody');
         if (!body) return;
@@ -708,7 +679,6 @@
         scrollToBottom();
     }
 
-    // Vẽ 1 tin nhắn
     function renderSingleMessage(msg) {
         const body = document.getElementById('dopcChatBody');
         if (!body) return;
@@ -725,7 +695,6 @@
         html += '<div class="dopc-bubble">';
         html += formatMarkdown(msg.text);
 
-        // Hiển thị Card Sản Phẩm nếu có
         if (msg.products && msg.products.length > 0) {
             html += '<div class="dopc-products-wrap">';
             msg.products.forEach(p => {
@@ -749,7 +718,6 @@
         body.appendChild(msgDiv);
     }
 
-    // Vẽ danh sách nút gợi ý nhanh động
     function renderQuickSuggestions(suggestions) {
         const bar = document.getElementById('dopcQuickBar');
         if (!bar || !suggestions) return;
@@ -765,7 +733,6 @@
         callChatApi({ message: text });
     };
 
-    // Hiệu ứng "Đang nhập..."
     function showTypingIndicator() {
         hideTypingIndicator();
         const body = document.getElementById('dopcChatBody');
@@ -809,17 +776,16 @@
         return h + ':' + m;
     }
 
-    // Format markdown đơn giản (bold, bullet point, xuống dòng)
     function formatMarkdown(text) {
         if (!text) return '';
         let s = escapeHtml(text);
-        // Bold: **text**
+
         s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        // Italic: *text*
+
         s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        // Bullet points: • or -
+
         s = s.replace(/(?:^|\n)[-•]\s+(.*?)(?=\n|$)/g, '<div style="margin-left: 10px; margin-bottom: 2px;">• $1</div>');
-        // Xuống dòng
+
         s = s.replace(/\n/g, '<br/>');
         return s;
     }

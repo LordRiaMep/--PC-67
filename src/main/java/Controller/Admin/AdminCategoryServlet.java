@@ -1,13 +1,5 @@
 package Controller.Admin;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Admin quản lý danh mục sản phẩm.
- * ============================================================================
- */
-
 import dao.CategoryDao;
 import model.Category;
 import jakarta.servlet.ServletException;
@@ -69,7 +61,6 @@ public class AdminCategoryServlet extends HttpServlet {
         req.setAttribute("endPage", endPage);
         req.setAttribute("tag", page);
 
-        // Đẩy thông báo phản hồi (nếu có)
         String msg = req.getParameter("msg");
         String err = req.getParameter("error");
         if ("delete_success".equals(msg)) req.setAttribute("successMessage", "Xóa danh mục thành công!");

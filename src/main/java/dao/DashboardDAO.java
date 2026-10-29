@@ -1,13 +1,5 @@
 package dao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: Thao tác CSDL: Tính toán doanh thu, số lượng đơn hàng, top sản phẩm bán chạy.
- * ============================================================================
- */
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +10,6 @@ import model.ProfitStats;
 
 public class DashboardDAO {
 
-    // 1. Lấy tổng doanh thu (chỉ tính các đơn hợp lệ, loại trừ đơn đã hủy / hoàn hàng / hoàn tiền)
     public double getTotalRevenue() {
         String sql = "SELECT SUM(total_amount) FROM hoa_don WHERE order_status NOT IN ('CANCELLED', 'CLIENT_CANCELLED', 'RETURNED', 'REFUNDED')";
         try (Connection conn = ConnectDB.getConnect();
@@ -33,7 +24,6 @@ public class DashboardDAO {
         return 0;
     }
 
-    // 2. Lấy tổng số đơn hàng
     public int getTotalOrders() {
         String sql = "SELECT COUNT(*) FROM hoa_don";
         try (Connection conn = ConnectDB.getConnect();
@@ -48,7 +38,6 @@ public class DashboardDAO {
         return 0;
     }
 
-    // 3. Lấy tổng số sản phẩm còn hoạt động
     public int getTotalProducts() {
         String sql = "SELECT COUNT(*) FROM san_pham WHERE status = 'ACTIVE'";
         try (Connection conn = ConnectDB.getConnect();
@@ -63,7 +52,6 @@ public class DashboardDAO {
         return 0;
     }
 
-    // 4. Lấy tổng số khách hàng
     public int getTotalUsers() {
         String sql = "SELECT COUNT(*) FROM users WHERE role = 'CUSTOMER'";
         try (Connection conn = ConnectDB.getConnect();
@@ -78,7 +66,6 @@ public class DashboardDAO {
         return 0;
     }
 
-    // 5. Lấy danh sách 5 đơn hàng gần đây nhất
     public List<Order> getRecentOrders() {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT TOP 5 h.id, ISNULL(h.receiver_name, u.full_name) as receiver_name, h.total_amount, h.order_status " +
@@ -102,7 +89,6 @@ public class DashboardDAO {
         return list;
     }
 
-    // 6. Lấy thống kê chi tiết lãi kinh doanh (Products vs Services) phục vụ biểu đồ Doughnut Realtime
     public ProfitStats getProfitStats() {
         ProfitStats stats = new ProfitStats();
 
@@ -170,24 +156,17 @@ public class DashboardDAO {
                 }
             }
 
-            // Dịch vụ bao gồm doanh thu nâng cấp phần cứng + phí vận chuyển
             double serviceAmount = upgradeAmount + totalShipping;
 
-            // Nếu sản phẩm/dịch vụ chưa có chi tiết dòng, ước lượng từ tổng doanh thu
             if (productAmount <= 0 && totalRev > 0) {
                 productAmount = totalRev * 0.85;
                 serviceAmount = totalRev * 0.15;
             }
 
-            // Làm tròn số tiền thành số nguyên, bỏ hoàn toàn phần phẩy
             productAmount = Math.round(productAmount);
             serviceAmount = Math.round(serviceAmount);
             totalRev = Math.round(totalRev);
 
-            // Tỷ suất lãi kinh doanh theo PHƯƠNG ÁN B:
-            // 1. Hardware Products: 18% biên lợi nhuận bán lẻ máy tính
-            // 2. Services (nâng cấp, lắp ráp, vận chuyển): 65% biên lợi nhuận thuần dịch vụ
-            // 3. Tiền Voucher: Trừ trực tiếp vào Tổng lãi kinh doanh thực tế
             double productProfit = Math.round(productAmount * 0.18);
             double serviceProfit = Math.round(serviceAmount * 0.65);
             double voucherDiscount = Math.round(totalDiscount);
@@ -202,7 +181,6 @@ public class DashboardDAO {
             double prodPct = sumProfit > 0 ? (productProfit / sumProfit) * 100.0 : 83.0;
             double servPct = sumProfit > 0 ? (serviceProfit / sumProfit) * 100.0 : 17.0;
 
-            // Làm tròn 1 chữ số thập phân cho tỷ lệ %
             prodPct = Math.round(prodPct * 10.0) / 10.0;
             servPct = Math.round((100.0 - prodPct) * 10.0) / 10.0;
 

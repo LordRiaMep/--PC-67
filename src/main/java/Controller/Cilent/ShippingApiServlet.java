@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: API AJAX gọi GHN tính phí vận chuyển theo Tỉnh/Huyện/Xã.
- * ============================================================================
- */
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,9 +10,6 @@ import util.GhnService;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-/**
- * Servlet cung cấp API JSON cho AJAX ở trang Checkout để load địa chỉ GHN và tính phí ship
- */
 @WebServlet(name = "ShippingApiServlet", urlPatterns = {"/shipping-api"})
 public class ShippingApiServlet extends HttpServlet {
 
@@ -89,7 +78,6 @@ public class ShippingApiServlet extends HttpServlet {
 
                 double fee = GhnService.calculateShippingFee(districtId, wardCode, weight);
 
-                // Trả về kết quả JSON
                 String feeJson = String.format("{\"success\":true,\"fee\":%.0f}", fee);
                 out.print(feeJson);
                 break;

@@ -5,8 +5,7 @@
 <jsp:include page="header.jsp" />
 
 <style>
-  /* Khung Card Đăng Ký - Thuận mắt, gọn gàng */
-  .auth-box-card {
+.auth-box-card {
     background: #ffffff;
     max-width: 480px;
     width: 100%;
@@ -40,7 +39,6 @@
     display: block;
   }
 
-  /* Ô input - Ghi đè triệt để mọi viền xanh & outline xanh của Bootstrap */
   .custom-auth-input {
     height: 44px;
     border: 1px solid #ced4da !important;
@@ -59,7 +57,6 @@
     outline: none !important;
   }
 
-  /* Xóa màu nền xanh nhạt khi Chrome / Edge tự động điền (Autofill) */
   .custom-auth-input:-webkit-autofill,
   .custom-auth-input:-webkit-autofill:hover,
   .custom-auth-input:-webkit-autofill:focus,
@@ -70,7 +67,6 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
-  /* Nút con mắt ẩn/hiện mật khẩu nằm gọn gàng góc phải */
   .pass-wrapper {
     position: relative;
   }
@@ -97,28 +93,34 @@
     color: #E30019;
   }
 
-  /* Nút bấm Đăng Ký màu đỏ thương hiệu Độ-PC 67 */
   .btn-auth-red {
-    background-color: #E30019;
-    border: none;
-    color: #ffffff;
-    height: 44px;
-    border-radius: 8px;
+    background-color: #E30019 !important;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+    height: 46px;
+    border-radius: 10px;
     font-size: 15px;
     font-weight: 700;
     width: 100%;
     margin-top: 10px;
     margin-bottom: 20px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    box-shadow: 0 4px 14px rgba(227, 0, 25, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease;
   }
 
   .btn-auth-red:hover {
-    background-color: #c80016;
-    color: #ffffff;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+    background-color: #b91c1c !important;
+    color: #ffffff !important;
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 18px rgba(220, 38, 38, 0.45) !important;
   }
 
-  /* Dòng chuyển hướng sang Đăng nhập */
   .switch-auth-box {
     text-align: center;
     font-size: 14px;
@@ -160,12 +162,12 @@
 
         <div class="mb-3">
           <label>Họ và tên <span class="text-danger">*</span> <span class="text-muted fw-normal small">(Tối đa 25 ký tự)</span></label>
-          <input type="text" 
-                 name="fullName" 
-                 id="fullName" 
+          <input type="text"
+                 name="fullName"
+                 id="fullName"
                  maxlength="25"
-                 class="form-control custom-auth-input" 
-                 required 
+                 class="form-control custom-auth-input"
+                 required
                  placeholder="Nhập họ và tên (tối đa 25 ký tự)..."
                  value="<c:out value='${param.fullName}'/>">
           <div class="text-danger-msg" id="nameErrorMsg">Họ tên tối đa 25 ký tự và không được chứa số, icon hoặc ký tự lạ!</div>
@@ -173,10 +175,10 @@
 
         <div class="mb-3">
           <label>Số điện thoại <span class="text-muted fw-normal small">(Định dạng Việt Nam: 0912345678 hoặc +84912345678)</span></label>
-          <input type="tel" 
-                 name="phone" 
-                 id="phone" 
-                 class="form-control custom-auth-input" 
+          <input type="tel"
+                 name="phone"
+                 id="phone"
+                 class="form-control custom-auth-input"
                  placeholder="VD: 0912345678 hoặc +84912345678"
                  value="<c:out value='${param.phone}'/>">
           <div class="text-danger-msg" id="phoneErrorMsg">Số điện thoại phải thuộc vùng Việt Nam (VD: 0912345678 hoặc +84912345678)!</div>
@@ -184,11 +186,11 @@
 
         <div class="mb-3">
           <label>Địa chỉ Email <span class="text-danger">*</span></label>
-          <input type="email" 
-                 name="email" 
-                 id="email" 
-                 class="form-control custom-auth-input" 
-                 required 
+          <input type="email"
+                 name="email"
+                 id="email"
+                 class="form-control custom-auth-input"
+                 required
                  placeholder="Nhập địa chỉ email..."
                  value="<c:out value='${param.email}'/>">
         </div>
@@ -196,11 +198,11 @@
         <div class="mb-3">
           <label>Mật khẩu <span class="text-danger">*</span></label>
           <div class="pass-wrapper">
-            <input type="password" 
-                   name="password" 
-                   id="password" 
-                   class="form-control custom-auth-input" 
-                   required 
+            <input type="password"
+                   name="password"
+                   id="password"
+                   class="form-control custom-auth-input"
+                   required
                    placeholder="Tối thiểu 6 ký tự, không chứa icon/ký tự lạ...">
             <span class="pass-toggle-btn" onclick="togglePass('password', this)" title="Hiện/ẩn mật khẩu">
               <i class="bi bi-eye"></i>
@@ -212,10 +214,10 @@
         <div class="mb-3">
           <label>Xác nhận mật khẩu <span class="text-danger">*</span></label>
           <div class="pass-wrapper">
-            <input type="password" 
-                   id="confirmPassword" 
-                   class="form-control custom-auth-input" 
-                   required 
+            <input type="password"
+                   id="confirmPassword"
+                   class="form-control custom-auth-input"
+                   required
                    placeholder="Nhập lại mật khẩu...">
             <span class="pass-toggle-btn" onclick="togglePass('confirmPassword', this)" title="Hiện/ẩn mật khẩu">
               <i class="bi bi-eye"></i>
@@ -226,11 +228,11 @@
 
         <div class="mb-4">
           <label>Địa chỉ nhận hàng</label>
-          <textarea name="address" 
-                    id="address" 
-                    class="form-control custom-auth-input" 
-                    rows="2" 
-                    style="height: auto;" 
+          <textarea name="address"
+                    id="address"
+                    class="form-control custom-auth-input"
+                    rows="2"
+                    style="height: auto;"
                     placeholder="Nhập địa chỉ giao hàng..."><c:out value='${param.address}'/></textarea>
         </div>
 
@@ -248,7 +250,7 @@
 </div>
 
 <script>
-  function togglePass(inputId, el) {
+function togglePass(inputId, el) {
     var input = document.getElementById(inputId);
     if (!input) return;
     var icon = el.querySelector('i');
@@ -270,7 +272,6 @@
   document.getElementById('regForm').addEventListener('submit', function(e) {
     var valid = true;
 
-    // Họ và tên: tối đa 25 ký tự, chỉ chữ cái và khoảng trắng, không icon ký tự lạ
     var name = document.getElementById('fullName').value.trim();
     var nameMsg = document.getElementById('nameErrorMsg');
     var nameRegex = /^[\p{L}\s]{1,25}$/u;
@@ -282,7 +283,6 @@
       nameMsg.style.display = 'none';
     }
 
-    // Số điện thoại Việt Nam (0912345678 hoặc +84912345678)
     var phone = document.getElementById('phone').value.trim();
     var phoneMsg = document.getElementById('phoneErrorMsg');
     var phoneRegex = /^(0|\+84)[35789][0-9]{8}$/;
@@ -293,7 +293,6 @@
       phoneMsg.style.display = 'none';
     }
 
-    // Mật khẩu: tối thiểu 6 ký tự, chuẩn ký tự bàn phím, không icon ký tự lạ
     var pass = document.getElementById('password').value;
     var passMsg = document.getElementById('passErrorMsg');
     var passRegex = /^[\x21-\x7E]{6,}$/;
@@ -304,7 +303,6 @@
       passMsg.style.display = 'none';
     }
 
-    // Khớp mật khẩu
     var confirm = document.getElementById('confirmPassword').value;
     var mismatchMsg = document.getElementById('passMismatchMsg');
     if (pass !== confirm) {

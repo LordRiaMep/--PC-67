@@ -1,14 +1,7 @@
-package Controller.Cilent; // đổi cho đúng package của MyOrderServlet (thư mục "Cilent")
+package Controller.Cilent;
 
 import dao.OrderDao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Xem và cập nhật thông tin hồ sơ cá nhân người dùng.
- * ============================================================================
- */
 import dao.UserDao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -39,7 +32,6 @@ public class ProfileServlet extends HttpServlet {
         User profile = userDao.getById(loginUser.getId());
         request.setAttribute("profile", profile != null ? profile : loginUser);
 
-        // Thống kê + 3 đơn gần nhất
         request.setAttribute("stats", orderDao.getUserOrderStats(loginUser.getId()));
         List<Order> orders = orderDao.getOrdersByUserId(loginUser.getId());
         request.setAttribute("recentOrders", orders.size() > 3 ? orders.subList(0, 3) : orders);
@@ -66,7 +58,7 @@ public class ProfileServlet extends HttpServlet {
         } else if (!phone.isEmpty() && !phone.matches("^(0|\\+84)[35789][0-9]{8}$")) {
             session.setAttribute("profileError", "Số điện thoại không hợp lệ. Vui lòng nhập đúng định dạng số Việt Nam (VD: 0912345678 hoặc +84912345678).");
         } else if (userDao.updateProfile(loginUser.getId(), fullName, phone, address)) {
-            // Cập nhật session để tên trên header đổi theo
+
             loginUser.setFullName(fullName);
             loginUser.setPhone(phone);
             loginUser.setAddress(address);
@@ -76,7 +68,6 @@ public class ProfileServlet extends HttpServlet {
             session.setAttribute("profileError", "Không thể cập nhật, vui lòng thử lại.");
         }
 
-        // Post-Redirect-Get: F5 không gửi lại form
         response.sendRedirect(request.getContextPath() + "/profile");
     }
 

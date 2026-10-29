@@ -1,14 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: API AJAX gợi ý tìm kiếm tức thì (Search Auto-complete) khi khách gõ phím.
- * ============================================================================
- */
-
-
 import dao.ProductDao;
 import model.Product;
 
@@ -25,7 +16,7 @@ import java.util.List;
 @WebServlet(name = "SearchSuggestServlet", urlPatterns = {"/search-suggest"})
 public class SearchSuggestServlet extends HttpServlet {
 
-    private static final int MAX_SUGGESTIONS = 5; // số sản phẩm gợi ý
+    private static final int MAX_SUGGESTIONS = 5;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -63,7 +54,6 @@ public class SearchSuggestServlet extends HttpServlet {
         }
     }
 
-    // Escape ký tự đặc biệt để JSON không bị lỗi
     private String escape(String s) {
         if (s == null) return "";
         StringBuilder sb = new StringBuilder();
@@ -80,11 +70,3 @@ public class SearchSuggestServlet extends HttpServlet {
         return sb.toString();
     }
 }
-
-
-
-
-
-
-
-

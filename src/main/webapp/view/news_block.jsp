@@ -3,12 +3,10 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
-<%-- Khối "1 bài to bên trái + 4 bài nhỏ bên phải". Dữ liệu lấy từ requestScope.blockList --%>
 <c:if test="${not empty blockList}">
     <c:set var="big" value="${blockList[0]}" />
     <div class="row g-3">
 
-        <!-- Bài to -->
         <div class="col-lg-7">
             <a href="${ctx}/news/detail?id=${big.id}"
                class="d-block position-relative rounded overflow-hidden shadow-sm text-decoration-none"
@@ -26,7 +24,6 @@
             </a>
         </div>
 
-        <!-- 4 bài nhỏ -->
         <div class="col-lg-5">
             <div class="row g-3">
                 <c:forEach items="${blockList}" var="n" begin="1" end="4">

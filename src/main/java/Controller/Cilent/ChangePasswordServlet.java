@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Đổi mật khẩu người dùng đang đăng nhập.
- * ============================================================================
- */
-
 import dao.UserDao;
 import dao.UserTokenDao;
 import jakarta.servlet.ServletException;
@@ -67,7 +59,7 @@ public class ChangePasswordServlet extends HttpServlet {
         } else if (otpCode == null || otpCode.trim().isEmpty()) {
             session.setAttribute("pwError", "Vui lòng nhập mã OTP xác thực đã được gửi về email của bạn.");
         } else {
-            // Kiểm tra mã OTP qua email
+
             UserToken validToken = userTokenDao.findValidOtp(loginUser.getEmail(), otpCode.trim(), "CHANGE_PASSWORD_OTP");
             if (validToken == null) {
                 session.setAttribute("pwError", "Mã xác thực OTP qua email không chính xác hoặc đã hết hạn! Vui lòng nhấn 'Nhận mã OTP' để nhận mã mới.");

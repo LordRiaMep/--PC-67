@@ -1,13 +1,5 @@
 package Controller.Auth;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Gửi lại email xác thực cho người dùng.
- * ============================================================================
- */
-
 import dao.UserDao;
 import dao.UserTokenDao;
 import model.User;
@@ -52,7 +44,7 @@ public class ResendVerificationServlet extends HttpServlet {
             }
 
             if (user.isPending()) {
-                // Tạo token mới và gửi lại email
+
                 UserToken token = userTokenDao.createToken(user.getId(), cleanEmail, "REGISTER_VERIFY", 1440);
                 if (token != null) {
                     String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();

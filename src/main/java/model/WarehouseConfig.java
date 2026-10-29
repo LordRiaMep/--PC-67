@@ -1,13 +1,5 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Model thông tin cấu hình kho hàng tích hợp GHN.
- * ============================================================================
- */
-
 import java.sql.Timestamp;
 
 public class WarehouseConfig {

@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Gửi OTP bảo mật khi đổi mật khẩu.
- * ============================================================================
- */
-
 import dao.UserTokenDao;
 import model.User;
 import model.UserToken;
@@ -35,7 +27,7 @@ public class SendPasswordOtpServlet extends HttpServlet {
         }
 
         try {
-            // Tạo mã OTP có hạn 10 phút
+
             UserToken token = userTokenDao.createToken(loginUser.getId(), loginUser.getEmail(), "CHANGE_PASSWORD_OTP", 10);
             if (token != null) {
                 EmailService.sendOtpChangePasswordEmail(loginUser.getEmail(), loginUser.getFullName(), token.getOtpCode());

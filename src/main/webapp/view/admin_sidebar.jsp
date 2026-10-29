@@ -30,10 +30,11 @@
     </div>
 </aside>
 
-<!-- Realtime Dual-Sync Admin Engine -->
-<script src="${ctx}/assets/js/realtime-sync.js"></script>
+<script src="${ctx}/assets/js/realtime-sync.js">
+
+</script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
         if (window.RealtimeSync) {
             window.RealtimeSync.init({
                 role: 'admin',

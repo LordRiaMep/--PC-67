@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Xử lý thêm sản phẩm kèm các tùy chọn nâng cấp linh kiện vào giỏ hàng.
- * ============================================================================
- */
-
 import dao.ProductDao;
 import dao.UpgradeDao;
 import jakarta.servlet.ServletException;
@@ -33,8 +25,17 @@ import java.util.stream.Collectors;
 public class AddToCartServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        boolean isAjax = "1".equals(request.getParameter("ajax"))
+                || "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
+
         HttpSession session = request.getSession();
         if (session.getAttribute("USER_LOGIN") == null) {
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"requireLogin\":true,\"loginUrl\":\""
+                        + request.getContextPath() + "/login?error=need_login\"}");
+                return;
+            }
             LoginRedirect.redirectToLoginBack(request, response);
             return;
         }
@@ -46,13 +47,28 @@ public class AddToCartServlet extends HttpServlet {
         ProductDao dao = new ProductDao();
         Product product = dao.getProductById(productId);
 
+        if (product == null) {
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"message\":\"Không tìm thấy sản phẩm!\"}");
+                return;
+            }
+            response.sendRedirect(request.getContextPath() + "/Home");
+            return;
+        }
+
         if (product != null) {
             if (product.getQuantity() <= 0) {
+                if (isAjax) {
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"success\":false,\"message\":\"Sản phẩm này hiện đã hết hàng!\"}");
+                    return;
+                }
                 session.setAttribute("error", "Sản phẩm \"" + product.getName() + "\" hiện đã hết hàng!");
                 response.sendRedirect(request.getContextPath() + "/detail?id=" + productId);
                 return;
             }
-            // ---- Xử lý linh kiện nâng cấp: giá và tên luôn tính lại ở server ----
+
             UpgradeDao upgradeDao = new UpgradeDao();
             Map<String, UpgradeOption> chosenByGroup = new LinkedHashMap<>();
             String[] upgradeIds = request.getParameterValues("upgradeId");
@@ -60,7 +76,7 @@ public class AddToCartServlet extends HttpServlet {
                 for (String s : upgradeIds) {
                     try {
                         UpgradeOption o = upgradeDao.getByIdAndProduct(Integer.parseInt(s), productId);
-                        // bỏ qua linh kiện mặc định; mỗi nhóm chỉ nhận 1 lựa chọn
+
                         if (o != null && !o.isDefaultOption()) {
                             chosenByGroup.put(o.getGroupName(), o);
                         }
@@ -98,9 +114,13 @@ public class AddToCartServlet extends HttpServlet {
                 cart = new Cart();
             }
 
-            // kiểm tra tồn kho theo tổng số lượng của sản phẩm
             int inCart = cart.getTotalQuantityOfProduct(productId);
             if (inCart + quantity > product.getQuantity()) {
+                if (isAjax) {
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"success\":false,\"message\":\"Bạn đã có " + inCart + " bộ trong giỏ hàng. Kho chỉ còn " + product.getQuantity() + " bộ!\"}");
+                    return;
+                }
                 session.setAttribute("error", "Sản phẩm \"" + product.getName() + "\" chỉ còn " + product.getQuantity() + " bộ.");
                 response.sendRedirect(request.getContextPath() + "/cart");
                 return;
@@ -114,18 +134,33 @@ public class AddToCartServlet extends HttpServlet {
                 new dao.CartDao().saveCart(loginUser.getId(), cart);
             }
 
-            // Lưu mã voucher đã chọn vào session để áp dụng khi thanh toán
             String voucherCode = request.getParameter("voucherCode");
             if (voucherCode != null && !voucherCode.trim().isEmpty()) {
                 session.setAttribute("APPLIED_VOUCHER", voucherCode.trim().toUpperCase());
             }
+
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                int totalCount = cart.getTotalQuantity();
+                String safeName = (product.getName() == null ? "" : product.getName())
+                        .replace("\\", "\\\\")
+                        .replace("\"", "\\\"")
+                        .replace("\r", "")
+                        .replace("\n", " ");
+                response.getWriter().write("{\"success\":true,\"cartCount\":" + totalCount + ",\"productName\":\"" + safeName + "\"}");
+                return;
+            }
         }
 
-        // nút ĐẶT HÀNG gửi thêm buyNow=1 -> vào thẳng trang thanh toán
         if ("1".equals(request.getParameter("buyNow"))) {
             response.sendRedirect(request.getContextPath() + "/checkout");
         } else {
             response.sendRedirect(request.getContextPath() + "/cart");
         }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
     }
 }

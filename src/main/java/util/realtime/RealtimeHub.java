@@ -1,13 +1,5 @@
 package util.realtime;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: Trung tâm điều phối phát sóng sự kiện thời gian thực tới Admin và Client.
- * ============================================================================
- */
-
 import jakarta.websocket.Session;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -17,18 +9,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Trung tâm điều phối sự kiện thời gian thực (Real-time Event Hub).
- * Quản lý phiên WebSocket kết nối và bộ đệm lịch sử sự kiện phục vụ Fallback Polling.
- */
 public class RealtimeHub {
     private static final Logger LOGGER = Logger.getLogger(RealtimeHub.class.getName());
     private static final DecimalFormat CURRENCY_FMT = new DecimalFormat("#,##0");
 
-    // Danh sách các WebSocket session đang hoạt động
     private static final Set<Session> SESSIONS = ConcurrentHashMap.newKeySet();
 
-    // Vòng đệm lưu 100 sự kiện gần nhất (phục vụ fallback long-polling khi WS kết nối lại)
     private static final int MAX_HISTORY = 100;
     private static final Deque<RealtimeEvent> EVENT_HISTORY = new ConcurrentLinkedDeque<>();
 
@@ -72,14 +58,9 @@ public class RealtimeHub {
         return SESSIONS.size();
     }
 
-    /**
-     * Phát sự kiện tới toàn bộ client phù hợp (Admin / Client) qua WebSocket
-     * và lưu vào lịch sử sự kiện.
-     */
     public static void broadcast(RealtimeEvent event) {
         if (event == null) return;
 
-        // 1. Lưu vào vòng đệm sự kiện
         EVENT_HISTORY.addLast(event);
         while (EVENT_HISTORY.size() > MAX_HISTORY) {
             EVENT_HISTORY.pollFirst();
@@ -88,7 +69,6 @@ public class RealtimeHub {
         String json = event.toJson();
         LOGGER.info("[RealtimeHub] BROADCAST: " + event.getType() + " -> Target=" + event.getTarget() + " | " + event.getTitle());
 
-        // 2. Gửi bất đồng bộ qua tất cả các WebSocket sessions đang mở
         for (Session session : SESSIONS) {
             if (session == null || !session.isOpen()) {
                 SESSIONS.remove(session);
@@ -99,14 +79,13 @@ public class RealtimeHub {
                 String sessionRole = (String) session.getUserProperties().getOrDefault("role", "client");
                 int sessionUserId = (int) session.getUserProperties().getOrDefault("userId", 0);
 
-                // Lọc theo target:
                 boolean canSend = true;
                 if ("ADMIN".equalsIgnoreCase(event.getTarget())) {
                     if (!"admin".equalsIgnoreCase(sessionRole)) {
                         canSend = false;
                     }
                 } else if ("CLIENT".equalsIgnoreCase(event.getTarget())) {
-                    // Nếu gửi đích danh cho 1 user cụ thể
+
                     if (event.getTargetUserId() > 0 && !"admin".equalsIgnoreCase(sessionRole)) {
                         if (sessionUserId != event.getTargetUserId()) {
                             canSend = false;
@@ -123,9 +102,6 @@ public class RealtimeHub {
         }
     }
 
-    /**
-     * Lấy các sự kiện mới hơn sinceId (dùng cho Fallback Polling khi client không dùng WS)
-     */
     public static List<RealtimeEvent> getEventsSince(long sinceId, String role, int userId) {
         List<RealtimeEvent> result = new ArrayList<>();
         if (role == null) role = "client";
@@ -148,13 +124,6 @@ public class RealtimeHub {
         return result;
     }
 
-    // =========================================================================
-    // CÁC HÀM TIỆN ÍCH PHÁT SỰ KIỆN DOANH NGHIỆP CỤ THỂ
-    // =========================================================================
-
-    /**
-     * Khách hàng đặt đơn hàng mới
-     */
     public static void broadcastOrderCreated(int orderId, int userId, String customerName, String email,
                                              double totalMoney, String paymentMethod, double discountAmount) {
         String moneyStr = CURRENCY_FMT.format(totalMoney) + " đ";
@@ -182,9 +151,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Khách hàng hủy đơn hàng
-     */
     public static void broadcastOrderCancelled(int orderId, int userId, String customerName) {
         RealtimeEvent event = new RealtimeEvent(
                 "ORDER_CANCELLED",
@@ -203,9 +169,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Khách hàng gửi yêu cầu đổi trả
-     */
     public static void broadcastOrderReturnRequested(int orderId, int userId, String customerName) {
         RealtimeEvent event = new RealtimeEvent(
                 "ORDER_RETURN_REQUESTED",
@@ -224,9 +187,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Admin cập nhật trạng thái đơn hàng (Duyệt đơn, Đang giao, Đã giao, v.v.)
-     */
     public static void broadcastOrderStatusChanged(int orderId, int userId, String oldStatus, String newStatus, String receiverName) {
         String statusName = getStatusDisplayName(newStatus);
         RealtimeEvent event = new RealtimeEvent(
@@ -248,9 +208,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Admin xác nhận thanh toán chuyển khoản
-     */
     public static void broadcastPaymentConfirmed(int orderId) {
         RealtimeEvent event = new RealtimeEvent(
                 "PAYMENT_CONFIRMED",
@@ -266,9 +223,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Khách chuyển khoản VNPay thành công
-     */
     public static void broadcastPaymentTransferred(int orderId, long paidAmount, String txnNo) {
         String amountStr = CURRENCY_FMT.format(paidAmount) + " đ";
         RealtimeEvent event = new RealtimeEvent(
@@ -286,9 +240,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Khách hàng gửi liên hệ / khiếu nại tại /contact
-     */
     public static void broadcastContactCreated(int contactId, String fullName, String phone, String email, String topic, String message) {
         RealtimeEvent event = new RealtimeEvent(
                 "CONTACT_CREATED",
@@ -309,9 +260,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Admin cập nhật trạng thái phản hồi liên hệ / khiếu nại
-     */
     public static void broadcastContactUpdated(int contactId, String status, String note) {
         RealtimeEvent event = new RealtimeEvent(
                 "CONTACT_UPDATED",
@@ -326,9 +274,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Admin thêm, sửa, xóa sản phẩm hoặc cập nhật tồn kho
-     */
     public static void broadcastProductChanged(String action, int productId, String productName,
                                                double price, int stock, String imageUrl) {
         String actionText = "create".equalsIgnoreCase(action) ? "thêm mới"
@@ -353,9 +298,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Admin thêm, sửa, xóa danh mục
-     */
     public static void broadcastCategoryChanged(String action, int categoryId, String categoryName) {
         RealtimeEvent event = new RealtimeEvent(
                 "CATEGORY_CHANGED",
@@ -370,9 +312,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Admin thêm, sửa, xóa voucher
-     */
     public static void broadcastVoucherChanged(String action, String voucherCode) {
         RealtimeEvent event = new RealtimeEvent(
                 "VOUCHER_CHANGED",
@@ -386,9 +325,6 @@ public class RealtimeHub {
         broadcast(event);
     }
 
-    /**
-     * Admin khóa / mở khóa tài khoản khách hàng
-     */
     public static void broadcastUserStatusChanged(int userId, String status) {
         RealtimeEvent event = new RealtimeEvent(
                 "USER_STATUS_CHANGED",

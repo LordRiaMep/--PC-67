@@ -1,13 +1,5 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: Model biểu diễn yêu cầu liên hệ / khiếu nại.
- * ============================================================================
- */
-
 import java.sql.Timestamp;
 
 public class Contact {
@@ -17,7 +9,7 @@ public class Contact {
     private String email;
     private String topic;
     private String message;
-    private String status;      // "Chưa xử lý", "Đang liên hệ", "Đã hoàn thành"
+    private String status;
     private String adminNote;
     private Timestamp createdAt;
     private Timestamp updatedAt;

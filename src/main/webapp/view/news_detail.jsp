@@ -6,13 +6,13 @@
 <jsp:include page="header.jsp" />
 
 <style>
-    .news-clamp-2 {
+.news-clamp-2 {
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-    /* Nội dung bài viết (HTML do admin nhập) */
+
     .news-content {
         font-size: 15px;
         line-height: 1.75;
@@ -74,11 +74,9 @@
             <p class="fw-semibold fst-italic text-secondary"><c:out value="${news.summary}"/></p>
         </c:if>
 
-        <%-- Nội dung là HTML nên in thẳng (không escape). Chỉ admin được nhập nội dung này. --%>
         <div class="news-content">${news.content}</div>
     </div>
 
-    <!-- Tin liên quan -->
     <c:if test="${not empty relatedNews}">
         <h5 class="fw-bold mt-5 mb-3 border-start border-danger border-4 ps-2">Tin tức liên quan</h5>
         <div class="row g-3">

@@ -1,13 +1,5 @@
 package Controller.Admin;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: Controller quản lý danh sách liên hệ, khiếu nại và phản hồi người dùng.
- * ============================================================================
- */
-
 import dao.ContactDao;
 import model.Contact;
 
@@ -21,9 +13,6 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Controller Quản lý yêu cầu liên hệ của khách hàng dành cho Admin
- */
 @WebServlet(name = "AdminContactServlet", urlPatterns = {"/admin/contacts"})
 public class AdminContactServlet extends HttpServlet {
 

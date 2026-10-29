@@ -1,13 +1,5 @@
 package service;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Tích hợp Google Gemini AI API phân tích câu hỏi người dùng và gợi ý cấu hình PC.
- * ============================================================================
- */
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -22,26 +14,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Service gọi API Google Gemini để sinh phản hồi tự nhiên, chuyên sâu về tư vấn PC
- */
 public class GeminiService {
 
     private static final Gson gson = new Gson();
 
-    /**
-     * Gửi tin nhắn của khách hàng tới Gemini API kèm Context chuyên môn của shop Độ-PC 67
-     * @param userMessage Câu hỏi hoặc yêu cầu của khách hàng
-     * @param shopContextData Dữ liệu sản phẩm thực tế từ DB để AI nắm bắt
-     * @return Phản hồi dạng văn bản từ AI, hoặc null nếu gọi thất bại
-     */
     public String askGemini(String userMessage, String shopContextData) {
         if (!ChatbotConfig.hasGeminiApiKey()) {
             return null;
         }
 
         String primaryModel = ChatbotConfig.getGeminiModel();
-        // Danh sách model dự phòng theo thứ tự: nếu một model bị quá tải 503 thì tự động đổi sang model khác
+
         List<String> modelsToTry = new ArrayList<>();
         if (primaryModel != null && !primaryModel.isEmpty()) {
             modelsToTry.add(primaryModel);
@@ -70,14 +53,12 @@ public class GeminiService {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            conn.setConnectTimeout(10000); // 10 giây kết nối
-            conn.setReadTimeout(30000);    // 30 giây đọc kết quả
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(30000);
             conn.setDoOutput(true);
 
-            // Xây dựng System Prompt chuyên biệt cho chuyên viên tư vấn Độ-PC 67
             String prompt = buildPrompt(userMessage, shopContextData);
 
-            // Cấu trúc Request Body JSON chuẩn Gemini
             JsonObject requestJson = new JsonObject();
             JsonArray contents = new JsonArray();
             JsonObject contentObj = new JsonObject();
@@ -92,7 +73,6 @@ public class GeminiService {
             contents.add(contentObj);
             requestJson.add("contents", contents);
 
-            // Generation config
             JsonObject genConfig = new JsonObject();
             genConfig.addProperty("temperature", 0.7);
             genConfig.addProperty("maxOutputTokens", 4000);

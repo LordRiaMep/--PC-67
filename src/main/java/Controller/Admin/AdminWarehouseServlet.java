@@ -1,13 +1,5 @@
 package Controller.Admin;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Quản lý cấu hình địa chỉ kho hàng gửi đi kết nối dịch vụ GHN.
- * ============================================================================
- */
-
 import dao.WarehouseDao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -65,7 +57,7 @@ public class AdminWarehouseServlet extends HttpServlet {
 
             boolean success = warehouseDao.updateWarehouseConfig(cfg);
             if (success) {
-                // Làm mới cache bộ nhớ để các đơn hàng mới tính theo địa chỉ kho này
+
                 GhnService.reloadWarehouseConfig();
                 session.setAttribute("successMsg", "Đã cập nhật địa chỉ kho hàng thành công! Tất cả đơn hàng mới sẽ tính phí ship từ kho này.");
             } else {

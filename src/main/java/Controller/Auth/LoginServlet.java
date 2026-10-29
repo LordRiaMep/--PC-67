@@ -1,13 +1,5 @@
 package Controller.Auth;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 5: QUẢN TRỊ TÀI KHOẢN, XÁC THỰC EMAIL & BẢO MẬT]
- * Phụ trách: Phong
- * Chức năng: Xử lý đăng nhập, ghi nhớ phiên và kiểm tra khóa bảo mật.
- * ============================================================================
- */
-
 import dao.UserDao;
 import model.User;
 import jakarta.servlet.*;
@@ -66,7 +58,6 @@ public class LoginServlet extends HttpServlet {
 
         String cleanEmail = email.trim().toLowerCase();
 
-        // Kiểm tra xem tài khoản có đang bị tạm khóa do nhập sai mật khẩu quá 5 lần không
         if (service.LoginSecurityService.isLocked(cleanEmail)) {
             long remainMinutes = service.LoginSecurityService.getRemainingLockMinutes(cleanEmail);
             request.setAttribute("tempLocked", true);
@@ -80,10 +71,10 @@ public class LoginServlet extends HttpServlet {
         User user = userDao.authenticate(cleanEmail, password);
 
         if (user == null) {
-            // Kiểm tra xem email có tồn tại trong hệ thống không
+
             User existingUser = userDao.findByEmail(cleanEmail);
             if (existingUser != null) {
-                // Email đúng nhưng mật khẩu sai -> tính số lần sai
+
                 int failedCount = service.LoginSecurityService.recordFailedAttempt(cleanEmail);
                 if (failedCount >= service.LoginSecurityService.MAX_FAILED_ATTEMPTS) {
                     long remainMinutes = service.LoginSecurityService.getRemainingLockMinutes(cleanEmail);
@@ -102,10 +93,8 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Đăng nhập đúng mật khẩu -> Reset lịch sử nhập sai
         service.LoginSecurityService.resetAttempts(cleanEmail);
 
-        // Kiểm tra xem tài khoản có đang chờ xác nhận email không
         if (user.isPending()) {
             request.setAttribute("accountPending", true);
             request.setAttribute("pendingEmail", user.getEmail());
@@ -115,7 +104,6 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Kiểm tra xem tài khoản có bị khóa không
         if (user.isLocked()) {
             String reason = user.getLockReason();
             if (reason == null || reason.trim().isEmpty()) {
@@ -136,11 +124,9 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Đăng nhập thành công
         HttpSession session = request.getSession();
         session.setAttribute("USER_LOGIN", user);
 
-        // Khôi phục giỏ hàng đã lưu trước đó của khách hàng từ Database
         dao.CartDao cartDao = new dao.CartDao();
         model.Cart dbCart = cartDao.loadCart(user.getId());
         model.Cart sessionCart = (model.Cart) session.getAttribute("cart");
@@ -153,13 +139,12 @@ public class LoginServlet extends HttpServlet {
         }
         session.setAttribute("cart", dbCart);
 
-        // Lấy trang khách đang xem trước khi bị bắt đăng nhập (và xóa khỏi session)
         String target = LoginRedirect.popTarget(session);
 
         if ("ADMIN".equalsIgnoreCase(user.getRole())) {
             response.sendRedirect(request.getContextPath() + "/admin/dashboard");
         } else if (target != null && !target.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + target);   // quay lại trang cũ
+            response.sendRedirect(request.getContextPath() + target);
         } else {
             response.sendRedirect(request.getContextPath() + "/Home");
         }

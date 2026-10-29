@@ -1,13 +1,5 @@
 package util;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Tiện ích tạo chuỗi băm HMAC-SHA512 bảo mật giao dịch VNPay.
- * ============================================================================
- */
-
 import jakarta.servlet.http.HttpServletRequest;
 
 import javax.crypto.Mac;
@@ -32,7 +24,6 @@ public class VnpayUtil {
         }
     }
 
-    // URL-encode kiểu US-ASCII (tương thích Java 8)
     private static String urlEncode(String s) {
         try {
             return URLEncoder.encode(s, "US-ASCII");
@@ -41,8 +32,6 @@ public class VnpayUtil {
         }
     }
 
-    // Sắp xếp tham số theo tên, nối dạng key=value&key=value (value đã URL-encode).
-    // Chuỗi này vừa dùng để ký, vừa dùng làm query string.
     public static String hashData(Map<String, String> params) {
         List<String> names = new ArrayList<>(params.keySet());
         Collections.sort(names);
@@ -56,14 +45,13 @@ public class VnpayUtil {
         return sb.toString();
     }
 
-    // Tạo link thanh toán VNPay
     public static String buildPaymentUrl(String txnRef, long amountVnd, String orderInfo,
                                          String ipAddr, String returnUrl) {
         Map<String, String> p = new HashMap<>();
         p.put("vnp_Version", "2.1.0");
         p.put("vnp_Command", "pay");
         p.put("vnp_TmnCode", VnpayConfig.TMN_CODE);
-        p.put("vnp_Amount", String.valueOf(amountVnd * 100));   // VNPay yêu cầu nhân 100
+        p.put("vnp_Amount", String.valueOf(amountVnd * 100));
         p.put("vnp_CurrCode", "VND");
         if (!VnpayConfig.BANK_CODE.isEmpty()) p.put("vnp_BankCode", VnpayConfig.BANK_CODE);
         p.put("vnp_TxnRef", txnRef);
@@ -79,14 +67,13 @@ public class VnpayUtil {
         Calendar cal = Calendar.getInstance(vn);
         p.put("vnp_CreateDate", f.format(cal.getTime()));
         cal.add(Calendar.MINUTE, 15);
-        p.put("vnp_ExpireDate", f.format(cal.getTime()));   // link hết hạn sau 15 phút
+        p.put("vnp_ExpireDate", f.format(cal.getTime()));
 
         String data = hashData(p);
         String secureHash = hmacSHA512(VnpayConfig.HASH_SECRET, data);
         return VnpayConfig.PAY_URL + "?" + data + "&vnp_SecureHash=" + secureHash;
     }
 
-    // Kiểm tra chữ ký VNPay trả về có đúng không (chống giả mạo)
     public static boolean verifyReturn(HttpServletRequest req) {
         Map<String, String> fields = new HashMap<>();
         for (Enumeration<String> e = req.getParameterNames(); e.hasMoreElements(); ) {
@@ -104,11 +91,10 @@ public class VnpayUtil {
         String ip = req.getHeader("X-Forwarded-For");
         if (ip == null || ip.isEmpty()) ip = req.getRemoteAddr();
         if (ip.contains(",")) ip = ip.split(",")[0].trim();
-        if (ip.contains(":")) ip = "127.0.0.1";   // IPv6 localhost -> IPv4
+        if (ip.contains(":")) ip = "127.0.0.1";
         return ip;
     }
 
-    // http://localhost:8080/TenProject  (không có dấu / ở cuối)
     public static String baseUrl(HttpServletRequest req) {
         int port = req.getServerPort();
         String portPart = (port == 80 || port == 443) ? "" : ":" + port;

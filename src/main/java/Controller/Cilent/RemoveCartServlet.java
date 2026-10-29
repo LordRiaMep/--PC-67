@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Xóa sản phẩm khỏi giỏ hàng.
- * ============================================================================
- */
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,6 +14,7 @@ import java.io.IOException;
 public class RemoveCartServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String pageParam = request.getParameter("page");
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             String key = request.getParameter("key");
@@ -43,7 +36,11 @@ public class RemoveCartServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        response.sendRedirect(request.getContextPath() + "/cart");
+        String redirectUrl = request.getContextPath() + "/cart";
+        if (pageParam != null && !pageParam.isEmpty()) {
+            redirectUrl += "?page=" + pageParam;
+        }
+        response.sendRedirect(redirectUrl);
     }
 
     @Override

@@ -1,33 +1,22 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Model voucher kèm thuật toán tính giảm giá.
- * ============================================================================
- */
-
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
-/**
- * Model đại diện cho Voucher / Mã giảm giá
- */
 public class Voucher {
     private int id;
     private String code;
     private String name;
-    private String discountType; // "PERCENT" hoặc "FIXED"
-    private double discountValue; // % (ví dụ 10) hoặc số tiền VNĐ (ví dụ 100000)
-    private Double maxDiscountAmount; // Mức giảm tối đa (cho PERCENT), có thể null
-    private double minOrderAmount; // Giá trị đơn hàng / sản phẩm tối thiểu để áp dụng
-    private int usageLimit; // Số lượt dùng tối đa
-    private int usedCount; // Số lượt đã dùng
-    private Timestamp startDate; // Ngày bắt đầu hiệu lực
-    private Timestamp endDate; // Ngày hết hạn
-    private String status; // "ACTIVE" hoặc "INACTIVE"
+    private String discountType;
+    private double discountValue;
+    private Double maxDiscountAmount;
+    private double minOrderAmount;
+    private int usageLimit;
+    private int usedCount;
+    private Timestamp startDate;
+    private Timestamp endDate;
+    private String status;
     private Timestamp createdAt;
 
     public Voucher() {
@@ -94,10 +83,6 @@ public class Voucher {
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    // ==========================================
-    // LOGIC NGHIỆP VỤ (BUSINESS LOGIC)
-    // ==========================================
-
     public boolean isPercent() {
         return "PERCENT".equalsIgnoreCase(discountType);
     }
@@ -124,24 +109,15 @@ public class Voucher {
         return usageLimit > 0 && usedCount >= usageLimit;
     }
 
-    /**
-     * Voucher có đang trong trạng thái có thể sử dụng được nói chung không
-     */
     public boolean isUsableNow() {
         return isActive() && !isExpired() && !isNotStarted() && !isUsageExceeded();
     }
 
-    /**
-     * Kiểm tra xem voucher có áp dụng được cho số tiền cụ thể hay không
-     */
     public boolean isApplicableFor(double amount) {
         if (!isUsableNow()) return false;
         return amount >= minOrderAmount;
     }
 
-    /**
-     * Tính toán số tiền được giảm thực tế
-     */
     public double calculateDiscount(double amount) {
         if (!isApplicableFor(amount) || amount <= 0) {
             return 0.0;
@@ -157,7 +133,6 @@ public class Voucher {
             discount = discountValue;
         }
 
-        // Không được giảm vượt quá tổng số tiền
         return Math.min(discount, amount);
     }
 

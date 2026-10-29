@@ -1,13 +1,5 @@
 package dao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Thao tác CSDL: Quản lý giỏ hàng lưu trữ của người dùng.
- * ============================================================================
- */
-
 import model.Cart;
 import model.CartItem;
 import model.Product;
@@ -16,15 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-/**
- * Quản lý giỏ hàng lưu trữ bền vững (Persistent Cart) trong Database.
- * Đảm bảo khi khách hàng đăng xuất và đăng nhập lại, giỏ hàng vẫn còn nguyên vẹn.
- */
 public class CartDao {
 
-    /**
-     * Đồng bộ lưu trữ toàn bộ giỏ hàng của user vào Database
-     */
     public void saveCart(int userId, Cart cart) {
         if (userId <= 0) return;
 
@@ -64,9 +49,6 @@ public class CartDao {
         }
     }
 
-    /**
-     * Tải giỏ hàng từ Database của user lên
-     */
     public Cart loadCart(int userId) {
         Cart cart = new Cart();
         if (userId <= 0) return cart;
@@ -114,9 +96,6 @@ public class CartDao {
         return cart;
     }
 
-    /**
-     * Xóa sạch giỏ hàng khi người dùng đã đặt hàng thành công
-     */
     public void clearCart(int userId) {
         if (userId <= 0) return;
         String sql = "DELETE FROM gio_hang WHERE user_id = ?";

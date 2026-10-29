@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 4: GIỎ HÀNG, ĐỘNG CƠ VOUCHER & VẬN CHUYỂN GHN]
- * Phụ trách: Bảo
- * Chức năng: Cập nhật số lượng sản phẩm trong giỏ hàng.
- * ============================================================================
- */
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -24,6 +16,7 @@ public class UpdateCartServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String pageParam = request.getParameter("page");
         try {
             int id = Integer.parseInt(request.getParameter("productId"));
             String key = request.getParameter("upgradeKey");
@@ -37,7 +30,6 @@ public class UpdateCartServlet extends HttpServlet {
                 ProductDao dao = new ProductDao();
                 Product p = dao.getProductById(id);
 
-                // tổng SL của sản phẩm này ở các dòng KHÁC (bản nâng cấp khác) + SL mới
                 int others = cart.getTotalQuantityOfProduct(id);
                 for (model.CartItem it : cart.getItems()) {
                     if (it.getProduct().getId() == id && it.getUpgradeKey().equals(key)) {
@@ -61,6 +53,11 @@ public class UpdateCartServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        response.sendRedirect(request.getContextPath() + "/cart");
+
+        String redirectUrl = request.getContextPath() + "/cart";
+        if (pageParam != null && !pageParam.isEmpty()) {
+            redirectUrl += "?page=" + pageParam;
+        }
+        response.sendRedirect(redirectUrl);
     }
 }

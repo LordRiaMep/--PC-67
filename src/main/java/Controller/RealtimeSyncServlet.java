@@ -1,13 +1,5 @@
 package Controller;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: API hỗ trợ Fallback Polling khi kết nối WebSocket trình duyệt gặp sự cố.
- * ============================================================================
- */
-
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,9 +13,6 @@ import util.realtime.RealtimeHub;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * API Endpoint phục vụ Fallback Polling và kiểm tra trạng thái đồng bộ thời gian thực.
- */
 @WebServlet(name = "RealtimeSyncServlet", urlPatterns = {"/api/realtime-sync"})
 public class RealtimeSyncServlet extends HttpServlet {
     private final Gson gson = new Gson();

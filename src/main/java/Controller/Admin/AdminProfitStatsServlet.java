@@ -1,14 +1,5 @@
 package Controller.Admin;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 2: REALTIME WEBSOCKET HUB, DASHBOARD DOANH THU & CSKH]
- * Phụ trách: Quang
- * Chức năng: API cung cấp số liệu cơ cấu Lãi kinh doanh (Products vs Services)
- *            phục vụ biểu đồ tròn Doughnut Realtime trên Dashboard Admin.
- * ============================================================================
- */
-
 import com.google.gson.Gson;
 import dao.DashboardDAO;
 import jakarta.servlet.ServletException;
@@ -50,7 +41,7 @@ public class AdminProfitStatsServlet extends HttpServlet {
 
         String action = req.getParameter("action");
         if ("simulate_buy".equalsIgnoreCase(action)) {
-            // Giả lập sự kiện khách mua để kiểm thử chuyển động biểu đồ
+
             int simId = 900 + (int)(Math.random() * 99);
             double simAmount = 15500000.0;
             RealtimeHub.broadcastOrderCreated(simId, 1, "Khách hàng thử nghiệm", "test@demo.vn", simAmount, "COD", 0);
@@ -59,7 +50,7 @@ public class AdminProfitStatsServlet extends HttpServlet {
         }
 
         if ("simulate_cancel".equalsIgnoreCase(action)) {
-            // Giả lập sự kiện hủy đơn để kiểm thử chuyển động biểu đồ
+
             int simId = 900 + (int)(Math.random() * 99);
             RealtimeHub.broadcastOrderCancelled(simId, 1, "Khách hàng thử nghiệm");
             resp.getWriter().write("{\"success\":true,\"message\":\"Đã phát sự kiện Hủy đơn mô phỏng!\"}");

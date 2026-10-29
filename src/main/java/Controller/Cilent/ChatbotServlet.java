@@ -1,13 +1,5 @@
 package Controller.Cilent;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: API xử lý hội thoại tư vấn cấu hình PC thông minh cho widget Chatbot.
- * ============================================================================
- */
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -41,7 +33,6 @@ public class ChatbotServlet extends HttpServlet {
     private final Gson gson = new Gson();
     private final DecimalFormat df = new DecimalFormat("#,### đ");
 
-    // Quản lý tần suất gọi API (Rate Limiting - 13.11): Lưu mốc thời gian gọi của từng IP
     private static final Map<String, List<Long>> requestHistory = new ConcurrentHashMap<>();
 
     private String getClientIp(HttpServletRequest request) {
@@ -60,8 +51,8 @@ public class ChatbotServlet extends HttpServlet {
 
     private boolean isRateLimited(String clientIp) {
         long now = System.currentTimeMillis();
-        long window = 60_000L; // Cửa sổ 1 phút
-        int maxRequests = 30;  // Tối đa 30 request/phút (chặn spam 100 lần/phút)
+        long window = 60_000L;
+        int maxRequests = 30;
 
         synchronized (requestHistory) {
             List<Long> timestamps = requestHistory.computeIfAbsent(clientIp, k -> new ArrayList<>());
@@ -96,7 +87,6 @@ public class ChatbotServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=UTF-8");
 
-        // 13.11: Kiểm tra giới hạn tần suất gọi API
         String clientIp = getClientIp(request);
         if (isRateLimited(clientIp)) {
             response.setStatus(429);
@@ -114,7 +104,6 @@ public class ChatbotServlet extends HttpServlet {
         String userMessage = null;
         String action = null;
 
-        // Đọc dữ liệu từ body JSON hoặc form data
         String contentType = request.getContentType();
         if (contentType != null && contentType.toLowerCase().contains("application/json")) {
             try (BufferedReader reader = request.getReader()) {
@@ -130,7 +119,6 @@ public class ChatbotServlet extends HttpServlet {
             } catch (Exception ignored) {}
         }
 
-        // Fallback đọc param từ form thông thường nếu JSON rỗng
         if (userMessage == null) {
             userMessage = request.getParameter("message");
         }
@@ -138,7 +126,6 @@ public class ChatbotServlet extends HttpServlet {
             action = request.getParameter("action");
         }
 
-        // 13.12: Giới hạn độ dài tin nhắn (tối đa 1.000 ký tự để chống tràn bộ nhớ / đốt token)
         if (userMessage != null && userMessage.length() > 1000) {
             userMessage = userMessage.substring(0, 1000);
         }
@@ -148,20 +135,18 @@ public class ChatbotServlet extends HttpServlet {
         List<Product> products = new ArrayList<>();
         String mode = "rule-based";
 
-        // 1. Nếu người dùng kích hoạt Action (bấm nút nhanh) -> Phản hồi siêu tốc từ Knowledge Engine
         if (action != null && !action.trim().isEmpty()) {
             ChatbotKnowledgeService.ChatResult cr = knowledgeService.handleQuery(null, action);
             replyText = cr.getReply();
             suggestions = cr.getSuggestions();
             products = cr.getProducts();
         } else if (userMessage != null && !userMessage.trim().isEmpty()) {
-            // 2. Nếu có tin nhắn gõ tự do
+
             boolean usedGemini = false;
 
             if (ChatbotConfig.hasGeminiApiKey()) {
                 ChatbotKnowledgeService.ParsedIntent pi = ChatbotKnowledgeService.parseQuery(userMessage);
 
-                // Lấy ngữ cảnh các sản phẩm THỰC TẾ phù hợp nhất với nhu cầu người dùng để cung cấp cho AI
                 List<Product> relevantSample = productDao.searchAdvancedForChatbot(
                         pi.brand,
                         pi.gpu,
@@ -195,7 +180,6 @@ public class ChatbotServlet extends HttpServlet {
                     mode = "gemini";
                     usedGemini = true;
 
-                    // Tìm sản phẩm liên quan từ câu hỏi hoặc từ khóa chính để đính kèm Card
                     products = findRelevantProducts(userMessage);
 
                     suggestions = Arrays.asList(
@@ -207,7 +191,6 @@ public class ChatbotServlet extends HttpServlet {
                 }
             }
 
-            // Nếu không dùng Gemini hoặc Gemini bị lỗi/hết quota -> Dùng Local Knowledge Base
             if (!usedGemini) {
                 ChatbotKnowledgeService.ChatResult cr = knowledgeService.handleQuery(userMessage, null);
                 replyText = cr.getReply();
@@ -219,7 +202,6 @@ public class ChatbotServlet extends HttpServlet {
             suggestions = Arrays.asList("Dưới 10 triệu", "10 - 15 triệu", "15 - 25 triệu", "Trên 25 triệu", "Bảo hành");
         }
 
-        // Tạo JSON response
         JsonObject jsonResponse = new JsonObject();
         jsonResponse.addProperty("status", "success");
         jsonResponse.addProperty("mode", mode);
@@ -269,17 +251,14 @@ public class ChatbotServlet extends HttpServlet {
 
         if (!list.isEmpty()) return list;
 
-        // Fallback: Nếu có brand thì luôn giữ đúng brand đó và tôn trọng gaming/excludeOffice
         if (pi.brand != null) {
             return productDao.searchAdvancedForChatbot(pi.brand, null, null, pi.targetPrice, null, null, true, pi.isGaming, pi.excludeOffice, 4);
         }
 
-        // Fallback: Nếu có GPU
         if (pi.gpu != null) {
             return productDao.searchAdvancedForChatbot(null, pi.gpu, null, null, null, null, true, pi.isGaming, pi.excludeOffice, 4);
         }
 
-        // Fallback: Nếu có targetPrice
         if (pi.targetPrice != null) {
             return productDao.searchAdvancedForChatbot(null, null, null, pi.targetPrice, pi.targetPrice * 0.60, pi.targetPrice * 1.40, true, pi.isGaming, pi.excludeOffice, 4);
         }

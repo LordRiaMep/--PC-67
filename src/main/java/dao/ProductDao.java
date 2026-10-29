@@ -1,13 +1,5 @@
 package dao;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 3: SẢN PHẨM, NÂNG CẤP PC & GEMINI AI CHATBOT]
- * Phụ trách: Nhân Hiếu
- * Chức năng: Thao tác CSDL: Quản lý sản phẩm máy tính PC Gaming, spec kỹ thuật và tồn kho.
- * ============================================================================
- */
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +10,6 @@ import model.Product;
 
 public class ProductDao {
 
-    // Đọc 1 dòng ResultSet thành Product (dùng chung, đã gồm spec_detail)
     private Product mapRow(ResultSet rs) throws SQLException {
         Product p = new Product(
                 rs.getInt("id"),
@@ -133,7 +124,9 @@ public class ProductDao {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return mapRow(rs);
+                    Product p = mapRow(rs);
+                    p.setImages(new ProductImageDao().getImagesByProductId(id, p.getImage()));
+                    return p;
                 }
             }
         } catch (Exception e) {
@@ -142,9 +135,6 @@ public class ProductDao {
         return null;
     }
 
-    // ==========================================
-    // SẢN PHẨM TƯƠNG TỰ: cùng danh mục, giá gần nhất, loại trừ chính nó
-    // ==========================================
     public List<Product> getRelatedProducts(int productId, int categoryId, double price, int limit) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT p.*, c.name AS category_name " +
@@ -229,7 +219,7 @@ public class ProductDao {
                 psCheck.setInt(1, id);
                 try (ResultSet rs = psCheck.executeQuery()) {
                     if (rs.next() && rs.getInt(1) > 0) {
-                        // Đã có đơn hàng chứa sản phẩm này -> Chuyển sang INACTIVE để bảo toàn lịch sử hóa đơn
+
                         String sqlInactive = "UPDATE san_pham SET status = 'INACTIVE' WHERE id = ?";
                         try (PreparedStatement psIn = con.prepareStatement(sqlInactive)) {
                             psIn.setInt(1, id);
@@ -239,8 +229,6 @@ public class ProductDao {
                 }
             }
 
-            // Chưa có trong đơn hàng nào -> Xóa vĩnh viễn an toàn
-            // Xóa liên kết trong nang_cap và gio_hang trước
             try (PreparedStatement psNangCap = con.prepareStatement("DELETE FROM nang_cap WHERE product_id = ?")) {
                 psNangCap.setInt(1, id);
                 psNangCap.executeUpdate();
@@ -248,6 +236,10 @@ public class ProductDao {
             try (PreparedStatement psGioHang = con.prepareStatement("DELETE FROM gio_hang WHERE product_id = ?")) {
                 psGioHang.setInt(1, id);
                 psGioHang.executeUpdate();
+            } catch (Exception ignored) {}
+            try (PreparedStatement psAnh = con.prepareStatement("DELETE FROM san_pham_anh WHERE product_id = ?")) {
+                psAnh.setInt(1, id);
+                psAnh.executeUpdate();
             } catch (Exception ignored) {}
 
             String sql = "DELETE FROM san_pham WHERE id = ?";
@@ -260,10 +252,6 @@ public class ProductDao {
             return false;
         }
     }
-
-    // ==========================================
-    // CÁC HÀM DÙNG CHO TRANG CHỦ (HOME)
-    // ==========================================
 
     public List<String> getAllCategoryNames() {
         List<String> list = new ArrayList<>();
@@ -280,7 +268,6 @@ public class ProductDao {
         return list;
     }
 
-    // Chỉ lấy tên các danh mục PC nguyên bộ cho Slider trang chủ (loại trừ Linh kiện)
     public List<String> getPCCategoryNames() {
         List<String> list = new ArrayList<>();
         String sql = "SELECT name FROM danh_muc WHERE id != 5 AND name NOT LIKE N'%Linh kiện%' AND (name LIKE '%PC%' OR name LIKE N'%Máy tính%')";
@@ -321,10 +308,6 @@ public class ProductDao {
         return list;
     }
 
-    // ==========================================
-    // TÌM KIẾM SẢN PHẨM
-    // COLLATE Vietnamese_CI_AI: không phân biệt hoa/thường và dấu
-    // ==========================================
     public List<Product> searchProducts(String keyword) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT p.*, c.name AS category_name " +
@@ -356,9 +339,6 @@ public class ProductDao {
         return list;
     }
 
-    // ==========================================
-    // GỢI Ý TÌM KIẾM - lấy tối đa "limit" sản phẩm theo tên
-    // ==========================================
     public List<Product> searchSuggestions(String keyword, int limit) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT p.*, c.name AS category_name " +
@@ -386,9 +366,6 @@ public class ProductDao {
         return list;
     }
 
-    // ==========================================
-    // CHATBOT: Tìm kiếm sản phẩm thông minh theo tokens từ khóa, khoảng giá và PC nguyên bộ
-    // ==========================================
     public List<Product> searchForChatbot(String keyword, Double minPrice, Double maxPrice, int limit) {
         return searchForChatbot(keyword, minPrice, maxPrice, false, limit);
     }
@@ -429,16 +406,14 @@ public class ProductDao {
         List<Object> params = new ArrayList<>();
 
         if (pcOnly) {
-            // Chỉ lấy các bộ máy PC hoàn chỉnh thuộc 4 danh mục PC (c.id != 5), loại bỏ danh mục Linh kiện
+
             sql.append(" AND c.id != 5 AND c.name NOT LIKE N'%Linh kiện%'");
         }
 
-        // Loại trừ PC văn phòng nếu khách hàng yêu cầu gaming hoặc từ chối văn phòng
         if (isGaming || excludeOffice) {
             sql.append(" AND c.id != 4 AND c.name NOT LIKE N'%Văn phòng%' AND p.name NOT LIKE N'%Văn phòng%'");
         }
 
-        // 1. Lọc theo thương hiệu CPU / Nền tảng (AMD hoặc INTEL)
         if (brand != null && !brand.trim().isEmpty()) {
             String b = brand.trim().toUpperCase();
             if ("AMD".equals(b)) {
@@ -458,7 +433,6 @@ public class ProductDao {
             }
         }
 
-        // 2. Lọc theo GPU / Card màn hình (5060, 4060, 4070...)
         if (gpu != null && !gpu.trim().isEmpty()) {
             sql.append(" AND (p.name LIKE ? OR p.description LIKE ?)");
             String gLike = "%" + gpu.trim() + "%";
@@ -466,7 +440,6 @@ public class ProductDao {
             params.add(gLike);
         }
 
-        // 3. Lọc theo các từ khóa phụ nếu có
         if (tokens != null && !tokens.isEmpty()) {
             for (String token : tokens) {
                 if (token != null && !token.trim().isEmpty()) {
@@ -479,7 +452,6 @@ public class ProductDao {
             }
         }
 
-        // 4. Khoảng giá
         if (minPrice != null && minPrice > 0) {
             sql.append(" AND p.price >= ?");
             params.add(minPrice);
@@ -490,7 +462,6 @@ public class ProductDao {
             params.add(maxPrice);
         }
 
-        // 5. Sắp xếp: Gần giá mục tiêu nhất nếu có, nếu không thì theo giá tăng dần
         if (targetPrice != null && targetPrice > 0) {
             sql.append(" ORDER BY ABS(p.price - ?) ASC");
             params.add(targetPrice);

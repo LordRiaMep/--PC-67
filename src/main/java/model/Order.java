@@ -1,13 +1,5 @@
 package model;
 
-/**
- * ============================================================================
- * [PHÂN HỆ 1: ĐẶT HÀNG, THANH TOÁN VNPAY & QUẢN TRỊ KHO]
- * Phụ trách: Bạn (Gia Phú)
- * Chức năng: Model biểu diễn thực thể Đơn hàng trong cơ sở dữ liệu.
- * ============================================================================
- */
-
 import java.sql.Timestamp;
 
 public class Order {
@@ -22,17 +14,14 @@ public class Order {
     private Timestamp createdAt;
     private String email;
     private String paymentMethod;
-    private String paymentStatus;   // UNPAID / PAID (chỉ admin mới chuyển sang PAID)
+    private String paymentStatus;
 
-    // Phí vận chuyển (GHN)
     private double shippingFee;
 
-    // Thông tin khách đã chuyển khoản qua VNPay (admin dùng để đối chiếu)
-    private double transferAmount;      // tổng số tiền khách đã chuyển qua VNPay (0 = chưa chuyển)
-    private String vnpayTxnNo;          // mã giao dịch VNPay gần nhất
-    private Timestamp transferredAt;    // thời điểm chuyển khoản gần nhất
+    private double transferAmount;
+    private String vnpayTxnNo;
+    private Timestamp transferredAt;
 
-    // Thông tin Voucher giảm giá
     private String voucherCode;
     private double discountAmount;
 
@@ -166,10 +155,10 @@ public class Order {
     }
 
     public boolean isTerminal() {
-        return "CANCELLED".equals(status) 
-            || "CLIENT_CANCELLED".equals(status) 
-            || "RETURNED".equals(status) 
-            || "EXCHANGED".equals(status) 
+        return "CANCELLED".equals(status)
+            || "CLIENT_CANCELLED".equals(status)
+            || "RETURNED".equals(status)
+            || "EXCHANGED".equals(status)
             || "REFUNDED".equals(status);
     }
 }

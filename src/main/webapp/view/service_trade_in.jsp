@@ -10,7 +10,6 @@
 <main class="flex-grow-1 svc-page theme-green pb-5">
     <div class="container pt-4">
 
-        <!-- BREADCRUMB -->
         <nav aria-label="breadcrumb" class="svc-crumb mb-3">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="${ctx}/Home">Trang chủ</a></li>
@@ -18,7 +17,6 @@
             </ol>
         </nav>
 
-        <!-- HERO -->
         <section class="svc-hero svc-fade">
             <div class="row align-items-center g-4">
                 <div class="col-lg-7">
@@ -52,7 +50,6 @@
             </div>
         </section>
 
-        <!-- THANH CAM KẾT -->
         <section class="svc-trust svc-fade" style="--d:.15s">
             <div class="row g-0">
                 <div class="col-6 col-lg-3">
@@ -82,7 +79,6 @@
             </div>
         </section>
 
-        <!-- ƯU ĐIỂM -->
         <section>
             <div class="svc-head">
                 <span class="tag">Ưu điểm</span>
@@ -114,7 +110,6 @@
             </div>
         </section>
 
-        <!-- THU NHỮNG GÌ -->
         <section>
             <div class="svc-head">
                 <span class="tag">Thu mua</span>
@@ -147,7 +142,6 @@
             </div>
         </section>
 
-        <!-- QUY TRÌNH -->
         <section id="quy-trinh">
             <div class="svc-head">
                 <span class="tag">Quy trình</span>
@@ -190,7 +184,6 @@
             </div>
         </section>
 
-        <!-- CÂU HỎI THƯỜNG GẶP -->
         <section>
             <div class="svc-head">
                 <span class="tag">Hỏi đáp</span>
@@ -248,7 +241,6 @@
             </div>
         </section>
 
-        <!-- CTA -->
         <section id="lien-he" class="svc-cta">
             <h2 class="mb-2">Đổi cũ lấy mới ngay hôm nay</h2>
             <p>Nhắn Zalo để được định giá máy cũ và tư vấn cấu hình mới phù hợp với bạn.</p>
@@ -262,7 +254,6 @@
 
     </div>
 
-    <!-- NÚT ZALO NỔI -->
     <a href="${zaloUrl}" target="_blank" rel="noopener" class="zalo-float" aria-label="Chat Zalo với Độ PC 67">Zalo</a>
 </main>
 
